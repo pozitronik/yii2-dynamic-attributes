@@ -33,7 +33,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"pozitronik\\sys_options\\": "src"
+			"pozitronik\\dynamic_attributes\\": "src"
 		}
 	},
 	"fxp-asset": {
