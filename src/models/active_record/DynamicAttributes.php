@@ -28,7 +28,7 @@ class DynamicAttributes extends ActiveRecord {
 		return [
 			[['id'], 'integer'],
 			[['model', 'attribute_name'], 'string', 'max' => 255],
-			[['model', 'attribute_name'], 'unique', 'attributes' => ['model', 'attribute_name']],
+			[['model', 'attribute_name'], 'unique', 'targetAttribute' => ['model', 'attribute_name']],
 			[['type'], 'integer']
 		];
 	}
