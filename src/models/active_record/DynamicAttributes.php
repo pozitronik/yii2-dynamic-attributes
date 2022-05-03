@@ -9,7 +9,7 @@ use yii\db\ActiveRecord;
 /**
  * Class DynamicAttributes
  * @property string $model Model alias
- * @property string $attribute Attribute name
+ * @property string $attribute_name Attribute name
  * @property null|int $type Attribute type, see self::TYPES
  */
 class DynamicAttributes extends ActiveRecord {
@@ -27,8 +27,8 @@ class DynamicAttributes extends ActiveRecord {
 	public function rules():array {
 		return [
 			[['id'], 'integer'],
-			[['model', 'attribute'], 'string', 'max' => 255],
-			[['model', 'attribute'], 'unique', 'attributes' => ['model', 'attribute']],
+			[['model', 'attribute_name'], 'string', 'max' => 255],
+			[['model', 'attribute_name'], 'unique', 'attributes' => ['model', 'attribute_name']],
 			[['type'], 'integer']
 		];
 	}
