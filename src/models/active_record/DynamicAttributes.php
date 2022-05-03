@@ -1,8 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace pozitronik\sys_options\models\active_record;
+namespace pozitronik\dynamic_attributes\models\active_record;
 
+use pozitronik\traits\traits\ActiveRecordTrait;
 use yii\db\ActiveRecord;
 
 /**
@@ -12,7 +13,7 @@ use yii\db\ActiveRecord;
  * @property null|int $type Attribute type, see self::TYPES
  */
 class DynamicAttributes extends ActiveRecord {
-
+	use ActiveRecordTrait;
 	/**
 	 * @inheritDoc
 	 */

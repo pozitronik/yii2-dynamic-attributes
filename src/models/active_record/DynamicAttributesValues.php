@@ -1,8 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace pozitronik\sys_options\models\active_record;
+namespace pozitronik\dynamic_attributes\models\active_record;
 
+use pozitronik\traits\traits\ActiveRecordTrait;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -10,8 +12,11 @@ use yii\db\ActiveRecord;
  * @property int $model Model ID
  * @property int $attribute Dynamic attribute ID
  * @property mixed $value Serialized dynamic attribute value
+ *
+ * @property-read DynamicAttributes $relatedDynamicAttributes
  */
 class DynamicAttributesValues extends ActiveRecord {
+	use ActiveRecordTrait;
 
 	/**
 	 * @inheritDoc
@@ -30,5 +35,12 @@ class DynamicAttributesValues extends ActiveRecord {
 			[['model', 'attribute'], 'integer'],
 			[['value'], 'safe']
 		];
+	}
+
+	/**
+	 * @return ActiveQuery
+	 */
+	public function getRelatedDynamicAttributes():ActiveQuery {
+		return $this->hasMany(DynamicAttributes::class, ['id' => 'attribute']);
 	}
 }
