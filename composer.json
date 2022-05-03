@@ -1,6 +1,6 @@
 {
-	"name": "pozitronik/yii2-options",
-	"description": "Server-side options storage",
+	"name": "pozitronik/yii2-dynamic-attributes",
+	"description": "Dynamic attributes for yii2 models",
 	"type": "yii2-extension",
 	"keywords": [
 		"yii2",
@@ -15,7 +15,8 @@
 	],
 	"minimum-stability": "dev",
 	"require": {
-		"php": ">=8.0"
+		"php": ">=8.0",
+		"pozitronik/yii2-traits": "^1.0.0"
 	},
 	"require-dev": {
 		"yiisoft/yii2": "dev-master"
