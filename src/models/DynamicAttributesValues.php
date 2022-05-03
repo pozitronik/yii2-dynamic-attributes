@@ -1,10 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace pozitronik\sys_options\models;
+namespace pozitronik\dynamic_attributes\models;
 
 use pozitronik\dynamic_attributes\DynamicAttributesModule;
-use pozitronik\sys_options\models\active_record\DynamicAttributesValues as DynamicAttributesValuesAR;
+use pozitronik\dynamic_attributes\models\active_record\DynamicAttributesValues as DynamicAttributesValuesAR;
 
 /**
  * Class DynamicAttributesValues
