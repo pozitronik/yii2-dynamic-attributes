@@ -30,7 +30,7 @@ class DynamicAttributesValues extends ActiveRecord {
 	 */
 	public function rules():array {
 		return [
-			[['id'], 'integer', 'unique'],
+			[['id'], 'integer'],
 			[['model', 'attribute'], 'unique', 'attributes' => ['model', 'attribute']],
 			[['model', 'attribute'], 'integer'],
 			[['value'], 'safe']
