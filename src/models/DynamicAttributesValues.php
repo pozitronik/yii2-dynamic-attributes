@@ -92,9 +92,9 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	 * @param string $value
 	 * @return null|static
 	 */
-	protected function applyDbValue(int $attribute, int $key, string $value):?static {
+	protected function applyDbValue(int $attribute_id, int $key, string $value):?static {
 		try {
-			return static::Upsert(compact('key', 'attribute', 'value'));
+			return static::Upsert(compact('key', 'attribute_id', 'value'));
 		} catch (Throwable $e) {
 			Yii::warning("Unable to update or insert table value: {$e->getMessage()}", __METHOD__);
 		}

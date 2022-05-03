@@ -38,9 +38,9 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @return static
 	 * @throws Throwable
 	 */
-	public static function ensureAttribute(ActiveRecordInterface $model, string $attribute, ?int $type = null):static {
+	public static function ensureAttribute(string|ActiveRecordInterface $model, string $attribute, ?int $type = null):static {
 		return static::Upsert([
-			'model' => static::getClassAlias($model::class),
+			'model' => is_string($model)?$model:static::getClassAlias($model::class),
 			'attribute_name' => $attribute,
 			'type' => $type
 		]);
@@ -84,13 +84,9 @@ class DynamicAttributes extends DynamicAttributesAR {
 		$alias = static::getClassAlias($model::class);
 		$modelKey = static::extractKey($model);
 		foreach ($attributes as $name => $value) {
-			$attributeIndex = static::Upsert([
-				'model' => $alias,
-				'attribute_name' => $name,
-				'type' => static::getType($value)
-			])->id;
+			$attributeIndex = static::ensureAttribute($alias, $name, static::getType($value));
 
-			DynamicAttributesValues::setAttributeValue($attributeIndex, $modelKey, $value);
+			DynamicAttributesValues::setAttributeValue($attributeIndex->id, $modelKey, $value);
 		}
 	}
 

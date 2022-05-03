@@ -20,19 +20,22 @@ class DynamicAttributesTest extends Unit {
 		self::assertNull(DynamicAttributes::getAliasClass('unknown'));
 
 		$user->addDynamicAttribute('weight', DynamicAttributes::TYPE_INT);
+		$user->addDynamicAttribute('sex', DynamicAttributes::TYPE_BOOL);
+		$user->addDynamicAttribute('memo about', DynamicAttributes::TYPE_STRING);
 
-//		$userDynamicAttributesModel = DynamicAttributes::initOn($user);
-//		$userDynamicAttributesModel->addAttribute('weight', DynamicAttributes::TYPE_INT);
-//		$userDynamicAttributesModel->addAttribute('sex', DynamicAttributes::TYPE_BOOL);
-//		$userDynamicAttributesModel->addAttribute('memo about', DynamicAttributes::TYPE_STRING);
+//		$userDynamicAttributesModel->addAttribute
+//		$userDynamicAttributesModel->addAttribute
+//		$userDynamicAttributesModel->addAttribute
 
 		$user->weight = 100;
-//		$user->sex = true;
-//		$user->{'memo about'} = 'user memo';
+		$user->sex = true;
+		$user->{'memo about'} = 'user memo';
 		/*Type should be autodetected*/
 //		$user->some_dynamic_attribute = 500;
 
 		$user->save();
+
+		$newUserModel = Users::findOne([$user->id]);
 
 		self::assertEquals('100', $user->weight);
 //		self::assertTrue($user->sex);
@@ -66,13 +69,20 @@ class DynamicAttributesTest extends Unit {
 //		$user->sex = false;
 //		$user->saveDynamicAttributes();
 //		self::assertFalse($user->sex);
-//
+
+		$newUserModel = Users::findOne([$user->id]);
+
+		self::assertEquals('100', $newUserModel->weight);
+		self::assertTrue($newUserModel->sex);
+		self::assertEquals('user memo', $newUserModel->{'memo about'});
+//		self::assertEquals(500, $user->some_dynamic_attribute);
+
 //		/*Assigning string value to int property should create an error*/
 //		$this->expectExceptionObject(new TypeError());
 //		$user->weight = 'fat';
 
 		$secondUser = Users::CreateSecondUser()->saveAndReturn();
-		self::assertEquals(['weight'], $secondUser->getDynamicAttributes());
+		self::assertEquals(['weight', 'sex', 'memo about'], $secondUser->getDynamicAttributes());
 
 	}
 

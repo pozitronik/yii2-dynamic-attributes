@@ -5,6 +5,7 @@ namespace pozitronik\dynamic_attributes\traits;
 
 use pozitronik\dynamic_attributes\models\AttributesStorage;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
+use Throwable;
 
 /**
  * Trait DynamicAttributesTrait
@@ -19,6 +20,18 @@ trait DynamicAttributesTrait {
 		parent::init();
 		$this->_dynamicAttributesStorage = AttributesStorage::instance();
 		$this->_dynamicAttributesStorage->loadAttributes(DynamicAttributes::getAttributesValues($this));
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function save($runValidation = true, $attributeNames = null) {
+		if (parent::save($runValidation, $attributeNames)) {
+			DynamicAttributes::setAttributesValues($this, $this->_dynamicAttributesStorage->attributes);
+			return true;
+		}
+		return false;
+
 	}
 
 	/**
@@ -67,6 +80,12 @@ trait DynamicAttributesTrait {
 		return (null !== $this->_dynamicAttributesStorage && $this->_dynamicAttributesStorage->hasAttribute($name));
 	}
 
+	/**
+	 * @param string $name
+	 * @param int|null $type
+	 * @return void
+	 * @throws Throwable
+	 */
 	public function addDynamicAttribute(string $name, ?int $type = null):void {
 		$this->_dynamicAttributesStorage->defineAttribute($name);
 		DynamicAttributes::ensureAttribute($this, $name, $type);
