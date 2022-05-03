@@ -31,7 +31,7 @@ class m000000_000000_create_dynamic_attributes_tables extends Migration {
 		$this->createIndex(self::ATTR_TABLE_NAME.'_type_idx', self::ATTR_TABLE_NAME, ['type']);
 
 		$this->createIndex(self::VALUES_TABLE_NAME.'_model_attribute_idx', self::VALUES_TABLE_NAME, ['model', 'attribute'], true);
-		$this->addForeignKey('fk_'.self::ATTR_TABLE_NAME.'_id_'.self::ATTR_TABLE_NAME.'_attribute', self::ATTR_TABLE_NAME, 'id', self::VALUES_TABLE_NAME, 'attribute');
+		$this->addForeignKey('fk_'.self::ATTR_TABLE_NAME.'_attribute'.self::ATTR_TABLE_NAME.'_id', self::VALUES_TABLE_NAME, 'attribute', self::ATTR_TABLE_NAME, 'id');
 
 	}
 
