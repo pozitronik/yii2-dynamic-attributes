@@ -45,9 +45,11 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function listAttributes(ActiveRecordInterface $model):array {
-		return static::find()
-			->where(['model' => static::getClassAlias($model::class)])
-			->all();
+		return ArrayHelper::getColumn(static::find()
+			->select(['attribute'])
+			->where([static::fieldName('model') => static::getClassAlias($model::class)])
+			->asArray()
+			->all(), 'attribute');
 	}
 
 	/**

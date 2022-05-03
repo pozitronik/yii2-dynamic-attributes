@@ -71,6 +71,9 @@ class DynamicAttributesTest extends Unit {
 //		$this->expectExceptionObject(new TypeError());
 //		$user->weight = 'fat';
 
+		$secondUser = Users::CreateSecondUser()->saveAndReturn();
+		self::assertEquals(['weight'], $secondUser->getDynamicAttributes());
+
 	}
 
 }

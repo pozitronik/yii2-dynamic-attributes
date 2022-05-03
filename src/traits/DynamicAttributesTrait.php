@@ -8,18 +8,17 @@ use pozitronik\dynamic_attributes\models\DynamicAttributes;
 
 /**
  * Trait DynamicAttributesTrait
- * @property null|AttributesStorage $dynamicAttributes
  */
 trait DynamicAttributesTrait {
 	/**
 	 * @var AttributesStorage|null Объект динамических атрибутов модели
 	 */
-	private ?AttributesStorage $_dynamicAttributes = null;
+	private ?AttributesStorage $_dynamicAttributesStorage = null;
 
 	public function init() {
 		parent::init();
-		$this->dynamicAttributes = AttributesStorage::instance();
-		$this->dynamicAttributes->loadAttributes(DynamicAttributes::getAttributesValues($this));
+		$this->_dynamicAttributesStorage = AttributesStorage::instance();
+		$this->_dynamicAttributesStorage->loadAttributes(DynamicAttributes::getAttributesValues($this));
 	}
 
 	/**
@@ -28,7 +27,7 @@ trait DynamicAttributesTrait {
 	 */
 	public function __get($name):mixed {
 		if ($this->hasDynamicAttribute($name)) {
-			return $this->_dynamicAttributes->$name;
+			return $this->_dynamicAttributesStorage->$name;
 		}
 		return parent::__get($name);
 	}
@@ -39,7 +38,7 @@ trait DynamicAttributesTrait {
 	 */
 	public function __set($name, $value):void {
 		if ($this->hasDynamicAttribute($name)) {
-			$this->_dynamicAttributes->$name = $value;
+			$this->_dynamicAttributesStorage->$name = $value;
 		} else {
 			parent::__set($name, $value);
 		}
@@ -54,17 +53,10 @@ trait DynamicAttributesTrait {
 	}
 
 	/**
-	 * @return AttributesStorage|null
+	 * @return array
 	 */
-	public function getDynamicAttributes():?AttributesStorage {
-		return $this->_dynamicAttributes;
-	}
-
-	/**
-	 * @param AttributesStorage|null $dynamicAttributes
-	 */
-	public function setDynamicAttributes(?AttributesStorage $dynamicAttributes):void {
-		$this->_dynamicAttributes = $dynamicAttributes;
+	public function getDynamicAttributes():array {
+		return DynamicAttributes::listAttributes($this);
 	}
 
 	/**
@@ -72,11 +64,11 @@ trait DynamicAttributesTrait {
 	 * @return bool
 	 */
 	public function hasDynamicAttribute(string $name):bool {
-		return (null !== $this->_dynamicAttributes && $this->_dynamicAttributes->hasAttribute($name));
+		return (null !== $this->_dynamicAttributesStorage && $this->_dynamicAttributesStorage->hasAttribute($name));
 	}
 
 	public function addDynamicAttribute(string $name, ?int $type = null):void {
-		$this->_dynamicAttributes->defineAttribute($name);
+		$this->_dynamicAttributesStorage->defineAttribute($name);
 		DynamicAttributes::ensureAttribute($this, $name, $type);
 	}
 }

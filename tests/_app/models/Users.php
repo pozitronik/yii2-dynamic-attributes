@@ -99,6 +99,19 @@ class Users extends ActiveRecord implements IdentityInterface {
 	}
 
 	/**
+	 * Создать ещё одного пользователя
+	 * @return static
+	 */
+	public static function CreateSecondUser():self {
+		return new self([
+			'id' => 2,
+			'login' => 'second',
+			'username' => 'second_test_user',
+			'password' => 'test',
+		]);
+	}
+
+	/**
 	 * @return static
 	 * @throws Exception
 	 */
