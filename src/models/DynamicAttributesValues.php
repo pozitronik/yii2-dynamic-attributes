@@ -102,7 +102,7 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	}
 
 	/**
-	 * @param int $attribute
+	 * @param int $attribute_id
 	 * @param int $key
 	 * @param string $value
 	 * @return null|static

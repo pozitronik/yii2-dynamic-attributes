@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpMultipleClassDeclarationsInspection*/
 declare(strict_types = 1);
 
 namespace pozitronik\dynamic_attributes\traits;
@@ -21,7 +21,7 @@ trait DynamicAttributesTrait {
 	/**
 	 * @inheritDoc
 	 */
-	public function init() {
+	public function init():void {
 		parent::init();
 		$this->_dynamicAttributesStorage = new AttributesStorage();
 		$this->reloadDynamicAttributes();
@@ -30,7 +30,7 @@ trait DynamicAttributesTrait {
 	/**
 	 * @inheritDoc
 	 */
-	public function afterFind() {
+	public function afterFind():void {
 		parent::afterFind();
 		$this->reloadDynamicAttributes();
 	}
@@ -38,7 +38,7 @@ trait DynamicAttributesTrait {
 	/**
 	 * @inheritDoc
 	 */
-	public function afterRefresh() {
+	public function afterRefresh():void {
 		parent::afterRefresh();
 		$this->reloadDynamicAttributes();
 	}
@@ -57,7 +57,7 @@ trait DynamicAttributesTrait {
 	/**
 	 * @inheritDoc
 	 */
-	public function delete() {
+	public function delete():void {
 		if (false !== parent::delete()) {
 			//todo: delete values
 		}
@@ -66,7 +66,7 @@ trait DynamicAttributesTrait {
 	/**
 	 * @inheritDoc
 	 */
-	public function save($runValidation = true, $attributeNames = null) {
+	public function save($runValidation = true, $attributeNames = null):bool {
 		if (parent::save($runValidation, $attributeNames)) {
 			DynamicAttributes::setAttributesValues($this, $this->_dynamicAttributesStorage->attributes);
 			return true;
@@ -112,6 +112,7 @@ trait DynamicAttributesTrait {
 
 	/**
 	 * @return array
+	 * @throws Throwable
 	 */
 	public function getDynamicAttributes():array {
 		return DynamicAttributes::listAttributes($this);
@@ -129,6 +130,7 @@ trait DynamicAttributesTrait {
 	 * Возвращает тип проверяемого атрибута (из зарегистрированных)
 	 * @param string $name
 	 * @return false|int|null false: атрибута не существует, null: тип не известен, int: id типа
+	 * @throws Throwable
 	 */
 	public function getDynamicAttributeType(string $name):null|false|int {
 		if (null === $this->_dynamicAttributesStorage || !$this->_dynamicAttributesStorage->hasAttribute($name)) return false;

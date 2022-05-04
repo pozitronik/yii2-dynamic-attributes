@@ -8,6 +8,7 @@ use yii\db\ActiveRecord;
 
 /**
  * Class DynamicAttributes
+ * @property int $id
  * @property string $model Model alias
  * @property string $attribute_name Attribute name
  * @property null|int $type Attribute type, see self::TYPES

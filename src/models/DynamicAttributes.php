@@ -37,7 +37,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	public const TYPE_ERROR_TEXT = 'Attribute type does not match with previous';
 
 	/**
-	 * @param ActiveRecordInterface $model
+	 * @param string|ActiveRecordInterface $model
 	 * @param string $attribute
 	 * @param int|null $type
 	 * @return static
@@ -88,10 +88,9 @@ class DynamicAttributes extends DynamicAttributesAR {
 			->andWhere([DynamicAttributesValues::fieldName('key') => static::extractKey($model)])
 			->asArray()
 			->all(), 'key', 'value');
-		$rawValues = array_map(function($value) {
+		return array_map(static function($value) {
 			return DynamicAttributesValues::unserializeValue($value);
 		}, $rawValues);
-		return $rawValues;
 	}
 
 	/**
@@ -105,16 +104,14 @@ class DynamicAttributes extends DynamicAttributesAR {
 		$alias = static::getClassAlias($model::class);
 		$modelKey = static::extractKey($model);
 		foreach ($attributes as $name => $value) {
-			$attributeIndex = static::ensureAttribute($alias, $name, static::getType($value));
-
-			DynamicAttributesValues::setAttributeValue($attributeIndex->id, $modelKey, $value);
+			DynamicAttributesValues::setAttributeValue(static::ensureAttribute($alias, $name, static::getType($value))->id, $modelKey, $value);
 		}
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function init() {
+	public function init():void {
 		parent::init();
 		self::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
 	}
@@ -141,6 +138,8 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @param string $class
 	 * @param null|string $alias
 	 * @return void
+	 * @throws InvalidConfigException
+	 * @throws Throwable
 	 */
 	public static function setClassAlias(string $class, ?string $alias = null):void {
 		static::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
@@ -151,6 +150,8 @@ class DynamicAttributes extends DynamicAttributesAR {
 	/**
 	 * @param string $alias
 	 * @return null|string
+	 * @throws InvalidConfigException
+	 * @throws Throwable
 	 */
 	public static function getAliasClass(string $alias):?string {
 		static::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
@@ -194,6 +195,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function attributeType(ActiveRecordInterface $model, string $attribute):?int {
+		/** @var static|null $found */
 		return (null === $found = static::find()->where([
 				'model' => static::getClassAlias($model::class),
 				'attribute_name' => $attribute
