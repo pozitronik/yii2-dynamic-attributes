@@ -31,24 +31,20 @@ class DynamicAttributesTest extends Unit {
 		$user->addDynamicAttribute('sex', DynamicAttributes::TYPE_BOOL);
 		$user->addDynamicAttribute('memo about', DynamicAttributes::TYPE_STRING);
 
-//		$userDynamicAttributesModel->addAttribute
-//		$userDynamicAttributesModel->addAttribute
-//		$userDynamicAttributesModel->addAttribute
-
 		$user->weight = 100;
 		$user->sex = true;
 		$user->{'memo about'} = 'user memo';
 		/*Type should be autodetected*/
-//		$user->some_dynamic_attribute = 500;
+		$user->some_dynamic_attribute = 500;
 
 		$user->save();
 
 		$newUserModel = Users::find()->where(['id' => $user->id])->one();
 
 		self::assertEquals('100', $user->weight);
-//		self::assertTrue($user->sex);
-//		self::assertEquals('user memo', $user->{'memo about'});
-//		self::assertEquals(500, $user->some_dynamic_attribute);
+		self::assertTrue($user->sex);
+		self::assertEquals('user memo', $user->{'memo about'});
+		self::assertEquals(500, $user->some_dynamic_attribute);
 
 //		self::assertEquals('100', $user->getDynamicAttribute('weight'));
 //		self::assertTrue($user->getDynamicAttribute('sex'));
@@ -83,20 +79,22 @@ class DynamicAttributesTest extends Unit {
 		self::assertEquals('100', $newUserModel->weight);
 		self::assertTrue($newUserModel->sex);
 		self::assertEquals('user memo', $newUserModel->{'memo about'});
-//		self::assertEquals(500, $user->some_dynamic_attribute);
-
-//		/*Assigning string value to int property should create an error*/
-		$this->expectError();
-		$user->weight = 'fat';
-
+		self::assertEquals(500, $user->some_dynamic_attribute);
 
 		$secondUser = Users::CreateSecondUser()->saveAndReturn();
-		$testAttributesArray = ['weight', 'sex', 'memo about'];
+		$testAttributesArray = ['weight', 'sex', 'memo about', 'some_dynamic_attribute'];
 		sort($testAttributesArray);
 		$realAttributesArray = $secondUser->getDynamicAttributes();
 		sort($realAttributesArray);
 		self::assertEquals($testAttributesArray, $realAttributesArray);
+	}
 
+	public function testsDynamicAttributesTypeError():void {
+//		$user = Users::CreateUser()->saveAndReturn();
+//		$user->weight = 100;
+//		/*Assigning string value to int property should create an error*/
+//		$this->expectError();
+//		$user->weight = 'fat';
 	}
 
 }

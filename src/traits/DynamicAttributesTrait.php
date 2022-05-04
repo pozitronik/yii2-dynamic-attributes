@@ -1,13 +1,15 @@
-<?php /** @noinspection PhpMultipleClassDeclarationsInspection*/
+<?php /** @noinspection PhpMultipleClassDeclarationsInspection */
 declare(strict_types = 1);
 
 namespace pozitronik\dynamic_attributes\traits;
 
+use pozitronik\dynamic_attributes\DynamicAttributesModule;
 use pozitronik\dynamic_attributes\models\AttributesStorage;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use Throwable;
 use TypeError;
 use yii\base\InvalidConfigException as InvalidConfigExceptionAlias;
+use yii\base\UnknownPropertyException;
 
 /**
  * Trait DynamicAttributesTrait
@@ -97,9 +99,19 @@ trait DynamicAttributesTrait {
 			}
 			$this->_dynamicAttributesStorage->$name = $value;
 		} else {
-			parent::__set($name, $value);
-		}
+			try {
+				parent::__set($name, $value);
+			} /** @noinspection PhpRedundantCatchClauseInspection Не прокинуто во фреймворке */ catch (UnknownPropertyException $exception) {
+				if (DynamicAttributesModule::param('allowRuntimeAttributes', true)) {
+					$this->addDynamicAttribute($name, DynamicAttributes::getType($value));
+					$this->_dynamicAttributesStorage->$name = $value;
+				} else {
+					throw $exception;
+				}
 
+			}
+
+		}
 	}
 
 	/**
