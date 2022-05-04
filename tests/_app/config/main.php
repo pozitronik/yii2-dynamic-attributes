@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 
 use app\models\Users;
+use pozitronik\dynamic_attributes\DynamicAttributesModule;
 use yii\log\FileTarget;
 use yii\caching\DummyCache;
 use yii\web\AssetManager;
@@ -17,6 +18,16 @@ $config = [
 		'@vendor' => './vendor',
 		'@bower' => '@vendor/bower-asset',
 		'@npm' => '@vendor/npm-asset',
+	],
+	'modules' => [
+		'dynamic_attributes' => [
+			'class' => DynamicAttributesModule::class,
+			'params' => [
+				'models' => [
+					DummyClass::class => 'dummy'
+				]
+			]
+		],
 	],
 	'components' => [
 		'request' => [

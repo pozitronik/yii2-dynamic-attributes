@@ -27,9 +27,9 @@ class DynamicAttributes extends DynamicAttributesAR {
 	public const TYPE_RESOURCE_CLOSED = 10;
 
 	/**
-	 * @var string[] Перечисление класс модели => используемый алиас
+	 * @var null|string[] Перечисление класс модели => используемый алиас. null до инициализации.
 	 */
-	private static array $_modelsAliases = [];
+	private static ?array $_modelsAliases = null;
 
 	/**
 	 * @param ActiveRecordInterface $model
@@ -66,11 +66,17 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function getAttributesValues(ActiveRecordInterface $model):array {
-		return DynamicAttributesValues::find()
+		$rawValues = ArrayHelper::map(DynamicAttributesValues::find()
+			->select([static::fieldName('attribute_name as key'), DynamicAttributesValues::fieldName('value as value')])
 			->joinWith(['relatedDynamicAttributes'])
-			->where([DynamicAttributes::fieldName('attribute_name') => static::getClassAlias($model::class)])
-			->andWhere([static::fieldName('model') => static::extractKey($model)])
-			->all();
+			->where([static::fieldName('model') => static::getClassAlias($model::class)])
+			->andWhere([DynamicAttributesValues::fieldName('key') => static::extractKey($model)])
+			->asArray()
+			->all(), 'key', 'value');
+		$rawValues = array_map(function($value) {
+			return DynamicAttributesValues::unserializeValue($value);
+		}, $rawValues);
+		return $rawValues;
 	}
 
 	/**
@@ -122,6 +128,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @return void
 	 */
 	public static function setClassAlias(string $class, ?string $alias = null):void {
+		self::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
 		$alias = $alias??$class;
 		ArrayHelper::setValue(self::$_modelsAliases, $class, $alias);
 	}
@@ -131,6 +138,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @return null|string
 	 */
 	public static function getAliasClass(string $alias):?string {
+		self::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
 		return (false === $class = array_search($alias, self::$_modelsAliases, true))?null:$class;
 	}
 
@@ -140,6 +148,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function getClassAlias(string $class):?string {
+		self::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
 		return ArrayHelper::getValue(self::$_modelsAliases, $class);
 	}
 

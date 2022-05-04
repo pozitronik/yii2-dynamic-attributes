@@ -57,10 +57,25 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	 * @param string $value
 	 * @return mixed
 	 */
-	protected function unserialize(string $value) {
+	protected function unserialize(string $value):mixed {
 		return (null === $this->serializer)
 			?unserialize($value, ['allowed_classes' => true])
 			:call_user_func($this->serializer[1], $value);
+	}
+
+	/**
+	 * @param mixed $value
+	 * @return mixed
+	 */
+	public static function unserializeValue(mixed $value):mixed {
+		if (is_resource($value) && 'stream' === get_resource_type($value)) {
+			$result = stream_get_contents($value);
+			fseek($value, 0);
+			$serialized = $result;
+		} else {
+			$serialized = $value;
+		}
+		return (new static())->unserialize($serialized);
 	}
 
 	/**

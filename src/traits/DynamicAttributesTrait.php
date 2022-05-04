@@ -6,6 +6,7 @@ namespace pozitronik\dynamic_attributes\traits;
 use pozitronik\dynamic_attributes\models\AttributesStorage;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use Throwable;
+use yii\base\InvalidConfigException as InvalidConfigExceptionAlias;
 
 /**
  * Trait DynamicAttributesTrait
@@ -16,10 +17,49 @@ trait DynamicAttributesTrait {
 	 */
 	private ?AttributesStorage $_dynamicAttributesStorage = null;
 
+	/**
+	 * @inheritDoc
+	 */
 	public function init() {
 		parent::init();
-		$this->_dynamicAttributesStorage = AttributesStorage::instance();
-		$this->_dynamicAttributesStorage->loadAttributes(DynamicAttributes::getAttributesValues($this));
+		$this->_dynamicAttributesStorage = new AttributesStorage();
+		$this->reloadDynamicAttributes();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function afterFind() {
+		parent::afterFind();
+		$this->reloadDynamicAttributes();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function afterRefresh() {
+		parent::afterRefresh();
+		$this->reloadDynamicAttributes();
+	}
+
+	/**
+	 * @return void
+	 * @throws Throwable
+	 * @throws InvalidConfigExceptionAlias
+	 */
+	private function reloadDynamicAttributes():void {
+		/*empty attributes + filled attributes*/
+		$allAttributes = array_merge(array_fill_keys(DynamicAttributes::listAttributes($this), null), DynamicAttributes::getAttributesValues($this));
+		$this->_dynamicAttributesStorage->loadAttributes($allAttributes);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function delete() {
+		if (false !== parent::delete()) {
+			//todo: delete values
+		}
 	}
 
 	/**

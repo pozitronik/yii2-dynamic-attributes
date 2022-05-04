@@ -5,6 +5,7 @@ namespace unit;
 
 use app\models\Users;
 use Codeception\Test\Unit;
+use DummyClass;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 
 /**
@@ -13,11 +14,18 @@ use pozitronik\dynamic_attributes\models\DynamicAttributes;
 class DynamicAttributesTest extends Unit {
 
 	public function testDynamicAttributes():void {
+		/**
+		 * Динамически регистрируем алиас класса. Проверить:
+		 * 1) Работу класса без регистрации.
+		 */
 		DynamicAttributes::setClassAlias(Users::class, 'users');
-		$user = Users::CreateUser()->saveAndReturn();
 		self::assertEquals(Users::class, DynamicAttributes::getAliasClass('users'));
 		self::assertEquals('users', DynamicAttributes::getClassAlias(Users::class));
 		self::assertNull(DynamicAttributes::getAliasClass('unknown'));
+		/*Проверим регистрацию через конфиг*/
+		self::assertEquals(DummyClass::class, DynamicAttributes::getAliasClass('dummy'));
+
+		$user = Users::CreateUser()->saveAndReturn();
 
 		$user->addDynamicAttribute('weight', DynamicAttributes::TYPE_INT);
 		$user->addDynamicAttribute('sex', DynamicAttributes::TYPE_BOOL);
@@ -35,7 +43,7 @@ class DynamicAttributesTest extends Unit {
 
 		$user->save();
 
-		$newUserModel = Users::findOne([$user->id]);
+		$newUserModel = Users::find()->where(['id' => $user->id])->one();
 
 		self::assertEquals('100', $user->weight);
 //		self::assertTrue($user->sex);
@@ -70,7 +78,7 @@ class DynamicAttributesTest extends Unit {
 //		$user->saveDynamicAttributes();
 //		self::assertFalse($user->sex);
 
-		$newUserModel = Users::findOne([$user->id]);
+//		$newUserModel = Users::findOne([$user->id]);
 
 		self::assertEquals('100', $newUserModel->weight);
 		self::assertTrue($newUserModel->sex);
