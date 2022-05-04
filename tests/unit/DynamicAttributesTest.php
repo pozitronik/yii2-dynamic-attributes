@@ -41,6 +41,8 @@ class DynamicAttributesTest extends Unit {
 		$user->addDynamicAttribute('sex', DynamicAttributes::TYPE_BOOL);
 		$user->addDynamicAttribute('memo about', DynamicAttributes::TYPE_STRING);
 
+		//todo: unregister
+
 		$user->weight = 100;
 		$user->sex = true;
 		$user->{'memo about'} = 'user memo';
@@ -101,7 +103,10 @@ class DynamicAttributesTest extends Unit {
 		self::assertEquals(500, $user->some_dynamic_attribute);
 
 		$secondUser = Users::CreateUser(2)->saveAndReturn();
-		self::assertEquals([],array_diff(['weight', 'sex', 'memo about', 'some_dynamic_attribute'],$secondUser->getDynamicAttributes()));
+		self::assertEquals([], array_diff(['weight', 'sex', 'memo about', 'some_dynamic_attribute'], $secondUser->getDynamicAttributes()));
+
+		$secondUser->delete();
+		self::assertEquals([], array_diff(['weight' => null, 'sex' => null, 'memo about' => null, 'some_dynamic_attribute' => null], $secondUser->getDynamicAttributesValues()));
 	}
 
 	/**

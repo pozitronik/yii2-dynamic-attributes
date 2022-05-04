@@ -141,6 +141,19 @@ class DynamicAttributes extends DynamicAttributesAR {
 	}
 
 	/**
+	 * @param ActiveRecordInterface $model
+	 * @return void
+	 * @throws Throwable
+	 */
+	public static function deleteValues(ActiveRecordInterface $model):void {
+		DynamicAttributesValues::deleteAll([DynamicAttributesValues::fieldName('attribute_id') => static::find()
+			->select([static::fieldName('id')])
+			->where([static::fieldName('model') => static::getClassAlias($model::class)]),
+			DynamicAttributesValues::fieldName('key') => static::extractKey($model)
+		]);
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function init():void {

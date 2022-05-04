@@ -61,7 +61,7 @@ trait DynamicAttributesTrait {
 	 */
 	public function delete():void {
 		if (false !== parent::delete()) {
-			//todo: delete values
+			DynamicAttributes::deleteValues($this);
 		}
 	}
 
