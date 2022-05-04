@@ -89,24 +89,11 @@ class Users extends ActiveRecord implements IdentityInterface {
 	 * Создать пользователя
 	 * @return static
 	 */
-	public static function CreateUser():self {
+	public static function CreateUser(int $id = 1):self {
 		return new self([
-			'id' => 1,
+			'id' => $id,
 			'login' => 'test',
 			'username' => 'test_user',
-			'password' => 'test',
-		]);
-	}
-
-	/**
-	 * Создать ещё одного пользователя
-	 * @return static
-	 */
-	public static function CreateSecondUser():self {
-		return new self([
-			'id' => 2,
-			'login' => 'second',
-			'username' => 'second_test_user',
 			'password' => 'test',
 		]);
 	}
@@ -122,4 +109,5 @@ class Users extends ActiveRecord implements IdentityInterface {
 		$this->refresh();
 		return $this;
 	}
+
 }

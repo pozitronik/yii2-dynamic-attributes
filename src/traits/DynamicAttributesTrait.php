@@ -159,4 +159,20 @@ trait DynamicAttributesTrait {
 		$this->_dynamicAttributesStorage->defineAttribute($name);
 		DynamicAttributes::ensureAttribute($this, $name, $type);
 	}
+
+	/**
+	 * @return array
+	 */
+	public function getDynamicAttributesValues():array {
+		return $this->_dynamicAttributesStorage->attributes;
+	}
+
+	/**
+	 * @return array
+	 * @throws Throwable
+	 */
+	public function getDynamicAttributesTypes():array {
+		return DynamicAttributes::getAttributesTypes($this::class);
+	}
+
 }
