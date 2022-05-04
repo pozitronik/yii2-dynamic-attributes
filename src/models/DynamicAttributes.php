@@ -101,7 +101,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 */
 	public function init() {
 		parent::init();
-		self::$_modelsAliases = DynamicAttributesModule::param('models', self::$_modelsAliases);
+		self::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
 	}
 
 	/**
@@ -128,7 +128,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @return void
 	 */
 	public static function setClassAlias(string $class, ?string $alias = null):void {
-		self::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
+		static::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
 		$alias = $alias??$class;
 		ArrayHelper::setValue(self::$_modelsAliases, $class, $alias);
 	}
@@ -138,7 +138,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @return null|string
 	 */
 	public static function getAliasClass(string $alias):?string {
-		self::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
+		static::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
 		return (false === $class = array_search($alias, self::$_modelsAliases, true))?null:$class;
 	}
 
@@ -148,7 +148,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function getClassAlias(string $class):?string {
-		self::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
+		static::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
 		return ArrayHelper::getValue(self::$_modelsAliases, $class);
 	}
 
