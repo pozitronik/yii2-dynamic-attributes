@@ -7,6 +7,7 @@ use pozitronik\dynamic_attributes\DynamicAttributesModule;
 use pozitronik\dynamic_attributes\models\active_record\DynamicAttributes as DynamicAttributesAR;
 use pozitronik\helpers\ArrayHelper;
 use Throwable;
+use TypeError;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveRecordInterface;
 
@@ -22,7 +23,9 @@ class DynamicAttributes extends DynamicAttributesAR {
 	public const TYPE_ARRAY = 5;
 	public const TYPE_OBJECT = 6;
 	public const TYPE_RESOURCE = 7;
-	public const TYPE_NULL = 8;
+	/*null обрабатывается отдельно: воспринимаем его не как тип, а как метку «тип неизвестен», и пытаемся определить
+	тип либо по существующим записям, либо при будущих записях*/
+	public const TYPE_NULL = null;
 	public const TYPE_UNKNOWN = 9;
 	public const TYPE_RESOURCE_CLOSED = 10;
 
@@ -39,11 +42,21 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function ensureAttribute(string|ActiveRecordInterface $model, string $attribute, ?int $type = null):static {
-		return static::Upsert([
+		$attributes = [
 			'model' => is_string($model)?$model:static::getClassAlias($model::class),
 			'attribute_name' => $attribute,
-			'type' => $type
-		]);
+
+		];
+		/*Если тип известен, то сверимся с ним*/
+		if (null !== $type) {
+			$attributes['type'] = $type;
+		}
+		$ensuredModel = static::Upsert($attributes);
+		if ([] !== $ensuredModel->errors) {
+			/*Единственная причина, по которой не произойдёт апсерт - различия в текущем и сохранённом типах данных*/
+			throw new TypeError('Attribute type does not match with previous');
+		}
+		return $ensuredModel;
 	}
 
 	/**
