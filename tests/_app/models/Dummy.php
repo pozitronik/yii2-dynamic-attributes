@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace _app\models;
+namespace app\models;
 
 use pozitronik\dynamic_attributes\traits\DynamicAttributesTrait;
 use yii\db\ActiveRecord;
