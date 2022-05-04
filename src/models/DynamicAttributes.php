@@ -34,6 +34,8 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 */
 	private static ?array $_modelsAliases = null;
 
+	public const TYPE_ERROR_TEXT = 'Attribute type does not match with previous';
+
 	/**
 	 * @param ActiveRecordInterface $model
 	 * @param string $attribute
@@ -54,7 +56,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 		$ensuredModel = static::Upsert($attributes);
 		if ([] !== $ensuredModel->errors) {
 			/*Единственная причина, по которой не произойдёт апсерт - различия в текущем и сохранённом типах данных*/
-			throw new TypeError('Attribute type does not match with previous');
+			throw new TypeError(self::TYPE_ERROR_TEXT);
 		}
 		return $ensuredModel;
 	}
@@ -183,5 +185,18 @@ class DynamicAttributes extends DynamicAttributesAR {
 			"resource (closed)" => static::TYPE_RESOURCE_CLOSED,
 			default => null
 		};
+	}
+
+	/**
+	 * @param ActiveRecordInterface $model
+	 * @param string $attribute
+	 * @return int|null
+	 * @throws Throwable
+	 */
+	public static function attributeType(ActiveRecordInterface $model, string $attribute):?int {
+		return (null === $found = static::find()->where([
+				'model' => static::getClassAlias($model::class),
+				'attribute_name' => $attribute
+			])->one())?null:$found->type;
 	}
 }

@@ -6,6 +6,7 @@ namespace pozitronik\dynamic_attributes\traits;
 use pozitronik\dynamic_attributes\models\AttributesStorage;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use Throwable;
+use TypeError;
 use yii\base\InvalidConfigException as InvalidConfigExceptionAlias;
 
 /**
@@ -90,11 +91,15 @@ trait DynamicAttributesTrait {
 	 * @inheritDoc
 	 */
 	public function __set($name, $value):void {
-		if ($this->hasDynamicAttribute($name)) {
+		if (false !== $knownType = $this->getDynamicAttributeType($name)) {
+			if (null !== $knownType && DynamicAttributes::getType($value) !== $knownType) {
+				throw new TypeError(DynamicAttributes::TYPE_ERROR_TEXT);
+			}
 			$this->_dynamicAttributesStorage->$name = $value;
 		} else {
 			parent::__set($name, $value);
 		}
+
 	}
 
 	/**
@@ -118,6 +123,16 @@ trait DynamicAttributesTrait {
 	 */
 	public function hasDynamicAttribute(string $name):bool {
 		return (null !== $this->_dynamicAttributesStorage && $this->_dynamicAttributesStorage->hasAttribute($name));
+	}
+
+	/**
+	 * Возвращает тип проверяемого атрибута (из зарегистрированных)
+	 * @param string $name
+	 * @return false|int|null false: атрибута не существует, null: тип не известен, int: id типа
+	 */
+	public function getDynamicAttributeType(string $name):null|false|int {
+		if (null === $this->_dynamicAttributesStorage || !$this->_dynamicAttributesStorage->hasAttribute($name)) return false;
+		return DynamicAttributes::attributeType($this, $name);
 	}
 
 	/**

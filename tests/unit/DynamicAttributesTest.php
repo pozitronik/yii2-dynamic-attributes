@@ -86,11 +86,16 @@ class DynamicAttributesTest extends Unit {
 //		self::assertEquals(500, $user->some_dynamic_attribute);
 
 //		/*Assigning string value to int property should create an error*/
-//		$this->expectExceptionObject(new TypeError());
-//		$user->weight = 'fat';
+		$this->expectError();
+		$user->weight = 'fat';
+
 
 		$secondUser = Users::CreateSecondUser()->saveAndReturn();
-		self::assertEquals(['weight', 'sex', 'memo about'], $secondUser->getDynamicAttributes());
+		$testAttributesArray = ['weight', 'sex', 'memo about'];
+		sort($testAttributesArray);
+		$realAttributesArray = $secondUser->getDynamicAttributes();
+		sort($realAttributesArray);
+		self::assertEquals($testAttributesArray, $realAttributesArray);
 
 	}
 
