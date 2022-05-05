@@ -116,18 +116,13 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @return mixed
 	 * @throws InvalidConfigException
 	 * @throws Throwable
-	 * todo: тестовый код
 	 */
 	public static function getAttributeValue(ActiveRecordInterface $model, string $attribute_name):mixed {
-		$attributes = DynamicAttributesValues::find()
-			->joinWith(['relatedDynamicAttributesAliases'])
-			->where([DynamicAttributesAliases::fieldName('alias') => static::getClassAlias($model::class)])
-			->andWhere([DynamicAttributesValues::fieldName('model_id') => static::extractKey($model)])
-			->one();
-//			->andWhere(['=', 'json', new ArrayExpression(['foo' => 'bar'])])
-		$values = $attributes->attributes_values;
-		return ArrayHelper::getValue($values, $attribute_name);
-
+		/**
+		 * Выборка напрямую по JSON не имеет смысла при работе через ActiveQuery, поскольку Yii не создаст никакого
+		 * "псевдополя" для значения. Логичнее вытащить его из массива/
+		 **/
+		return ArrayHelper::getValue(static::getAttributesValues($model), $attribute_name);
 	}
 
 	/**
@@ -136,15 +131,14 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @return array
 	 * @throws InvalidConfigException
 	 * @throws Throwable
-	 * todo: тестовый код
 	 */
 	public static function getAttributesValues(ActiveRecordInterface $model):array {
-		$attributes = DynamicAttributesValues::find()
-			->joinWith(['relatedDynamicAttributesAliases'])
-			->where([DynamicAttributesAliases::fieldName('alias') => static::getClassAlias($model::class)])
-			->andWhere([DynamicAttributesValues::fieldName('model_id') => static::extractKey($model)])
-			->one();
-		return $attributes?->attributes_values??[];
+		return (DynamicAttributesValues::find()
+				->select('attributes_values')
+				->joinWith(['relatedDynamicAttributesAliases'])
+				->where([DynamicAttributesAliases::fieldName('alias') => static::getClassAlias($model::class)])
+				->andWhere([DynamicAttributesValues::fieldName('model_id') => static::extractKey($model)])
+				->one())?->attributes_values??[];
 	}
 
 	/**
@@ -160,7 +154,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 		$model_id = static::extractKey($model);
 		foreach ($attributes as $name => $value) {
 			$alias_id = static::ensureAttribute($alias, $name, static::getType($value))->alias_id;
-			DynamicAttributesValues::setAttributesValue($alias_id , $model_id, $name, $value);
+			DynamicAttributesValues::setAttributesValue($alias_id, $model_id, $name, $value);
 		}
 	}
 
