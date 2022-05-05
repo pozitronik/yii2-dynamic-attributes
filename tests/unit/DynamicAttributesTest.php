@@ -58,6 +58,11 @@ class DynamicAttributesTest extends Unit {
 		/*Type should be autodetected*/
 		$user->some_dynamic_attribute = 500;
 
+		/*Возможно платформозависимое поведение. Представление чисел с плавающей запятой зависит от платформы и поддержки БД*/
+		$user->some_float_attribute = (float)5 / 7;
+		/*float <=> double <=> real*/
+		$user->some_double_attribute = (double)8 / 7;
+
 		$user->save();
 
 		$newUserModel = Users::find()->where(['id' => $user->id])->one();
@@ -67,19 +72,26 @@ class DynamicAttributesTest extends Unit {
 		self::assertTrue($user->sex);
 		self::assertEquals('user memo', $user->{'memo about'});
 		self::assertEquals(500, $user->some_dynamic_attribute);
+		self::assertEquals(0.71428571428571, $user->some_float_attribute);
+		/*Точность хранения в БД может быть выше, но php использует формат 64 bit IEEE, и отбросит часть, превышающую доступную ему точность*/
+		self::assertEquals(1.1428571428571, $user->some_double_attribute);
 
 		/*Статическое получение атрибутов из хранилища*/
 		self::assertEquals('100', DynamicAttributes::getAttributeValue($user, 'weight'));
 		self::assertTrue(DynamicAttributes::getAttributeValue($user, 'sex'));
 		self::assertEquals('user memo', DynamicAttributes::getAttributeValue($user, 'memo about'));
 		self::assertEquals(500, DynamicAttributes::getAttributeValue($user, 'some_dynamic_attribute'));
+		self::assertEquals(0.71428571428571, DynamicAttributes::getAttributeValue($user, 'some_float_attribute'));
+		self::assertEquals(1.1428571428571, DynamicAttributes::getAttributeValue($user, 'some_double_attribute'));
 
 		/*Получение всех атрибутов из модели*/
 		self::assertEquals([
 			'weight' => 100,
 			'sex' => true,
 			'memo about' => 'user memo',
-			'some_dynamic_attribute' => 500
+			'some_dynamic_attribute' => 500,
+			'some_float_attribute' => 0.71428571428571,
+			'some_double_attribute' => 1.1428571428571
 		], $user->getDynamicAttributesValues());
 
 		/*Получение всех атрибутов из хранилища*/
@@ -87,7 +99,9 @@ class DynamicAttributesTest extends Unit {
 			'weight' => 100,
 			'sex' => true,
 			'memo about' => 'user memo',
-			'some_dynamic_attribute' => 500
+			'some_dynamic_attribute' => 500,
+			'some_float_attribute' => 0.71428571428571,
+			'some_double_attribute' => 1.1428571428571
 		], DynamicAttributes::getAttributesValues($user)));
 
 		/*Получение списка известных атрибутов из хранилища*/
@@ -95,7 +109,9 @@ class DynamicAttributesTest extends Unit {
 			'weight' => DynamicAttributes::TYPE_INT,
 			'sex' => DynamicAttributes::TYPE_BOOL,
 			'memo about' => DynamicAttributes::TYPE_STRING,
-			'some_dynamic_attribute' => DynamicAttributes::TYPE_INT
+			'some_dynamic_attribute' => DynamicAttributes::TYPE_INT,
+			'some_float_attribute' => DynamicAttributes::TYPE_DOUBLE,
+			'some_double_attribute' => DynamicAttributes::TYPE_DOUBLE
 		], $user->getDynamicAttributesTypes());
 
 		/*Получение списка известных атрибутов из хранилища*/
@@ -103,19 +119,30 @@ class DynamicAttributesTest extends Unit {
 			'weight' => DynamicAttributes::TYPE_INT,
 			'sex' => DynamicAttributes::TYPE_BOOL,
 			'memo about' => DynamicAttributes::TYPE_STRING,
-			'some_dynamic_attribute' => DynamicAttributes::TYPE_INT
+			'some_dynamic_attribute' => DynamicAttributes::TYPE_INT,
+			'some_float_attribute' => DynamicAttributes::TYPE_DOUBLE,
+			'some_double_attribute' => DynamicAttributes::TYPE_DOUBLE
 		], DynamicAttributes::getAttributesTypes(Users::class));
 
 		self::assertEquals('100', $newUserModel->weight);
 		self::assertTrue($newUserModel->sex);
 		self::assertEquals('user memo', $newUserModel->{'memo about'});
-		self::assertEquals(500, $user->some_dynamic_attribute);
+		self::assertEquals(500, $newUserModel->some_dynamic_attribute);
+		self::assertEquals(0.71428571428571, $newUserModel->some_float_attribute);
+		self::assertEquals(1.1428571428571, $newUserModel->some_double_attribute);
 
 		$secondUser = Users::CreateUser(2)->saveAndReturn();
-		self::assertEquals([], array_diff(['weight', 'sex', 'memo about', 'some_dynamic_attribute'], $secondUser->getDynamicAttributes()));
+		self::assertEquals([], array_diff(['weight', 'sex', 'memo about', 'some_dynamic_attribute', 'some_float_attribute', 'some_double_attribute'], $secondUser->getDynamicAttributes()));
 
 		$secondUser->delete();
-		self::assertEquals([], array_diff(['weight' => null, 'sex' => null, 'memo about' => null, 'some_dynamic_attribute' => null], $secondUser->getDynamicAttributesValues()));
+		self::assertEquals([], array_diff([
+			'weight' => null,
+			'sex' => null,
+			'memo about' => null,
+			'some_dynamic_attribute' => null,
+			'some_float_attribute' => null,
+			'some_double_attribute' => null
+		], $secondUser->getDynamicAttributesValues()));
 	}
 
 	/**
@@ -153,6 +180,7 @@ class DynamicAttributesTest extends Unit {
 			$user->wadawada = $searchDataWadawada[$wIndex++];//strings
 			$user->bububu = $searchDataBububu[$bIndex++];//integers
 			$user->pipi = 0 === $i % 2;//booleans
+			$user->fluffy = (float)($i / 7);//обязательно говорим, что у нас float
 			if ($wIndex >= count($searchDataWadawada)) $wIndex = 0;
 			if ($bIndex >= count($searchDataBububu)) $bIndex = 0;
 			$user->save();
@@ -288,6 +316,58 @@ class DynamicAttributesTest extends Unit {
 			->andWhere(ConditionAdapter::adapt(['is not', 'pipi', null]))
 			->all()
 		);
+
+		/*Выборки по нецелочисленным динамическим полям*/
+		/*сравнение*/
+		self::assertCount(2, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['fluffy' => (float)13]))
+			->orWhere(ConditionAdapter::adapt(['fluffy' => 8.14285714285714]))
+			->all()
+		);
+		/*> <*/
+		self::assertCount(16, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['>', 'fluffy', 8.85714285]))
+			->andWhere(ConditionAdapter::adapt(['<', 'fluffy', 11.14285714285]))
+			->all()
+		);
+		/*!=*/
+		self::assertCount(99, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['!=', 'fluffy', 13.142857142857142]))
+			->all()
+		);
+		/*in*/
+		self::assertCount(3, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['fluffy' => [1.1428571428571428, 14.285714285714286, 7]]))
+			->all()
+		);
+		/*is not set*/
+		self::assertCount(3, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['fluffy' => null]))
+			->all()
+		);
+		/*same*/
+		self::assertCount(3, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['is', 'fluffy', null]))
+			->all()
+		);
+		/*is not null*/
+		self::assertCount(100, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['is not', 'fluffy', null]))
+			->all()
+		);
+
+		/*Сортировки*/
+//		Users::find()
+//			->joinWith(['relatedDynamicAttributesValues'])
+//			->orderBy()
+//			->all()
 	}
 
 }
