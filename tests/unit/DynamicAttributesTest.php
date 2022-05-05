@@ -9,7 +9,6 @@ use DummyClass;
 use pozitronik\dynamic_attributes\models\adapters\ConditionAdapter;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use Throwable;
-use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\UnknownPropertyException;
 use yii\db\Exception;
