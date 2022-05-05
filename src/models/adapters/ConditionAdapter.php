@@ -16,6 +16,8 @@ class ConditionAdapter {
 	 * Превращает упрощённое условие выборки в массив для QueryBuilder
 	 * @param array $condition
 	 * @return array
+	 * @throws Exception
+	 * @throws Exception
 	 */
 	public static function adapt(array $condition):array {
 		if (isset($condition[0])) {//['operator', 'attribute_name', 'attribute_value']
@@ -30,17 +32,18 @@ class ConditionAdapter {
 			$operator = static::getOperator($attribute_value);
 		}
 		$adaptedExpression = [$operator, self::jsonFieldName(DynamicAttributesValues::tableName(), 'attributes_values', $attribute_name, DynamicAttributes::getType($attribute_value)), $attribute_value];
-		$adaptedExpression = array_merge($adaptedExpression, $condition);//В массиве могут остаться ещё какие-то параметры, например false в like - их просто добавим в адаптированное выражение
-		return $adaptedExpression;
+		//В массиве могут остаться ещё какие-то параметры, например false в like - их просто добавим в адаптированное выражение
+		return array_merge($adaptedExpression, $condition);
 	}
 
 	/**
 	 * MySQL и PostgreSQL по разному атрибутируют поля в json.
 	 * PGSQL ONLY!
+	 * @param string $tableName
 	 * @param string $fieldName
 	 * @param string $jsonFieldName
+	 * @param int|null $fieldType
 	 * @return string
-	 * @throws Exception
 	 */
 	public static function jsonFieldName(string $tableName, string $fieldName, string $jsonFieldName, ?int $fieldType):string {
 		$dataType = static::PHPTypeToPgSQLType($fieldType);
@@ -49,7 +52,7 @@ class ConditionAdapter {
 
 	/**
 	 * Для типа данных php возвращает подходящий тип pgsql
-	 * @param int $type
+	 * @param int|null $type
 	 * @return string
 	 */
 	public static function PHPTypeToPgSQLType(?int $type):string {
@@ -57,12 +60,12 @@ class ConditionAdapter {
 			DynamicAttributes::TYPE_BOOL => 'boolean',
 			DynamicAttributes::TYPE_INT => 'int',
 			DynamicAttributes::TYPE_DOUBLE => 'float',
-			DynamicAttributes::TYPE_STRING => 'text',
+//			DynamicAttributes::TYPE_STRING => 'text',
 //			DynamicAttributes::TYPE_ARRAY => '', unsupported
 //			DynamicAttributes::TYPE_OBJECT => '',unsupported
 //			DynamicAttributes::TYPE_RESOURCE => '',unsupported
 //			DynamicAttributes::TYPE_NULL => '',//meaningless
-			DynamicAttributes::TYPE_UNKNOWN => 'text',//compatibility
+//			DynamicAttributes::TYPE_UNKNOWN => 'text',//compatibility
 //			DynamicAttributes::TYPE_RESOURCE_CLOSED => '',
 			default => 'text'
 		};
