@@ -144,7 +144,7 @@ class DynamicAttributesTest extends Unit {
 	public function testDynamicAttributesSearch():void {
 		/*Нафигачим моделей*/
 		DynamicAttributes::setClassAlias(Users::class, 'users');
-		$searchDataWadawada = ['foo', 'bar', 'baz', 'literally', 'frog', 'dude'];
+		$searchDataWadawada = ['foo', 'bar', 'baz', 'literally', 'frog', 'dude', 'aaz'];
 		$searchDataBububu = [4, 8, 15, 16, 23, 42, 108];
 		$wIndex = 0;
 		$bIndex = 0;
@@ -159,36 +159,48 @@ class DynamicAttributesTest extends Unit {
 		}
 		/*Выборки по строковыми динамическим полям*/
 		/*сравнение*/
-		self::assertCount(16, Users::find()
+		self::assertCount(14, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['wadawada' => 'frog']))
 			->all()
 		);
-		/*like*/
-		self::assertCount(15, Users::find()
+		/*%like%*/
+		self::assertCount(29, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(ConditionAdapter::adapt(['ilike', 'wadawada', 'ba%']))
+			->andWhere(ConditionAdapter::adapt(['ilike', 'wadawada', 'ba']))
+			->all()
+		);
+		/*%like*/
+		self::assertCount(28, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['ilike', 'wadawada', '%az', false]))
+			->all()
+		);
+		/*%like*/
+		self::assertCount(29, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['ilike', 'wadawada', 'ba%', false]))
 			->all()
 		);
 		/*is not set*/
-		self::assertCount(15, Users::find()
+		self::assertCount(3, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['wadawada' => null]))
 			->all());
 		/*same*/
-		self::assertCount(15, Users::find()
+		self::assertCount(3, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['is', 'wadawada', null]))
 			->all()
 		);
 		/*is set*/
-		self::assertCount(15, Users::find()
+		self::assertCount(100, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['is not', 'wadawada', null]))
 			->all()
 		);
 		/*in*/
-		self::assertCount(15, Users::find()
+		self::assertCount(28, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['wadawada' => ['dude', 'literally']]))
 			->all()
@@ -196,44 +208,44 @@ class DynamicAttributesTest extends Unit {
 
 		/*Выборки по целочисленным динамическим полям*/
 		/*сравнение*/
-		self::assertCount(15, Users::find()
+		self::assertCount(14, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['bububu' => 16]))
 			->all()
 		);
 		/*> <*/
-		self::assertCount(15, Users::find()
+		self::assertCount(28, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(ConditionAdapter::adapt(['>', 'bububu' => 23]))
-			->andWhere(ConditionAdapter::adapt(['<', 'bububu' => 42]))
+			->andWhere(ConditionAdapter::adapt(['>', 'bububu', 16]))
+			->andWhere(ConditionAdapter::adapt(['<', 'bububu', 108]))
 			->all()
 		);
 		/*!=*/
-		self::assertCount(15, Users::find()
+		self::assertCount(86, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(ConditionAdapter::adapt(['not', 'bububu' => 42]))
+			->andWhere(ConditionAdapter::adapt(['!=', 'bububu', 42]))
 			->all()
 		);
 		/*in*/
-		self::assertCount(15, Users::find()
+		self::assertCount(28, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['bububu' => [16, 23]]))
 			->all()
 		);
 		/*is not set*/
-		self::assertCount(15, Users::find()
+		self::assertCount(3, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['bububu' => null]))
 			->all()
 		);
 		/*same*/
-		self::assertCount(15, Users::find()
+		self::assertCount(3, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['is', 'bububu', null]))
 			->all()
 		);
 		/*is not null*/
-		self::assertCount(15, Users::find()
+		self::assertCount(100, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['is not', 'bububu', null]))
 			->all()
@@ -241,37 +253,37 @@ class DynamicAttributesTest extends Unit {
 
 		/*Выборки по логическим динамическим полям*/
 		/*=*/
-		self::assertCount(15, Users::find()
+		self::assertCount(50, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['pipi' => true]))
 			->all()
 		);
 		/*not*/
-		self::assertCount(15, Users::find()
+		self::assertCount(50, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(ConditionAdapter::adapt(['not', 'pipi', true]))
+			->andWhere(ConditionAdapter::adapt(['!=', 'pipi', true]))
 			->all()
 		);
 		/*not*/
-		self::assertCount(15, Users::find()
+		self::assertCount(50, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['pipi' => false]))
 			->all()
 		);
 		/*null*/
-		self::assertCount(15, Users::find()
+		self::assertCount(3, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['pipi' => null]))
 			->all()
 		);
 		/*null*/
-		self::assertCount(15, Users::find()
+		self::assertCount(3, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['is', 'pipi', null]))
 			->all()
 		);
 		/*not null*/
-		self::assertCount(15, Users::find()
+		self::assertCount(100, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(ConditionAdapter::adapt(['is not', 'pipi', null]))
 			->all()
