@@ -4,17 +4,22 @@ declare(strict_types = 1);
 namespace pozitronik\dynamic_attributes\models\active_record;
 
 use pozitronik\traits\traits\ActiveRecordTrait;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use pozitronik\dynamic_attributes\models\DynamicAttributesValues;
 
 /**
  * Class DynamicAttributes
  * @property int $id
- * @property string $model Model alias
+ * @property string $alias Model alias
  * @property string $attribute_name Attribute name
  * @property null|int $type Attribute type, see self::TYPES
+ *
+ * @property-read DynamicAttributesValues[] $relatedDynamicAttributesValues
  */
 class DynamicAttributes extends ActiveRecord {
 	use ActiveRecordTrait;
+
 	/**
 	 * @inheritDoc
 	 */
@@ -28,10 +33,17 @@ class DynamicAttributes extends ActiveRecord {
 	public function rules():array {
 		return [
 			[['id'], 'integer'],
-			[['model', 'attribute_name'], 'string', 'max' => 255],
-			[['model', 'attribute_name'], 'unique', 'targetAttribute' => ['model', 'attribute_name']],
+			[['alias', 'attribute_name'], 'string', 'max' => 255],
+			[['alias', 'attribute_name'], 'unique', 'targetAttribute' => ['alias', 'attribute_name']],
 			[['type'], 'integer']
 		];
+	}
+
+	/**
+	 * @return ActiveQuery
+	 */
+	public function getRelatedDynamicAttributesValues():ActiveQuery {
+		return $this->hasMany(DynamicAttributesValues::class, ['alias_id' => 'id']);
 	}
 
 }

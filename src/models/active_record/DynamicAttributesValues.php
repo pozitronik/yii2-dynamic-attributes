@@ -6,14 +6,14 @@ namespace pozitronik\dynamic_attributes\models\active_record;
 use pozitronik\traits\traits\ActiveRecordTrait;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use pozitronik\dynamic_attributes\models\DynamicAttributes;
 
 /**
  * Class DynamicAttributesValues
- * @property int $key Model ID
- * @property int $attribute_id Dynamic attribute ID
- * @property mixed $value Serialized dynamic attribute value
+ * @property int $model_id Model ID
+ * @property array $attributes_values JSON-serialized dynamic attributes values
  *
- * @property-read DynamicAttributes $relatedDynamicAttributes
+ * @property-read DynamicAttributes[] relatedDynamicAttributes
  */
 class DynamicAttributesValues extends ActiveRecord {
 	use ActiveRecordTrait;
@@ -31,9 +31,9 @@ class DynamicAttributesValues extends ActiveRecord {
 	public function rules():array {
 		return [
 			[['id'], 'integer'],
-			[['key', 'attribute_id'], 'unique', 'targetAttribute' => ['key', 'attribute_id']],
-			[['key', 'attribute_id'], 'integer'],
-			[['value'], 'safe']
+			[['model_id', 'alias_id'], 'unique', 'targetAttribute' => ['model_id', 'alias_id']],
+			[['model_id', 'alias_id'], 'integer'],
+			[['attributes_values'], 'safe']
 		];
 	}
 
@@ -41,6 +41,7 @@ class DynamicAttributesValues extends ActiveRecord {
 	 * @return ActiveQuery
 	 */
 	public function getRelatedDynamicAttributes():ActiveQuery {
-		return $this->hasMany(DynamicAttributes::class, ['id' => 'attribute_id']);
+		return $this->hasMany(DynamicAttributes::class, ['id' => 'alias_id']);
 	}
+
 }

@@ -15,23 +15,27 @@ class m000000_000000_create_dynamic_attributes_tables extends Migration {
 	public function safeUp() {
 		$this->createTable(self::ATTR_TABLE_NAME, [
 			'id' => $this->primaryKey(),
-			'model' => $this->string(256)->notNull()->comment('Model alias'),
+			'alias' => $this->string(256)->notNull()->comment('Model alias'),
 			'attribute_name' => $this->string(256)->notNull()->comment('Attribute name'),
 			'type' => $this->integer()->null()->comment('Attribute type')
 		]);
 
+		$this->addCommentOnTable(self::ATTR_TABLE_NAME, 'Dynamic attributes list');
+
 		$this->createTable(self::VALUES_TABLE_NAME, [
 			'id' => $this->primaryKey(),
-			'attribute_id' => $this->integer()->notNull()->comment('Attribute id'),
-			'key' => $this->integer()->notNull()->comment('Model id'),
-			'value' => $this->binary()->null()->comment('Serialized attribute value'),
+			'model_id' => $this->integer()->notNull()->comment('Model id'),
+			'alias_id' => $this->integer()->notNull()->comment('Model alias id'),
+			'attributes_values' => $this->json()->null()->comment('JSON serialized attribute value pars'),
 		]);
 
-		$this->createIndex(self::ATTR_TABLE_NAME.'_model_attribute_name_idx', self::ATTR_TABLE_NAME, ['model', 'attribute_name'], true);
+		$this->addCommentOnTable(self::VALUES_TABLE_NAME, 'Dynamic attributes values');
+
+		$this->createIndex(self::ATTR_TABLE_NAME.'_alias_attribute_name_idx', self::ATTR_TABLE_NAME, ['alias', 'attribute_name'], true);
 		$this->createIndex(self::ATTR_TABLE_NAME.'_type_idx', self::ATTR_TABLE_NAME, ['type']);
 
-		$this->createIndex(self::VALUES_TABLE_NAME.'_key_attribute_name_idx', self::VALUES_TABLE_NAME, ['key', 'attribute_id'], true);
-		$this->addForeignKey('fk_'.self::ATTR_TABLE_NAME.'_attribute_id'.self::ATTR_TABLE_NAME.'_id', self::VALUES_TABLE_NAME, 'attribute_id', self::ATTR_TABLE_NAME, 'id');
+		$this->createIndex(self::VALUES_TABLE_NAME.'_model_id_alias_id_idx', self::VALUES_TABLE_NAME, ['model_id', 'alias_id'], true);
+		$this->addForeignKey('fk_alias_id', self::VALUES_TABLE_NAME, 'alias_id', self::ATTR_TABLE_NAME, 'id');
 
 	}
 
