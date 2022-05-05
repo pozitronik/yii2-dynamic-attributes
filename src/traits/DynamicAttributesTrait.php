@@ -6,15 +6,23 @@ namespace pozitronik\dynamic_attributes\traits;
 use pozitronik\dynamic_attributes\DynamicAttributesModule;
 use pozitronik\dynamic_attributes\models\AttributesStorage;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
+use pozitronik\dynamic_attributes\models\DynamicAttributesValues;
+use pozitronik\traits\traits\ActiveRecordTrait;
 use Throwable;
 use TypeError;
 use yii\base\InvalidConfigException as InvalidConfigExceptionAlias;
 use yii\base\UnknownPropertyException;
+use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * Trait DynamicAttributesTrait
+ * @property-read DynamicAttributes[] $relatedDynamicAttributes Связь к таблице атрибутов
+ * @property-read DynamicAttributesValues[] $relatedDynamicAttributesValues Связь к таблице значений атрибутов
  */
 trait DynamicAttributesTrait {
+	use ActiveRecordTrait;
+
 	/**
 	 * @var AttributesStorage|null Объект динамических атрибутов модели
 	 */
@@ -174,5 +182,23 @@ trait DynamicAttributesTrait {
 	public function getDynamicAttributesTypes():array {
 		return DynamicAttributes::getAttributesTypes($this::class);
 	}
+
+	/**
+	 * @return ActiveQuery
+	 * @throws Throwable
+	 */
+	public function getRelatedDynamicAttributes():ActiveQuery {
+		return $this->hasMany(DynamicAttributes::class, [])->onCondition(['model' => DynamicAttributes::getClassAlias($this::class)]);
+	}
+
+	/**
+	 * @return ActiveQuery
+	 */
+	public function getRelatedDynamicAttributesValues():ActiveQuery {
+		return $this->hasMany(DynamicAttributesValues::class, ['attribute_id' => 'id'])
+			->via('relatedDynamicAttributes')
+			->andOnCondition(new Expression(DynamicAttributesValues::fieldName('key').' = '.static::fieldName('id')));
+	}
+
 
 }
