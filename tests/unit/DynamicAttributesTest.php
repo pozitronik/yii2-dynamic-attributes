@@ -6,8 +6,10 @@ namespace unit;
 use app\models\Users;
 use Codeception\Test\Unit;
 use DummyClass;
+use pozitronik\dynamic_attributes\models\adapters\ConditionAdapter;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use Throwable;
+use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\UnknownPropertyException;
 use yii\db\Exception;
@@ -18,17 +20,24 @@ use yii\db\Exception;
 class DynamicAttributesTest extends Unit {
 
 	/**
+	 * @inheritDoc
+	 */
+	protected function _before() {
+		/**
+		 * Динамически регистрируем алиас класса. Проверить:
+		 * 1) Работу класса без регистрации.
+		 */
+		DynamicAttributes::setClassAlias(Users::class, 'users');
+	}
+
+	/**
 	 * @return void
 	 * @throws Exception
 	 * @throws Throwable
 	 * @throws InvalidConfigException
 	 */
 	public function testDynamicAttributes():void {
-		/**
-		 * Динамически регистрируем алиас класса. Проверить:
-		 * 1) Работу класса без регистрации.
-		 */
-		DynamicAttributes::setClassAlias(Users::class, 'users');
+
 		self::assertEquals(Users::class, DynamicAttributes::getAliasClass('users'));
 		self::assertEquals('users', DynamicAttributes::getClassAlias(Users::class));
 		self::assertNull(DynamicAttributes::getAliasClass('unknown'));
@@ -130,6 +139,31 @@ class DynamicAttributesTest extends Unit {
 		$this->expectExceptionObject(new UnknownPropertyException('Getting unknown property: app\models\Users::unknown_attribute'));
 		/** @noinspection PhpUnusedLocalVariableInspection */
 		$a = $user->unknown_attribute;
+	}
+
+	public function testDynamicAttributesSearch():void {
+		/*Нафигачим моделей*/
+		DynamicAttributes::setClassAlias(Users::class, 'users');
+		$searchDataWadawada = ['foo', 'bar', 'baz', 'literally', 'frog', 'dude'];
+		$searchDataBububu = [4, 8, 15, 16, 23, 42, 108];
+		$wIndex = 0;
+		$bIndex = 0;
+		for ($i = 5; $i < 105; $i++) {
+			$user = Users::CreateUser($i)->saveAndReturn();
+			$user->wadawada = $searchDataWadawada[$wIndex++];//strings
+			$user->bububu = $searchDataBububu[$bIndex++];//integers
+			$user->pipi = 0 === $i % 2;//booleans
+			if ($wIndex >= count($searchDataWadawada)) $wIndex = 0;
+			if ($bIndex >= count($searchDataBububu)) $bIndex = 0;
+			$user->save();
+		}
+
+		$searchOne = Users::find()
+			->where(['>', Users::fieldName('id'), 10])
+			->andWhere((new ConditionAdapter(['wadawada' => 'frog']))->expression);
+
+		$searchOne->createCommand()->rawSql;
+		self::assertCount(16, $searchOne->all());
 	}
 
 }
