@@ -157,13 +157,125 @@ class DynamicAttributesTest extends Unit {
 			if ($bIndex >= count($searchDataBububu)) $bIndex = 0;
 			$user->save();
 		}
+		/*Выборки по строковыми динамическим полям*/
+		/*сравнение*/
+		self::assertCount(16, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['wadawada' => 'frog']))
+			->all()
+		);
+		/*like*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['ilike', 'wadawada', 'ba%']))
+			->all()
+		);
+		/*is not set*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['wadawada' => null]))
+			->all());
+		/*same*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['is', 'wadawada', null]))
+			->all()
+		);
+		/*is set*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['is not', 'wadawada', null]))
+			->all()
+		);
+		/*in*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['wadawada' => ['dude', 'literally']]))
+			->all()
+		);
 
-		$searchOne = Users::find()
-			->where(['>', Users::fieldName('id'), 10])
-			->andWhere((new ConditionAdapter(['wadawada' => 'frog']))->expression);
+		/*Выборки по целочисленным динамическим полям*/
+		/*сравнение*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['bububu' => 16]))
+			->all()
+		);
+		/*> <*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['>', 'bububu' => 23]))
+			->andWhere(ConditionAdapter::adapt(['<', 'bububu' => 42]))
+			->all()
+		);
+		/*!=*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['not', 'bububu' => 42]))
+			->all()
+		);
+		/*in*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['bububu' => [16, 23]]))
+			->all()
+		);
+		/*is not set*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['bububu' => null]))
+			->all()
+		);
+		/*same*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['is', 'bububu', null]))
+			->all()
+		);
+		/*is not null*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['is not', 'bububu', null]))
+			->all()
+		);
 
-		$searchOne->createCommand()->rawSql;
-		self::assertCount(16, $searchOne->all());
+		/*Выборки по логическим динамическим полям*/
+		/*=*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['pipi' => true]))
+			->all()
+		);
+		/*not*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['not', 'pipi', true]))
+			->all()
+		);
+		/*not*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['pipi' => false]))
+			->all()
+		);
+		/*null*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['pipi' => null]))
+			->all()
+		);
+		/*null*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['is', 'pipi', null]))
+			->all()
+		);
+		/*not null*/
+		self::assertCount(15, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere(ConditionAdapter::adapt(['is not', 'pipi', null]))
+			->all()
+		);
 	}
 
 }
