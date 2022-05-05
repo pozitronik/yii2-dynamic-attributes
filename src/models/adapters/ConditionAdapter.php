@@ -41,7 +41,7 @@ class ConditionAdapter extends BaseObject implements ExpressionInterface {
 			$attribute_value = $condition[$attribute_name];
 		}
 
-		//вероятно, придётся изменить сериализацию на json
+		//вероятно, придётся изменить сериализацию на json $query->andWhere(['=', 'json', new ArrayExpression(['foo' => 'bar'])])
 		return ['and', [DynamicAttributes::fieldName('attribute_name') => $attribute_name], [$operator, DynamicAttributesValues::fieldName('value'), $attribute_value]];
 	}
 }
