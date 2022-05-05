@@ -188,16 +188,16 @@ trait DynamicAttributesTrait {
 	 * @throws Throwable
 	 */
 	public function getRelatedDynamicAttributes():ActiveQuery {
-		return $this->hasMany(DynamicAttributes::class, [])->onCondition(['model' => DynamicAttributes::getClassAlias($this::class)]);
+		return $this->hasMany(DynamicAttributes::class, [])->onCondition(['alias' => DynamicAttributes::getClassAlias($this::class)]);
 	}
 
 	/**
 	 * @return ActiveQuery
 	 */
 	public function getRelatedDynamicAttributesValues():ActiveQuery {
-		return $this->hasMany(DynamicAttributesValues::class, ['attribute_id' => 'id'])
+		return $this->hasMany(DynamicAttributesValues::class, ['alias_id' => 'id'])
 			->via('relatedDynamicAttributes')
-			->andOnCondition(new Expression(DynamicAttributesValues::fieldName('key').' = '.static::fieldName('id')));
+			->andOnCondition(new Expression(DynamicAttributesValues::fieldName('model_id').' = '.static::fieldName('id')));
 	}
 
 
