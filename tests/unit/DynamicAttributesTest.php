@@ -100,7 +100,7 @@ class DynamicAttributesTest extends Unit {
 			'sex' => true,
 			'memo about' => 'user memo',
 			'some_dynamic_attribute' => 500,
-			'some_float_attribute' => 0.71428571428571,
+			'some_float_attribute' => 0.7142857142857,
 			'some_double_attribute' => 1.1428571428571
 		], DynamicAttributes::getAttributesValues($user)));
 
