@@ -19,7 +19,7 @@ class ConditionAdapter {
 	 */
 	public static function adapt(array $condition):array {
 		if (isset($condition[0])) {//['operator', 'attribute_name', 'attribute_value']
-			$operator = strtoupper(array_shift($condition));
+			$operator = $condition[0];
 			$attribute_name = $condition[1];
 			$attribute_value = $condition[2];
 		} else { //['attribute_name' => 'attribute_value']
