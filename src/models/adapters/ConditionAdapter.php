@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace pozitronik\dynamic_attributes\models\adapters;
 
-use pozitronik\dynamic_attributes\models\active_record\DynamicAttributes;
+use pozitronik\dynamic_attributes\models\active_record\DynamicAttributesAliases;
 use pozitronik\dynamic_attributes\models\DynamicAttributesValues;
 use yii\base\BaseObject;
 use yii\db\ExpressionInterface;
@@ -42,6 +42,6 @@ class ConditionAdapter extends BaseObject implements ExpressionInterface {
 		}
 
 		//вероятно, придётся изменить сериализацию на json $query->andWhere(['=', 'json', new ArrayExpression(['foo' => 'bar'])])
-		return ['and', [DynamicAttributes::fieldName('attribute_name') => $attribute_name], [$operator, DynamicAttributesValues::fieldName('value'), $attribute_value]];
+		return ['and', [DynamicAttributesAliases::fieldName('attribute_name') => $attribute_name], [$operator, DynamicAttributesValues::fieldName('value'), $attribute_value]];
 	}
 }

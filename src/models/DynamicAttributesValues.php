@@ -45,8 +45,10 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	public static function setAttributesValue(int $alias_id, int $model_id, string $attribute_name, mixed $attribute_value):?static {
 		try {
 			$valueRecord = static::Upsert(compact('model_id', 'alias_id'));
-			if ($valueRecord->attributes_values[$attribute_name] !== $attribute_value) {
-				$valueRecord->attributes_values[$attribute_name] = $attribute_value;
+			if (null === $valueRecord->attributes_values || $valueRecord->attributes_values[$attribute_name] !== $attribute_value) {
+				$oldValues = $valueRecord->attributes_values;
+				$oldValues[$attribute_name] = $attribute_value;
+				$valueRecord->attributes_values = $oldValues;
 				$valueRecord->save();
 			}
 			return $valueRecord;

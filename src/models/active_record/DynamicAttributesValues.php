@@ -6,14 +6,14 @@ namespace pozitronik\dynamic_attributes\models\active_record;
 use pozitronik\traits\traits\ActiveRecordTrait;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
-use pozitronik\dynamic_attributes\models\DynamicAttributes;
 
 /**
  * Class DynamicAttributesValues
+ * @property int $alias_id Alias ID
  * @property int $model_id Model ID
  * @property array $attributes_values JSON-serialized dynamic attributes values
  *
- * @property-read DynamicAttributes[] relatedDynamicAttributes
+ * @property-read DynamicAttributesAliases[] $relatedDynamicAttributes
  */
 class DynamicAttributesValues extends ActiveRecord {
 	use ActiveRecordTrait;
@@ -41,7 +41,7 @@ class DynamicAttributesValues extends ActiveRecord {
 	 * @return ActiveQuery
 	 */
 	public function getRelatedDynamicAttributes():ActiveQuery {
-		return $this->hasMany(DynamicAttributes::class, ['id' => 'alias_id']);
+		return $this->hasMany(DynamicAttributesAliases::class, ['id' => 'alias_id']);
 	}
 
 }

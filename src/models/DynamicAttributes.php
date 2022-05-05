@@ -45,7 +45,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 */
 	public static function ensureAttribute(string|ActiveRecordInterface $model, string $attribute, ?int $type = null):static {
 		$attributes = [
-			'model' => is_string($model)?$model:static::getClassAlias($model::class),
+			'alias' => is_string($model)?$model:static::getClassAlias($model::class),
 			'attribute_name' => $attribute,
 
 		];
@@ -99,7 +99,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	public static function attributeType(ActiveRecordInterface $model, string $attribute_name):?int {
 		/** @var static|null $found */
 		return (null === $found = static::find()->where([
-				'model' => static::getClassAlias($model::class),
+				'alias' => static::getClassAlias($model::class),
 				'attribute_name' => $attribute_name
 			])->one())?null:$found->type;
 	}
@@ -139,7 +139,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 			->where([static::fieldName('alias') => static::getClassAlias($model::class)])
 			->andWhere([DynamicAttributesValues::fieldName('model_id') => static::extractKey($model)])
 			->one();
-		return $attributes->attributes_values;
+		return $attributes?->attributes_values??[];
 	}
 
 	/**

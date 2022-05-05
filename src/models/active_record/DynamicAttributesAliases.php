@@ -11,21 +11,19 @@ use pozitronik\dynamic_attributes\models\DynamicAttributesValues;
 /**
  * Class DynamicAttributes
  * @property int $id
- * @property int $alias_id Alias ID
- * @property string $attribute_name Attribute name
- * @property null|int $type Attribute type, see self::TYPES
+ * @property string $alias Model alias
  *
- * @property-read DynamicAttributesAliases $relatedDynamicAttributesAliases
+ * @property-read DynamicAttributes[] $relatedDynamicAttributes
  * @property-read DynamicAttributesValues[] $relatedDynamicAttributesValues
  */
-class DynamicAttributes extends ActiveRecord {
+class DynamicAttributesAliases extends ActiveRecord {
 	use ActiveRecordTrait;
 
 	/**
 	 * @inheritDoc
 	 */
 	public static function tableName():string {
-		return 'sys_dynamic_attributes';
+		return 'sys_dynamic_attributes_aliases';
 	}
 
 	/**
@@ -34,9 +32,8 @@ class DynamicAttributes extends ActiveRecord {
 	public function rules():array {
 		return [
 			[['id'], 'integer'],
-			[['attribute_name'], 'string', 'max' => 255],
-			[['alias_id', 'attribute_name'], 'unique', 'targetAttribute' => ['alias_id', 'attribute_name']],
-			[['type', 'alias_id'], 'integer']
+			[['alias'], 'string', 'max' => 255],
+			[['alias'], 'unique', 'targetAttribute' => ['alias']],
 		];
 	}
 
@@ -44,14 +41,14 @@ class DynamicAttributes extends ActiveRecord {
 	 * @return ActiveQuery
 	 */
 	public function getRelatedDynamicAttributesValues():ActiveQuery {
-		return $this->hasMany(DynamicAttributesValues::class, ['alias_id' => 'alias_id']);
+		return $this->hasMany(DynamicAttributesValues::class, ['alias_id' => 'id']);
 	}
 
 	/**
 	 * @return ActiveQuery
 	 */
-	public function getRelatedDynamicAttributesAliases():ActiveQuery {
-		return $this->hasMany(DynamicAttributesAliases::class, ['id' => 'alias_id']);
+	public function getRelatedDynamicAttributes():ActiveQuery {
+		return $this->hasMany(DynamicAttributes::class, ['alias_id' => 'id']);
 	}
 
 }
