@@ -31,12 +31,12 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	 * @var bool limit float attributes size to 64 bits (as php native floats).
 	 * By default, php uses a 64 bit floating-point precision (roughly 14 decimal digits, see [[https://www.php.net/manual/en/language.types.float.php]]).
 	 * But PostgreSQL may save float values with extended precision, that can cause problems with search, e.g.
-	 * php:5/7 => 0.71428571428571,
-	 * pgsql:5/7 => 0.7142857142857143
+	 * php:8/7 => 1.1428571428571,
+	 * pgsql:5/7 => 1.1428571428571428
 	 *
 	 * >select * from table where float_column = 5/7 => nothing will be found
 	 *
-	 * This option forcibly restricts stored floats precision to 14 decimal digits, e.g. 0.7142857142857143 will be stored as 0.71428571428571
+	 * This option forcibly restricts stored floats precision to 14 decimal digits, e.g. 1.1428571428571428 (16 digits after decimal point) will be stored as 1.1428571428571 (14 decimal digits)
 	 */
 	public bool $limitFloatPrecision = true;
 
@@ -59,7 +59,15 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	 */
 	public static function setAttributesValue(int $alias_id, int $model_id, string $attribute_name, mixed $attribute_value):?static {
 		if (is_float($attribute_value) && (new static())->limitFloatPrecision) {
-			$attribute_value = round($attribute_value,14);
+			/**
+			 * Волшебная магия.
+			 * Нужно обрезать число так, чтобы оно было «длиной» в 14 знаков (не после десятичного знака, а вообще). Неважно, что PHP почти всегда отдаёт float как 14-знаковое число,
+			 * внутреннее представление у него хранится с максимально возможной для платформы точностью (которая уйдёт в БД, что вызовет проблемы).
+			 * Поэтому значение умножается на такой множитель, чтобы при преобразовании в int отбросить лишний по длине «хвост», а затем делится на этот же множитель,
+			 * чтобы снова стать float. Множитель же зависит от того, какая десятичная степень у целой части изначального значения.
+			 * Надеюсь, стало понятнее.
+			 **/
+			$attribute_value = (int)($attribute_value * ($p = 10 ** (13 - intdiv((int)$attribute_value, 10)))) / $p;
 		}
 
 		try {
