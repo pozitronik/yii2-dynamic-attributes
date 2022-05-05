@@ -5,6 +5,7 @@ namespace pozitronik\dynamic_attributes\models;
 
 use pozitronik\dynamic_attributes\DynamicAttributesModule;
 use pozitronik\dynamic_attributes\models\active_record\DynamicAttributesValues as DynamicAttributesValuesAR;
+use pozitronik\helpers\ArrayHelper;
 use Throwable;
 use Yii;
 
@@ -45,7 +46,7 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	public static function setAttributesValue(int $alias_id, int $model_id, string $attribute_name, mixed $attribute_value):?static {
 		try {
 			$valueRecord = static::Upsert(compact('model_id', 'alias_id'));
-			if (null === $valueRecord->attributes_values || $valueRecord->attributes_values[$attribute_name] !== $attribute_value) {
+			if (ArrayHelper::getValue($valueRecord->attributes_values, $attribute_name) !== $attribute_value) {
 				$oldValues = $valueRecord->attributes_values;
 				$oldValues[$attribute_name] = $attribute_value;
 				$valueRecord->attributes_values = $oldValues;

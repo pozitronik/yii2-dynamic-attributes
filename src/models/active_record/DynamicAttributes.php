@@ -7,6 +7,7 @@ use pozitronik\traits\traits\ActiveRecordTrait;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use pozitronik\dynamic_attributes\models\DynamicAttributesValues;
+use pozitronik\dynamic_attributes\models\DynamicAttributesAliases;
 
 /**
  * Class DynamicAttributes
