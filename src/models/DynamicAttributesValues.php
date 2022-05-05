@@ -34,7 +34,7 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	 * php:8/7 => 1.1428571428571,
 	 * pgsql:5/7 => 1.1428571428571428
 	 *
-	 * >select * from table where float_column = 5/7 => nothing will be found
+	 * >select * from table where float_column = 1.1428571428571 => nothing will be found
 	 *
 	 * This option forcibly restricts stored floats precision to 14 decimal digits, e.g. 1.1428571428571428 (16 digits after decimal point) will be stored as 1.1428571428571 (14 decimal digits)
 	 */
