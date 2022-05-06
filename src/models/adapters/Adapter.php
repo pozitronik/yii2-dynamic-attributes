@@ -10,9 +10,20 @@ use Throwable;
 use yii\db\ActiveRecordInterface;
 
 /**
- * Адаптируем условие для динамических параметров в ActiveQuery-условие
+ * Методы адаптации динамических параметров для ActiveQuery
  */
-class ConditionAdapter {
+class Adapter {
+
+	/**
+	 * Преобразует имя динамического поля в подходящий для запроса формат
+	 * @param string $jsonFieldName
+	 * @param ActiveRecordInterface|string|null $model
+	 * @return string
+	 * @throws Throwable
+	 */
+	public static function adaptField(string $jsonFieldName, ActiveRecordInterface|string|null $model = null):string {
+		return self::jsonFieldName(DynamicAttributesValues::tableName(), 'attributes_values', $jsonFieldName, null === $model?null:DynamicAttributes::attributeType($model, $jsonFieldName));
+	}
 
 	/**
 	 * Превращает упрощённое условие выборки в массив для QueryBuilder
@@ -39,17 +50,6 @@ class ConditionAdapter {
 	}
 
 	/**
-	 * Преобразует имя динамического поля в подходящий для запроса формат
-	 * @param string $jsonFieldName
-	 * @param ActiveRecordInterface|string|null $model
-	 * @return string
-	 * @throws Throwable
-	 */
-	public static function adaptField(string $jsonFieldName, ActiveRecordInterface|string|null $model = null):string {
-		return self::jsonFieldName(DynamicAttributesValues::tableName(), 'attributes_values', $jsonFieldName, null === $model?null:DynamicAttributes::attributeType($model, $jsonFieldName));
-	}
-
-	/**
 	 * MySQL и PostgreSQL по разному атрибутируют поля в json.
 	 * PGSQL ONLY!
 	 * @param string $tableName
@@ -58,7 +58,7 @@ class ConditionAdapter {
 	 * @param int|null $fieldType Тип поля. Если численный код типа, то адаптер попытается найти подходящий тип pgsql, если null, то pgsql-типизация будет проигнорирована
 	 * @return string
 	 */
-	public static function jsonFieldName(string $tableName, string $fieldName, string $jsonFieldName, ?int $fieldType):string {
+	private static function jsonFieldName(string $tableName, string $fieldName, string $jsonFieldName, ?int $fieldType):string {
 		$dataType = (null === $fieldType)
 			?''
 			:"::".static::PHPTypeToPgSQLType($fieldType);
@@ -70,18 +70,11 @@ class ConditionAdapter {
 	 * @param int|null $type
 	 * @return string
 	 */
-	public static function PHPTypeToPgSQLType(?int $type):string {
+	private static function PHPTypeToPgSQLType(?int $type):string {
 		return match ($type) {
 			DynamicAttributes::TYPE_BOOL => 'boolean',
 			DynamicAttributes::TYPE_INT => 'int',
 			DynamicAttributes::TYPE_DOUBLE => 'float',
-//			DynamicAttributes::TYPE_STRING => 'text',
-//			DynamicAttributes::TYPE_ARRAY => '', unsupported
-//			DynamicAttributes::TYPE_OBJECT => '',unsupported
-//			DynamicAttributes::TYPE_RESOURCE => '',unsupported
-//			DynamicAttributes::TYPE_NULL => '',//meaningless
-//			DynamicAttributes::TYPE_UNKNOWN => 'text',//compatibility
-//			DynamicAttributes::TYPE_RESOURCE_CLOSED => '',
 			default => 'text'
 		};
 	}
