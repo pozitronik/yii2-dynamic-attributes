@@ -194,6 +194,12 @@ class DynamicAttributesTest extends Unit {
 			->andWhere(ConditionAdapter::adaptWhere(['wadawada' => 'frog']))
 			->all()
 		);
+		/*Можно и так*/
+		self::assertCount(14, Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->andWhere([ConditionAdapter::adaptField('wadawada', Users::class) => 'frog'])
+			->all()
+		);
 		/*%like%*/
 		self::assertCount(29, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
