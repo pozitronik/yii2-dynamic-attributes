@@ -368,12 +368,34 @@ class DynamicAttributesTest extends Unit {
 		/*Сортировки*/
 		$sortedByFloat = Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->orderBy([ConditionAdapter::adapt('fluffy', Users::class) => SORT_ASC])
+			->orderBy([ConditionAdapter::adaptField('fluffy', Users::class) => SORT_ASC])//если передать класс, то при сортировке будет учтён зарегистрированный тип поля
 			->all();
 		self::assertEquals(2.8571428571428, $sortedByFloat[15]->fluffy);
 		self::assertEquals(7, $sortedByFloat[44]->fluffy);
 		self::assertEquals(14.714285714285, $sortedByFloat[98]->fluffy);
 		self::assertNull($sortedByFloat[102]->fluffy);
+
+		$sortedByInt = Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->orderBy([ConditionAdapter::adaptField('bububu') => SORT_ASC])//если класс не указать, то сортировка произойдёт без типизации -> т.е. в алфавитном порядке
+			->all();
+
+		self::assertEquals(108, $sortedByInt[13]->bububu);
+		self::assertEquals(15, $sortedByInt[27]->bububu);
+		self::assertEquals(4, $sortedByInt[56]->bububu);
+		self::assertEquals(96, $sortedByInt[56]->id);
+		self::assertNull($sortedByInt[102]->bububu);
+
+		$sortedByInt = Users::find()
+			->joinWith(['relatedDynamicAttributesValues'])
+			->orderBy([ConditionAdapter::adaptField('bububu', $user) => SORT_ASC])//вместо класса можно указать и экземпляр класса
+			->all();
+
+		self::assertEquals(15, $sortedByInt[31]->bububu);
+		self::assertEquals(15, $sortedByInt[41]->bububu);
+		self::assertEquals(16, $sortedByInt[56]->bububu);
+		self::assertEquals(29, $sortedByInt[56]->id);
+		self::assertNull($sortedByInt[102]->bububu);
 	}
 
 }
