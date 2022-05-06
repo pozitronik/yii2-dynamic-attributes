@@ -6,6 +6,8 @@ namespace pozitronik\dynamic_attributes\models\adapters;
 use Exception;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use pozitronik\dynamic_attributes\models\DynamicAttributesValues;
+use Throwable;
+use yii\db\ActiveRecordInterface;
 
 /**
  * Адаптируем условие для динамических параметров в ActiveQuery-условие
@@ -19,7 +21,7 @@ class ConditionAdapter {
 	 * @throws Exception
 	 * @throws Exception
 	 */
-	public static function adapt(array $condition):array {
+	public static function adaptWhere(array $condition):array {
 		if (isset($condition[0])) {//['operator', 'attribute_name', 'attribute_value']
 			$operator = array_shift($condition);
 			$attribute_name = array_shift($condition);
@@ -37,17 +39,30 @@ class ConditionAdapter {
 	}
 
 	/**
+	 * Преобразует имя динамического поля в подходящий для запроса формат
+	 * @param string $jsonFieldName
+	 * @param ActiveRecordInterface|string|null $model
+	 * @return string
+	 * @throws Throwable
+	 */
+	public static function adaptField(string $jsonFieldName, ActiveRecordInterface|string|null $model = null):string {
+		return self::jsonFieldName(DynamicAttributesValues::tableName(), 'attributes_values', $jsonFieldName, null === $model?null:DynamicAttributes::attributeType($model, $jsonFieldName));
+	}
+
+	/**
 	 * MySQL и PostgreSQL по разному атрибутируют поля в json.
 	 * PGSQL ONLY!
 	 * @param string $tableName
 	 * @param string $fieldName
 	 * @param string $jsonFieldName
-	 * @param int|null $fieldType
+	 * @param int|null $fieldType Тип поля. Если численный код типа, то адаптер попытается найти подходящий тип pgsql, если null, то pgsql-типизация будет проигнорирована
 	 * @return string
 	 */
 	public static function jsonFieldName(string $tableName, string $fieldName, string $jsonFieldName, ?int $fieldType):string {
-		$dataType = static::PHPTypeToPgSQLType($fieldType);
-		return "(\"".$tableName."\".\"".$fieldName."\"->>'".$jsonFieldName."')::{$dataType}";
+		$dataType = (null === $fieldType)
+			?''
+			:"::".static::PHPTypeToPgSQLType($fieldType);
+		return "(\"".$tableName."\".\"".$fieldName."\"->>'".$jsonFieldName."'){$dataType}";
 	}
 
 	/**
