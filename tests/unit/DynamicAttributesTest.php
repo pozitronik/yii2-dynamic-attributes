@@ -404,4 +404,11 @@ class DynamicAttributesTest extends Unit {
 		self::assertNull($sortedByInt[102]->bububu);
 	}
 
+	/**
+	 * @return void
+	 */
+	public function testWeirdIdentifiers():void {
+		//todo: берём странные идентификаторы атрибутов, проверяем на них
+	}
+
 }
