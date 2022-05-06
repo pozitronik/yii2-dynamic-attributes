@@ -22,7 +22,7 @@ class Adapter {
 	 * @throws Throwable
 	 */
 	public static function adaptField(string $jsonFieldName, ActiveRecordInterface|string|null $model = null):string {
-		return self::jsonFieldName(DynamicAttributesValues::tableName(), 'attributes_values', $jsonFieldName, null === $model?null:DynamicAttributes::attributeType($model, $jsonFieldName));
+		return self::jsonFieldName($jsonFieldName, null === $model?null:DynamicAttributes::attributeType($model, $jsonFieldName));
 	}
 
 	/**
@@ -44,7 +44,7 @@ class Adapter {
 			$condition = [];
 			$operator = static::getOperator($attribute_value);
 		}
-		$adaptedExpression = [$operator, self::jsonFieldName(DynamicAttributesValues::tableName(), 'attributes_values', $attribute_name, DynamicAttributes::getType($attribute_value)), $attribute_value];
+		$adaptedExpression = [$operator, self::jsonFieldName($attribute_name, DynamicAttributes::getType($attribute_value)), $attribute_value];
 		//В массиве могут остаться ещё какие-то параметры, например false в like - их просто добавим в адаптированное выражение
 		return array_merge($adaptedExpression, $condition);
 	}
@@ -52,17 +52,15 @@ class Adapter {
 	/**
 	 * MySQL и PostgreSQL по разному атрибутируют поля в json.
 	 * PGSQL ONLY!
-	 * @param string $tableName
-	 * @param string $fieldName
 	 * @param string $jsonFieldName
 	 * @param int|null $fieldType Тип поля. Если численный код типа, то адаптер попытается найти подходящий тип pgsql, если null, то pgsql-типизация будет проигнорирована
 	 * @return string
 	 */
-	private static function jsonFieldName(string $tableName, string $fieldName, string $jsonFieldName, ?int $fieldType):string {
+	private static function jsonFieldName(string $jsonFieldName, ?int $fieldType):string {
 		$dataType = (null === $fieldType)
 			?''
 			:"::".static::PHPTypeToPgSQLType($fieldType);
-		return "(\"".$tableName."\".\"".$fieldName."\"->>'".$jsonFieldName."'){$dataType}";
+		return "(\"".DynamicAttributesValues::tableName()."\".\"attributes_values\"->>'".$jsonFieldName."'){$dataType}";
 	}
 
 	/**
