@@ -37,6 +37,18 @@ class DynamicAttributes extends DynamicAttributesAR {
 	public const TYPE_ERROR_TEXT = 'Attribute type does not match with previous';
 
 	/**
+	 * Для класса либо экземпляра класса возвращает зарегистрированный алиас.
+	 * @param string|ActiveRecordInterface $model Класс модели либо экземпляр модели, для которой нужно вернуть алиас
+	 * @return null|string Найденный алиас, null, если отсутствует
+	 * @throws Throwable
+	 */
+	private static function alias(string|ActiveRecordInterface $model):?string {
+		return is_string($model)
+			?static::getClassAlias($model)
+			:static::getClassAlias($model::class);
+	}
+
+	/**
 	 * Удостоверяется (и, при необходимости, создаёт) динамический атрибут указанного типа, привязанный к модели
 	 * @param string|ActiveRecordInterface $model
 	 * @param string $attribute_name
@@ -46,7 +58,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 */
 	public static function ensureAttribute(string|ActiveRecordInterface $model, string $attribute_name, ?int $type = null):static {
 		$attributes = [
-			'alias_id' => DynamicAttributesAliases::ensureAlias(is_string($model)?$model:static::getClassAlias($model::class))->id,
+			'alias_id' => DynamicAttributesAliases::ensureAlias(static::alias($model))->id,
 			'attribute_name' => $attribute_name,
 
 		];
@@ -64,47 +76,47 @@ class DynamicAttributes extends DynamicAttributesAR {
 
 	/**
 	 * Возвращает список известных атрибутов
-	 * @param ActiveRecordInterface $model
+	 * @param string|ActiveRecordInterface $model
 	 * @return array
 	 * @throws Throwable
 	 */
-	public static function listAttributes(ActiveRecordInterface $model):array {
+	public static function listAttributes(ActiveRecordInterface|string $model):array {
 		return ArrayHelper::getColumn(static::find()
 			->joinWith(['relatedDynamicAttributesAliases'])
 			->select(['attribute_name'])
-			->where([DynamicAttributesAliases::fieldName('alias') => static::getClassAlias($model::class)])
+			->where([DynamicAttributesAliases::fieldName('alias') => static::alias($model)])
 			->asArray()
 			->all(), 'attribute_name');
 	}
 
 	/**
 	 * Возвращает список известных атрибутов в формате [название => тип]
-	 * @param string $className
+	 * @param string|ActiveRecordInterface $model
 	 * @return array
 	 * @throws Throwable
 	 */
-	public static function getAttributesTypes(string $className):array {
+	public static function getAttributesTypes(ActiveRecordInterface|string $model):array {
 		return ArrayHelper::map(static::find()
 			->joinWith(['relatedDynamicAttributesAliases'])
 			->select([static::fieldName('attribute_name as name'), static::fieldName('type as type')])
-			->where([DynamicAttributesAliases::fieldName('alias') => static::getClassAlias($className)])
+			->where([DynamicAttributesAliases::fieldName('alias') => static::alias($model)])
 			->asArray()
 			->all(), 'name', 'type');
 	}
 
 	/**
 	 * Возвращает тип атрибута, null если тип неизвестен, или атрибут отсутствует
-	 * @param ActiveRecordInterface $model
+	 * @param string|ActiveRecordInterface $model
 	 * @param string $attribute_name
 	 * @return int|null
 	 * @throws Throwable
 	 */
-	public static function attributeType(ActiveRecordInterface $model, string $attribute_name):?int {
+	public static function attributeType(ActiveRecordInterface|string $model, string $attribute_name):?int {
 		/** @var static|null $found */
 		return (null === $found = static::find()
 				->joinWith(['relatedDynamicAttributesAliases'])
 				->where([
-					DynamicAttributesAliases::fieldName('alias') => static::getClassAlias($model::class),
+					DynamicAttributesAliases::fieldName('alias') => static::alias($model),
 					static::fieldName('attribute_name') => $attribute_name
 				])->one())?null:$found->type;
 	}
@@ -142,7 +154,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	}
 
 	/**
-	 * Присвоить динамические атрибуты список
+	 * Присвоить динамические атрибуты списком
 	 * @param ActiveRecordInterface $model
 	 * @param array $attributes Устанавливаемые атрибуты в формате [имя => значение]
 	 * @return void
@@ -150,10 +162,9 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function setAttributesValues(ActiveRecordInterface $model, array $attributes):void {
-		$alias = static::getClassAlias($model::class);
 		$model_id = static::extractKey($model);
 		foreach ($attributes as $name => $value) {
-			$alias_id = static::ensureAttribute($alias, $name, static::getType($value))->alias_id;
+			$alias_id = static::ensureAttribute($model, $name, static::getType($value))->alias_id;
 			DynamicAttributesValues::setAttributesValue($alias_id, $model_id, $name, $value);
 		}
 	}
