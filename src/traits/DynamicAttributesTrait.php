@@ -21,6 +21,9 @@ use yii\db\Expression;
  * @property-read DynamicAttributesAliases $relatedDynamicAttributesAliases
  * @property-read DynamicAttributes[] $relatedDynamicAttributes Связь к таблице атрибутов
  * @property-read DynamicAttributesValues[] $relatedDynamicAttributesValues Связь к таблице значений атрибутов
+ * @property-read array $dynamicAttributes Список динамических атрибутов модели
+ * @property-read array $dynamicAttributesValues Массив значений динамических атрибутов в формате имя-значение
+ * @property-read array $dynamicAttributesTypes Массив типов динамических атрибутов в формате имя-тип
  */
 trait DynamicAttributesTrait {
 	use ActiveRecordTrait;
