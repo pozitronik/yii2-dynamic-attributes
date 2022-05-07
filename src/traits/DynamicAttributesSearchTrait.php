@@ -7,6 +7,9 @@ use pozitronik\dynamic_attributes\models\adapters\Adapter;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use Throwable;
 use yii\db\ActiveQueryInterface;
+use yii\validators\BooleanValidator;
+use yii\validators\NumberValidator;
+use yii\validators\SafeValidator;
 
 /**
  * Trait DynamicAttributesSearchTrait
@@ -69,14 +72,6 @@ trait DynamicAttributesSearchTrait {
 	}
 
 	/**
-	 * @inheritdoc
-	 * Modifies search rules by adding dynamic attributes rules set to them
-	 */
-	public function rules():array {
-		return array_merge(static::rules(), [$this->_dynamicAttributesAliases, 'safe']);//todo: generator should rely on attribute type, i guess
-	}
-
-	/**
 	 * @return array [attribute name => attribute alias]
 	 * @throws Throwable
 	 */
@@ -91,10 +86,19 @@ trait DynamicAttributesSearchTrait {
 	 * Добавляет в правила валидаторы для динамических атрибутов
 	 * @param array $rules
 	 * @return array
+	 * @throws Throwable
 	 */
 	private function adaptRules(array $rules):array {
-		$rules[] = [$this->_dynamicAttributesAliases, 'safe'];
-		return $rules;
+		$aliasRules = [];
+		foreach ($this->_dynamicAttributesAliases as $attribute => $alias) {
+			$aliasRules[] = match (DynamicAttributes::attributeType(parent::class, $attribute)) {
+				DynamicAttributes::TYPE_BOOL => [[$alias], BooleanValidator::class],
+				DynamicAttributes::TYPE_INT => [[$alias], NumberValidator::class, 'integerOnly' => true],
+				default => [[$alias], SafeValidator::class]
+			};
+		}
+
+		return array_merge($rules, $aliasRules);
 	}
 
 	/**
