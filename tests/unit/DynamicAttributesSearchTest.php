@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace unit;
 
 use app\models\Users;
+use app\models\UsersSearch;
 use Codeception\Test\Unit;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use pozitronik\helpers\Utils;
@@ -26,11 +27,20 @@ class DynamicAttributesSearchTest extends Unit {
 			$user = Users::CreateUser($i)->saveAndReturn();
 			$user->Тип = Utils::random_str(10);
 			$user->{'Структурная принадлежность'} = Utils::random_str(10);
-			$user->{'Код компании'} = rand(1,1000);
+			$user->{'Код компании'} = rand(1, 1000);
 			$user->cbo = Utils::random_str(255);
 			$user->save();
 		}
 	}
 
+	/**
+	 * @return void
+	 */
+	public function testDynamicAttributesSearch():void {
+		$searchModel = new UsersSearch();
+		$dataProvider = $searchModel->search([]);
+
+		self::assertCount($dataProvider->pagination->pageSize, $dataProvider->models);
+	}
 
 }
