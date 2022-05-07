@@ -172,7 +172,6 @@ class DynamicAttributesTest extends Unit {
 
 	public function testDynamicAttributesActiveQuery():void {
 		/*Нафигачим моделей*/
-		DynamicAttributes::setClassAlias(Users::class, 'users');
 		$searchDataWadawada = ['foo', 'bar', 'baz', 'literally', 'frog', 'dude', 'aaz'];
 		$searchDataBububu = [4, 8, 15, 16, 23, 42, 108];
 		$wIndex = 0;
