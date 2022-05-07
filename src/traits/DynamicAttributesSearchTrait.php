@@ -5,6 +5,8 @@ namespace pozitronik\dynamic_attributes\traits;
 
 use pozitronik\dynamic_attributes\models\adapters\Adapter;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
+use Throwable;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Trait DynamicAttributesSearchTrait
@@ -33,11 +35,15 @@ trait DynamicAttributesSearchTrait {
 
 	/**
 	 * @inheritDoc
-	 * If requested attribute is dynamic, return corresponding value from internal storage
+	 * If the requested attribute is dynamic, returns corresponding value from the internal storage.
+	 * If the requested attribute is a dynamic attribute alias, also returns corresponding value.
 	 */
 	public function __get($name):mixed {
-		if (in_array($name, $this->_dynamicAttributesAliases)) {
+		if (in_array($name, $this->_dynamicAttributesAliases, true)) {
 			return $this->_dynamicAttributes[$name]??null;
+		}
+		if (array_key_exists($name, $this->_dynamicAttributesAliases)) {
+			return $this->_dynamicAttributes[$this->_dynamicAttributesAliases[$name]]??null;
 		}
 		return parent::__get($name);
 	}
@@ -47,7 +53,7 @@ trait DynamicAttributesSearchTrait {
 	 * If requested attribute is dynamic, set corresponding name-value pair in internal storage
 	 */
 	public function __set($name, $value):void {
-		if (in_array($name, $this->_dynamicAttributesAliases)) {
+		if (in_array($name, $this->_dynamicAttributesAliases, true)) {
 			$this->_dynamicAttributes[$name] = $value;
 		} else {
 			parent::__set($name, $value);
@@ -71,19 +77,61 @@ trait DynamicAttributesSearchTrait {
 	}
 
 	/**
-	 * @param array $attributes
 	 * @return array [attribute name => attribute alias]
+	 * @throws Throwable
 	 */
 	public static function getDynamicAttributesAliasesMap():array {
 		$attributes = DynamicAttributes::listAttributes(parent::class);
 		$old_attributes = $attributes;
-		array_walk($attributes, fn(&$value, $key) => $value = 'da'.$key);
+		array_walk($attributes, static fn(&$value, $key) => $value = 'da'.$key);
 		return array_combine($old_attributes, $attributes);
 	}
 
 	/**
+	 * Добавляет в правила валидаторы для динамических атрибутов
+	 * @param array $rules
 	 * @return array
-	 * @throws \Throwable
+	 */
+	private function adaptRules(array $rules):array {
+		$rules[] = [$this->_dynamicAttributesAliases, 'safe'];
+		return $rules;
+	}
+
+	/**
+	 * Добавляет к правилам сортировки правила для динамических атрибутов
+	 * @param array $sort
+	 * @return array
+	 * @throws Throwable
+	 */
+	private function adaptSort(array $sort):array {
+		$sort['attributes'] = array_merge($sort['attributes']??[], $this->dynamicAttributesSort());
+		return $sort;
+	}
+
+	/**
+	 * Добавляет в запрос условия для корректной фильтрации по динамическим атрибутам
+	 * @param ActiveQueryInterface $query
+	 * @return void
+	 * @throws Throwable
+	 */
+	private function adaptQuery(ActiveQueryInterface $query):void {
+		foreach (DynamicAttributes::getAttributesTypes(parent::class) as $name => $type) {
+			switch ($type) {
+				case DynamicAttributes::TYPE_BOOL:
+				case DynamicAttributes::TYPE_INT:
+				case DynamicAttributes::TYPE_DOUBLE:
+					$query->andFilterWhere(Adapter::adaptWhere([$name => $this->$name]));
+				break;
+				case DynamicAttributes::TYPE_STRING:
+					$query->andFilterWhere(Adapter::adaptWhere(['like', $name, $this->$name]));
+				break;
+			}
+		}
+	}
+
+	/**
+	 * @return array
+	 * @throws Throwable
 	 */
 	public function dynamicAttributesSort():array {
 		$result = [];
@@ -95,7 +143,5 @@ trait DynamicAttributesSearchTrait {
 		}
 		return $result;
 	}
-
-	//DataProviderAdapter!
 
 }
