@@ -3,6 +3,9 @@ declare(strict_types = 1);
 
 namespace app\models;
 
+use pozitronik\dynamic_attributes\models\adapters\Adapter;
+use pozitronik\dynamic_attributes\models\DynamicAttributes;
+use pozitronik\dynamic_attributes\traits\DynamicAttributesSearchTrait;
 use Yii;
 use yii\data\ActiveDataProvider;
 
@@ -10,12 +13,17 @@ use yii\data\ActiveDataProvider;
  * Class UsersSearch
  */
 class UsersSearch extends Users {
+	use DynamicAttributesSearchTrait;
 
 	/**
 	 * @inheritdoc
 	 */
 	public function rules():array {
-		return [['username', 'login', 'password'], 'safe'];
+		return [
+			[['id'], 'integer'],
+			[['username', 'login', 'password'], 'safe'],
+			[$this->_dynamicAttributesAliases, 'safe']
+		];
 	}
 
 	/**
@@ -33,7 +41,7 @@ class UsersSearch extends Users {
 
 		$dataProvider->setSort([
 			'defaultOrder' => ['id' => SORT_ASC],
-			'attributes' => [
+			'attributes' => array_merge([
 				'id' => [
 					'asc' => [Users::fieldName('id') => SORT_ASC],
 					'desc' => [Users::fieldName('id') => SORT_DESC]
@@ -46,8 +54,7 @@ class UsersSearch extends Users {
 					'asc' => [Users::fieldName('login') => SORT_ASC],
 					'desc' => [Users::fieldName('login') => SORT_DESC]
 				]
-
-			]
+			], $this->dynamicAttributesSort())
 		]);
 
 		$this->load($params);
@@ -55,19 +62,20 @@ class UsersSearch extends Users {
 		$query->andFilterWhere(['like', static::fieldName('username'), $this->username]);
 		$query->andFilterWhere(['like', static::fieldName('login'), $this->login]);
 
-//		foreach (DynamicAttributes::getAttributesTypes(Users::class) as $name => $type) {
-//			switch ($type) {
-//				case DynamicAttributes::TYPE_BOOL:
-//				case DynamicAttributes::TYPE_INT:
-//				case DynamicAttributes::TYPE_DOUBLE:
-//					$query->andFilterWhere(Adapter::adaptWhere([$name => $this->{TemporaryHelper::GetDynamicAttributeAlias(DynamicAttributes::listAttributes(Users::class), $name)}]));
-//				break;
-//				case DynamicAttributes::TYPE_STRING:
-//					$query->andFilterWhere(Adapter::adaptWhere(['like', $name, $this->{TemporaryHelper::GetDynamicAttributeAlias(DynamicAttributes::listAttributes(Users::class), $name)}]));
-//				break;
-//			}
-//		}
+		foreach (DynamicAttributes::getAttributesTypes(parent::class) as $name => $type) {
+			switch ($type) {
+				case DynamicAttributes::TYPE_BOOL:
+				case DynamicAttributes::TYPE_INT:
+				case DynamicAttributes::TYPE_DOUBLE:
+					$query->andFilterWhere(Adapter::adaptWhere([$name => $this->{$this->_dynamicAttributesAliases[$name]}]));
+				break;
+				case DynamicAttributes::TYPE_STRING:
+					$query->andFilterWhere(Adapter::adaptWhere(['like', $name, $this->{$this->_dynamicAttributesAliases[$name]}]));
+				break;
+			}
+		}
 		Yii::debug($dataProvider->query->createCommand()->rawSql, 'sql');
 		return $dataProvider;
 	}
+
 }

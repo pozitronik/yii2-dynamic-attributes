@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace pozitronik\dynamic_attributes\traits;
 
+use pozitronik\dynamic_attributes\models\adapters\Adapter;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 
 /**
@@ -79,5 +80,22 @@ trait DynamicAttributesSearchTrait {
 		array_walk($attributes, fn(&$value, $key) => $value = 'da'.$key);
 		return array_combine($old_attributes, $attributes);
 	}
+
+	/**
+	 * @return array
+	 * @throws \Throwable
+	 */
+	public function dynamicAttributesSort():array {
+		$result = [];
+		foreach (DynamicAttributes::getAttributesTypes(parent::class) as $name => $type) {
+			$result[$this->_dynamicAttributesAliases[$name]] = [
+				'asc' => [Adapter::adaptField($name, parent::class) => SORT_ASC],
+				'desc' => [Adapter::adaptField($name, parent::class) => SORT_DESC]
+			];
+		}
+		return $result;
+	}
+
+	//DataProviderAdapter!
 
 }

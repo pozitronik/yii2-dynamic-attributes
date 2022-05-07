@@ -1,7 +1,6 @@
 <?php /** @noinspection UsingInclusionReturnValueInspection */
 declare(strict_types = 1);
 
-use app\models\Dummy;
 use app\models\Users;
 use pozitronik\dynamic_attributes\DynamicAttributesModule;
 use yii\log\FileTarget;
@@ -31,12 +30,6 @@ $config = [
 		],
 	],
 	'components' => [
-		/* \yii\data\Sort::getAttributeOrders() всегда перезагружает атрибуты сортировки из запроса, если он установлен. При этом Request относится к CoreComponents
-		 * и будет пересоздан фреймворком принудительно. Поэтому мы его подменяем на заглушку.
-		 */
-		'request' => [
-			'class' => Dummy::class
-		],
 		'cache' => [
 			'class' => DummyCache::class,
 		],
