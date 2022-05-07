@@ -23,13 +23,20 @@ class DynamicAttributesSearchTest extends Unit {
 		 * 1) Работу класса без регистрации.
 		 */
 		DynamicAttributes::setClassAlias(Users::class, 'users');
+
+		$testTypes = ['тип1', 'тип2', 'тип3', null];
+		$testSP= ['Штат', 'Офис', null, 'Шлёпа', 'USA'];
+		$tIndex = 0;
+		$sIndex = 0;
 		for ($i = 0; $i < 100; $i++) {
 			$user = Users::CreateUser($i)->saveAndReturn();
-			$user->Тип = Utils::random_str(10);
-			$user->{'Структурная принадлежность'} = Utils::random_str(10);
-			$user->{'Код компании'} = rand(1, 1000);
+			$user->Тип = $testTypes[$tIndex++];
+			$user->{'Структурная принадлежность'} = $testSP[$sIndex++];
+			$user->{'Код компании'} = $i;
 			$user->cbo = Utils::random_str(255);
 			$user->save();
+			if ($tIndex >= count($testTypes)) $tIndex = 0;
+			if ($sIndex >= count($testSP)) $sIndex = 0;
 		}
 	}
 
