@@ -42,9 +42,11 @@ trait DynamicAttributesSearchTrait {
 	 * If the requested attribute is a dynamic attribute alias, also returns corresponding value.
 	 */
 	public function __get($name):mixed {
+		/*Запрос атрибута по алиасу имени атрибута*/
 		if (in_array($name, $this->_dynamicAttributesAliases, true)) {
 			return $this->_dynamicAttributes[$name]??null;
 		}
+		/*Запрос значения по имени атрибута => взять алиас имени и вернуть*/
 		if (array_key_exists($name, $this->_dynamicAttributesAliases)) {
 			return $this->_dynamicAttributes[$this->_dynamicAttributesAliases[$name]]??null;
 		}
