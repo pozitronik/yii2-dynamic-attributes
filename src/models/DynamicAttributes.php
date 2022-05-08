@@ -18,7 +18,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 
 	public const TYPE_BOOL = 1;
 	public const TYPE_INT = 2;
-	public const TYPE_DOUBLE = 3;
+	public const TYPE_FLOAT = 3;
 	public const TYPE_STRING = 4;
 	public const TYPE_ARRAY = 5;
 	public const TYPE_OBJECT = 6;
@@ -255,7 +255,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 		return match (gettype($variable)) {
 			"boolean" => static::TYPE_BOOL,
 			"integer" => static::TYPE_INT,
-			"double" => static::TYPE_DOUBLE,
+			"double" => static::TYPE_FLOAT,
 			"string" => static::TYPE_STRING,
 			"array" => static::TYPE_ARRAY,
 			"object" => static::TYPE_OBJECT,

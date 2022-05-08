@@ -125,7 +125,7 @@ trait DynamicAttributesSearchTrait {
 			switch ($type) {
 				case DynamicAttributes::TYPE_BOOL:
 				case DynamicAttributes::TYPE_INT:
-				case DynamicAttributes::TYPE_DOUBLE:
+				case DynamicAttributes::TYPE_FLOAT:
 					$query->andFilterWhere(Adapter::adaptWhere([$name => $this->$name]));
 				break;
 				case DynamicAttributes::TYPE_STRING:

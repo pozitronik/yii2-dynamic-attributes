@@ -72,7 +72,7 @@ class Adapter {
 		return match ($type) {
 			DynamicAttributes::TYPE_BOOL => 'boolean',
 			DynamicAttributes::TYPE_INT => 'int',
-			DynamicAttributes::TYPE_DOUBLE => 'float',
+			DynamicAttributes::TYPE_FLOAT => 'float',
 			default => 'text'
 		};
 	}
