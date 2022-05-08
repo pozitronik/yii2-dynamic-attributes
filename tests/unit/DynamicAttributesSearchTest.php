@@ -19,10 +19,16 @@ class DynamicAttributesSearchTest extends Unit {
 	 * @inheritDoc
 	 */
 	protected function _before():void {
-		/**
-		 * Динамически регистрируем алиас класса. Проверить:
-		 * 1) Работу класса без регистрации.
-		 */
+		/*Сбрасывает последовательности в таблицах перед каждым тестом*/
+		foreach (['sys_dynamic_attributes_aliases', 'sys_dynamic_attributes', 'sys_dynamic_attributes_values', 'users'] as $tableName) {
+			Yii::$app->db
+				->createCommand()
+				->setRawSql("TRUNCATE TABLE $tableName CASCADE")//независимо от того, выполняется ли тест внутри транзакции, сбросим таблицу
+				->execute();
+			Yii::$app->db
+				->createCommand()->resetSequence($tableName)
+				->execute();
+		}
 		DynamicAttributes::setClassAlias(Users::class, 'users');
 
 		$testTypes = ['тип1', 'тип2', 'тип3', null];
