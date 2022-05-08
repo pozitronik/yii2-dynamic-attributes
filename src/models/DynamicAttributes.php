@@ -60,18 +60,29 @@ class DynamicAttributes extends DynamicAttributesAR {
 		$attributes = [
 			'alias_id' => DynamicAttributesAliases::ensureAlias(static::alias($model))->id,
 			'attribute_name' => $attribute_name,
-
 		];
-		/*Если тип известен, то сверимся с ним*/
-		if (null !== $type) {
+
+		/** @var null|static $currentAttribute */
+		$currentAttribute = static::find()->where($attributes)->one();
+
+		if (null === $type) {//если атрибут пришёл без типа, попытаемся определить тип по уже сохранённым атрибутам
+			$type = $currentAttribute?->type;
+		}
+		if (null === $currentAttribute) {//атрибута с таким именем не существует
 			$attributes['type'] = $type;
+			$currentAttribute = static::Upsert($attributes);
+		} else {//атрибут с таким именем уже существует
+			if (null === $currentAttribute->type) {//атрибут существует, но тип неизвестен -> установим тип
+				$currentAttribute->type = $type;
+				$currentAttribute->save();
+			} else {
+				if ($currentAttribute->type !== $type) {
+					throw new TypeError(self::TYPE_ERROR_TEXT);//различия в текущем и сохранённом типах данных
+				}
+			}
 		}
-		$ensuredModel = static::Upsert($attributes);
-		if ([] !== $ensuredModel->errors) {
-			/*Единственная причина, по которой не произойдёт апсерт - различия в текущем и сохранённом типах данных*/
-			throw new TypeError(self::TYPE_ERROR_TEXT);
-		}
-		return $ensuredModel;
+
+		return $currentAttribute;
 	}
 
 	/**
