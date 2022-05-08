@@ -21,6 +21,9 @@ use yii\db\Expression;
  * @property-read DynamicAttributesAliases $relatedDynamicAttributesAliases
  * @property-read DynamicAttributes[] $relatedDynamicAttributes Связь к таблице атрибутов
  * @property-read DynamicAttributesValues[] $relatedDynamicAttributesValues Связь к таблице значений атрибутов
+ * @property-read array $dynamicAttributes Список динамических атрибутов модели
+ * @property-read array $dynamicAttributesValues Массив значений динамических атрибутов в формате имя-значение
+ * @property-read array $dynamicAttributesTypes Массив типов динамических атрибутов в формате имя-тип
  */
 trait DynamicAttributesTrait {
 	use ActiveRecordTrait;
@@ -104,7 +107,7 @@ trait DynamicAttributesTrait {
 	 */
 	public function __set($name, $value):void {
 		if (false !== $knownType = $this->getDynamicAttributeType($name)) {
-			if (null !== $knownType && DynamicAttributes::getType($value) !== $knownType) {
+			if (null !== $knownType && null !== $value && DynamicAttributes::getType($value) !== $knownType) {
 				throw new TypeError(DynamicAttributes::TYPE_ERROR_TEXT);
 			}
 			$this->_dynamicAttributesStorage->$name = $value;
@@ -209,6 +212,5 @@ trait DynamicAttributesTrait {
 			->via('relatedDynamicAttributesAliases')
 			->andOnCondition(new Expression(DynamicAttributesValues::fieldName('model_id').' = '.static::fieldName('id')));
 	}
-
 
 }

@@ -18,7 +18,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 
 	public const TYPE_BOOL = 1;
 	public const TYPE_INT = 2;
-	public const TYPE_DOUBLE = 3;
+	public const TYPE_FLOAT = 3;
 	public const TYPE_STRING = 4;
 	public const TYPE_ARRAY = 5;
 	public const TYPE_OBJECT = 6;
@@ -60,18 +60,25 @@ class DynamicAttributes extends DynamicAttributesAR {
 		$attributes = [
 			'alias_id' => DynamicAttributesAliases::ensureAlias(static::alias($model))->id,
 			'attribute_name' => $attribute_name,
-
 		];
-		/*Если тип известен, то сверимся с ним*/
-		if (null !== $type) {
+
+		/** @var null|static $currentAttribute */
+		$currentAttribute = static::find()->where($attributes)->one();
+
+		if (null === $type) {//если атрибут пришёл без типа, попытаемся определить тип по уже сохранённым атрибутам
+			$type = $currentAttribute?->type;
+		}
+		if (null === $currentAttribute) {//атрибута с таким именем не существует
 			$attributes['type'] = $type;
+			$currentAttribute = static::Upsert($attributes);
+		} elseif (null === $currentAttribute->type) {//атрибут существует, но тип неизвестен -> установим тип
+			$currentAttribute->type = $type;
+			$currentAttribute->save();
+		} elseif ($currentAttribute->type !== $type) {
+			throw new TypeError(self::TYPE_ERROR_TEXT);//различия в текущем и сохранённом типах данных
 		}
-		$ensuredModel = static::Upsert($attributes);
-		if ([] !== $ensuredModel->errors) {
-			/*Единственная причина, по которой не произойдёт апсерт - различия в текущем и сохранённом типах данных*/
-			throw new TypeError(self::TYPE_ERROR_TEXT);
-		}
-		return $ensuredModel;
+
+		return $currentAttribute;
 	}
 
 	/**
@@ -255,7 +262,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 		return match (gettype($variable)) {
 			"boolean" => static::TYPE_BOOL,
 			"integer" => static::TYPE_INT,
-			"double" => static::TYPE_DOUBLE,
+			"double" => static::TYPE_FLOAT,
 			"string" => static::TYPE_STRING,
 			"array" => static::TYPE_ARRAY,
 			"object" => static::TYPE_OBJECT,
