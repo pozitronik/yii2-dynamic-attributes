@@ -121,6 +121,7 @@ trait DynamicAttributesSearchTrait {
 	 * @throws Throwable
 	 */
 	private function adaptQuery(ActiveQueryInterface $query):void {
+		$query->joinWith(['relatedDynamicAttributesValues']);
 		foreach (DynamicAttributes::getAttributesTypes(parent::class) as $name => $type) {
 			switch ($type) {
 				case DynamicAttributes::TYPE_BOOL:

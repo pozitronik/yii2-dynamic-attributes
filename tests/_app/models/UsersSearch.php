@@ -28,7 +28,6 @@ class UsersSearch extends Users {
 	 */
 	public function search(array $params):ActiveDataProvider {
 		$query = Users::find()
-			->joinWith(['relatedDynamicAttributesValues'])
 			->active();
 
 		$dataProvider = new ActiveDataProvider([
