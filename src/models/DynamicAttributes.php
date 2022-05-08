@@ -71,15 +71,11 @@ class DynamicAttributes extends DynamicAttributesAR {
 		if (null === $currentAttribute) {//атрибута с таким именем не существует
 			$attributes['type'] = $type;
 			$currentAttribute = static::Upsert($attributes);
-		} else {//атрибут с таким именем уже существует
-			if (null === $currentAttribute->type) {//атрибут существует, но тип неизвестен -> установим тип
-				$currentAttribute->type = $type;
-				$currentAttribute->save();
-			} else {
-				if ($currentAttribute->type !== $type) {
-					throw new TypeError(self::TYPE_ERROR_TEXT);//различия в текущем и сохранённом типах данных
-				}
-			}
+		} elseif (null === $currentAttribute->type) {//атрибут существует, но тип неизвестен -> установим тип
+			$currentAttribute->type = $type;
+			$currentAttribute->save();
+		} elseif ($currentAttribute->type !== $type) {
+			throw new TypeError(self::TYPE_ERROR_TEXT);//различия в текущем и сохранённом типах данных
 		}
 
 		return $currentAttribute;
