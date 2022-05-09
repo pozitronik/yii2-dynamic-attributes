@@ -85,7 +85,7 @@ class DynamicAttributesTest extends Unit {
 	 * @throws InvalidConfigException
 	 * @throws Throwable
 	 */
-	public function testDynamicAttributesAliases():void {
+	public function testDynamicAttributesModelsAliases():void {
 		/*Динамическая регистрация алиаса*/
 		self::assertEquals(Users::class, DynamicAttributes::getAliasClass('users'));
 		self::assertEquals('users', DynamicAttributes::getClassAlias(Users::class));
@@ -529,6 +529,36 @@ class DynamicAttributesTest extends Unit {
 		self::assertEquals(16, $sortedByInt[51]->bububu);
 		self::assertEquals(99, $sortedByInt[51]->id);
 		self::assertNull($sortedByInt[99]->bububu);
+	}
+
+	/**
+	 * Тесты алиасов для атрибутов
+	 * @return void
+	 * @throws Exception
+	 */
+	public function testDynamicAttributesAliases():void {
+		$user = Users::CreateUser()->saveAndReturn();
+		self::assertEquals(1, $user->id);
+		self::assertEquals([], $user->dynamicAttributes);
+		$user->weight = 1110;
+		$user->sex = false;
+		$user->{'memo about'} = 'any text';
+		$user->save();
+
+		/*Алиасы генерируются автоматически, порядок не гарантируется*/
+		self::assertEquals(1110, $user->da2);
+		self::assertEquals(false, $user->da1);
+		self::assertEquals('any text', $user->da0);
+
+		$user->da2 = 2220;
+		$user->da1 = true;
+		$user->da0 = 'some other text';
+
+		$user->save();
+
+		self::assertEquals(2220, $user->weight);
+		self::assertEquals(true, $user->sex);
+		self::assertEquals('some other text', $user->{'memo about'});
 	}
 
 }

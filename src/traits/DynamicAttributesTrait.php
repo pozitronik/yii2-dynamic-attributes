@@ -32,6 +32,12 @@ trait DynamicAttributesTrait {
 	 * @var AttributesStorage|null Объект динамических атрибутов модели
 	 */
 	private ?AttributesStorage $_dynamicAttributesStorage = null;
+	/**
+	 * @var array The dynamic attributes names may contain any identifiers (even whole sentences up to 255 chars),
+	 * they can not be supported by some Yii2 generators (like Html attributes identifiers generator).
+	 * Therefore dynamic attributes names are dynamically replaced by short aliases.
+	 */
+	private $_dynamicAttributesAliases = [];
 
 	/**
 	 * @inheritDoc
@@ -67,6 +73,8 @@ trait DynamicAttributesTrait {
 		/*empty attributes + filled attributes*/
 		$allAttributes = array_merge(array_fill_keys(DynamicAttributes::listAttributes($this), null), DynamicAttributes::getAttributesValues($this));
 		$this->_dynamicAttributesStorage->loadAttributes($allAttributes);
+
+		$this->_dynamicAttributesAliases = DynamicAttributes::getDynamicAttributesAliasesMap($this);
 	}
 
 	/**
@@ -84,6 +92,7 @@ trait DynamicAttributesTrait {
 	public function save($runValidation = true, $attributeNames = null):bool {
 		if (parent::save($runValidation, $attributeNames)) {
 			DynamicAttributes::setAttributesValues($this, $this->_dynamicAttributesStorage->attributes);
+			$this->reloadDynamicAttributes();
 			return true;
 		}
 		return false;
@@ -95,6 +104,10 @@ trait DynamicAttributesTrait {
 	 * @inheritDoc
 	 */
 	public function __get($name):mixed {
+		/*Запрос атрибута по алиасу имени атрибута*/
+		if (false !== $attributeName = array_search($name, $this->_dynamicAttributesAliases, true)) {
+			return $this->$attributeName;
+		}
 		if ($this->hasDynamicAttribute($name)) {
 			return $this->_dynamicAttributesStorage->$name;
 		}
@@ -106,6 +119,10 @@ trait DynamicAttributesTrait {
 	 * @inheritDoc
 	 */
 	public function __set($name, $value):void {
+		if (false !== $attributeName = array_search($name, $this->_dynamicAttributesAliases, true)) {
+			$this->$attributeName = $value;
+		}
+
 		if (false !== $knownType = $this->getDynamicAttributeType($name)) {
 			if (null !== $knownType && null !== $value && DynamicAttributes::getType($value) !== $knownType) {
 				throw new TypeError(DynamicAttributes::TYPE_ERROR_TEXT);
