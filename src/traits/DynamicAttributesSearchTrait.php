@@ -33,7 +33,7 @@ trait DynamicAttributesSearchTrait {
 	 */
 	public function init():void {
 		parent::init();
-		$this->_dynamicAttributesAliases = static::getDynamicAttributesAliasesMap();
+		$this->_dynamicAttributesAliases = DynamicAttributes::getDynamicAttributesAliasesMap(parent::class);
 	}
 
 	/**
@@ -71,17 +71,6 @@ trait DynamicAttributesSearchTrait {
 	 */
 	public function __isset($name) {
 		return parent::__isset($name);
-	}
-
-	/**
-	 * @return array [attribute name => attribute alias]
-	 * @throws Throwable
-	 */
-	public static function getDynamicAttributesAliasesMap():array {
-		$attributes = DynamicAttributes::listAttributes(parent::class);
-		$old_attributes = $attributes;
-		array_walk($attributes, static fn(&$value, $key) => $value = 'da'.$key);
-		return array_combine($old_attributes, $attributes);
 	}
 
 	/**

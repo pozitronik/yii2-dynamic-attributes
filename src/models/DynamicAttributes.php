@@ -75,7 +75,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 			$currentAttribute->type = $type;
 			$currentAttribute->save();
 		} elseif ($currentAttribute->type !== $type) {
-			throw new TypeError(self::TYPE_ERROR_TEXT);//различия в текущем и сохранённом типах данных
+			throw new TypeError(static::TYPE_ERROR_TEXT);//различия в текущем и сохранённом типах данных
 		}
 
 		return $currentAttribute;
@@ -196,7 +196,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 */
 	public function init():void {
 		parent::init();
-		self::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
+		static::$_modelsAliases ??= DynamicAttributesModule::param('models', static::$_modelsAliases);
 	}
 
 	/**
@@ -226,9 +226,9 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function setClassAlias(string $className, ?string $alias = null):void {
-		static::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
+		static::$_modelsAliases ??= DynamicAttributesModule::param('models', static::$_modelsAliases);
 		$alias = $alias??$className;
-		ArrayHelper::setValue(self::$_modelsAliases, $className, $alias);
+		ArrayHelper::setValue(static::$_modelsAliases, $className, $alias);
 	}
 
 	/**
@@ -239,8 +239,8 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function getAliasClass(string $alias):?string {
-		static::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
-		return (false === $class = array_search($alias, self::$_modelsAliases, true))?null:$class;
+		static::$_modelsAliases ??= DynamicAttributesModule::param('models', static::$_modelsAliases);
+		return (false === $class = array_search($alias, static::$_modelsAliases, true))?null:$class;
 	}
 
 	/**
@@ -250,8 +250,8 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function getClassAlias(string $className):?string {
-		static::$_modelsAliases ??= DynamicAttributesModule::param('models', self::$_modelsAliases);
-		return ArrayHelper::getValue(self::$_modelsAliases, $className);
+		static::$_modelsAliases ??= DynamicAttributesModule::param('models', static::$_modelsAliases);
+		return ArrayHelper::getValue(static::$_modelsAliases, $className);
 	}
 
 	/**
@@ -272,6 +272,19 @@ class DynamicAttributes extends DynamicAttributesAR {
 			"resource (closed)" => static::TYPE_RESOURCE_CLOSED,
 			default => null
 		};
+	}
+
+	/**
+	 * Генерирует алиас каждого атрибута для обхода проблем со «странными» именами атрибутов. Обращение к алиасу равнозначно обращению к атрибуту
+	 * @param ActiveRecordInterface|string $model
+	 * @return array [attribute name => attribute alias]
+	 * @throws Throwable
+	 */
+	public static function getDynamicAttributesAliasesMap(ActiveRecordInterface|string $model):array {
+		$attributes = static::listAttributes($model);
+		$old_attributes = $attributes;
+		array_walk($attributes, static fn(&$value, $key) => $value = 'da'.$key);
+		return array_combine($old_attributes, $attributes);
 	}
 
 }
