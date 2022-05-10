@@ -121,9 +121,7 @@ trait DynamicAttributesTrait {
 	public function __set($name, $value):void {
 		if (false !== $attributeName = array_search($name, $this->_dynamicAttributesAliases, true)) {
 			$this->$attributeName = $value;
-		}
-
-		if (false !== $knownType = $this->getDynamicAttributeType($name)) {
+		} elseif (false !== $knownType = $this->getDynamicAttributeType($name)) {
 			if (null !== $knownType && null !== $value && DynamicAttributes::getType($value) !== $knownType) {
 				throw new TypeError(DynamicAttributes::TYPE_ERROR_TEXT);
 			}
