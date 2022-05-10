@@ -20,8 +20,6 @@ class ArrayHelper extends VendorArrayHelper {
 	 */
 	public static function isEqual(array|Traversable $array_one, array|Traversable $array_two):bool {
 		if (count($array_one) !== count($array_two)) return false;
-		sort($array_one);
-		sort($array_two);
 		foreach ($array_one as $a1key => $a1value) {
 			if (!array_key_exists($a1key, $array_two)) return false;
 			$a2value = $array_two[$a1key];
