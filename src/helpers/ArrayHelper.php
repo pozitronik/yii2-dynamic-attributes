@@ -24,7 +24,8 @@ class ArrayHelper extends VendorArrayHelper {
 		sort($array_one);
 		sort($array_two);
 		foreach ($array_one as $a1key => $a1value) {
-			if (null === $a2value = $array_two[$a1key]??null) return false;
+			if (!isset($array_two[$a1key])) return false;
+			$a2value = $array_two[$a1key];
 			if (static::isTraversable($a1value) && static::isTraversable($a2value)) {
 				if (false === static::isEqual($a1value, $a2value)) return false;
 			}
