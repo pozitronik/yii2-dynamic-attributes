@@ -127,7 +127,13 @@ class DynamicAttributesTest extends Unit {
 			'memo about' => 'user memo',
 			'кириллическое имя' => '𐐜 𐐔𐐇𐐝𐐀𐐡𐐇𐐓 𐐙𐐊𐐡𐐝𐐓/𐐝𐐇𐐗𐐊𐐤𐐔 𐐒𐐋𐐗 𐐒𐐌 𐐜 𐐡𐐀𐐖𐐇𐐤𐐓𐐝 𐐱𐑂 𐑄 𐐔𐐇𐐝𐐀𐐡𐐇𐐓 𐐏𐐆𐐅𐐤𐐆𐐚𐐊𐐡𐐝𐐆𐐓𐐆',
 			",./;'[]\\-=" => 3.1415926535897,
-			"❤️ 💔 💌 💕 💞 💓 💗 💖 💘 💝 💟 💜 💛 💚 💙" => "🐵 🙈 🙉 🙊"
+			"❤️ 💔 💌 💕 💞 💓 💗 💖 💘 💝 💟 💜 💛 💚 💙" => "🐵 🙈 🙉 🙊",
+			"(ﾉಥ益ಥ）ﾉ﻿ ┻━┻" => null,
+			"<foo val=“bar” />"=> null,
+			"<img src=x onerror=\\x00\"javascript:alert(1)\">" => null,
+			"" => null,
+			"Ṱ̺̺̕o͞ ̷i̲̬͇̪͙n̝̗͕v̟̜̘̦͟o̶̙̰̠kè͚̮̺̪̹̱̤ ̖t̝͕̳̣̻̪͞h̼͓̲̦̳̘̲e͇̣̰̦̬͎ ̢̼̻̱̘h͚͎͙̜̣̲ͅi̦̲̣̰̤v̻͍e̺̭̳̪̰-m̢iͅn̖̺̞̲̯̰d̵̼̟͙̩̼̘̳ ̞̥̱̳̭r̛̗̘e͙p͠r̼̞̻̭̗e̺̠̣͟s̘͇̳͍̝͉e͉̥̯̞̲͚̬͜ǹ̬͎͎̟̖͇̤t͍̬̤͓̼̭͘ͅi̪̱n͠g̴͉ ͏͉ͅc̬̟h͡a̫̻̯͘o̫̟̖͍̙̝͉s̗̦̲.̨̹͈̣" => null,
+			"𝕋𝕙𝕖 𝕢𝕦𝕚𝕔𝕜 𝕓𝕣𝕠𝕨𝕟 𝕗𝕠𝕩 𝕛𝕦𝕞𝕡𝕤 𝕠𝕧𝕖𝕣 𝕥𝕙𝕖 𝕝𝕒𝕫𝕪 𝕕𝕠𝕘" => null
 		], $newUserModel->dynamicAttributesValues));
 
 	}
@@ -254,7 +260,11 @@ class DynamicAttributesTest extends Unit {
 		self::assertEquals(1.1428571428571, $newUserModel->some_double_attribute);
 
 		$secondUser = Users::CreateUser(2)->saveAndReturn();
-		self::assertTrue(ArrayHelper::isEqual(['weight', 'sex', 'memo about', 'some_dynamic_attribute', 'some_float_attribute', 'some_double_attribute'], $secondUser->dynamicAttributes));
+		self::assertTrue(ArrayHelper::isEqual(
+			['weight', 'sex', 'memo about', 'some_dynamic_attribute', 'some_float_attribute', 'some_double_attribute'],
+			$secondUser->dynamicAttributes,
+			ArrayHelper::FLAG_COMPARE_VALUES
+		));
 
 		$secondUser->delete();
 		self::assertTrue(ArrayHelper::isEqual([
@@ -560,7 +570,7 @@ class DynamicAttributesTest extends Unit {
 		self::assertEquals(2220, $user->weight);
 		self::assertEquals(true, $user->sex);
 		self::assertEquals('some other text', $user->{'memo about'});
-		self::assertTrue(ArrayHelper::isEqual(['weight', 'sex', 'memo about'], $user->dynamicAttributes));
+		self::assertTrue(ArrayHelper::isEqual(['weight', 'sex', 'memo about'], $user->dynamicAttributes, ArrayHelper::FLAG_COMPARE_VALUES));
 	}
 
 }
