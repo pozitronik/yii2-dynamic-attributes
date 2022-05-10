@@ -7,6 +7,7 @@ namespace unit;
 use app\models\Users;
 use Codeception\Test\Unit;
 use DummyClass;
+use pozitronik\dynamic_attributes\helpers\ArrayHelper;
 use pozitronik\dynamic_attributes\models\adapters\Adapter;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use pozitronik\dynamic_attributes\traits\DynamicAttributesTrait;
@@ -106,7 +107,7 @@ class DynamicAttributesTest extends Unit {
 		self::assertEquals(1, $user->id);
 		self::assertEquals([], $user->dynamicAttributes);
 		static::fillAttributes($user);
-		self::assertEquals([], array_diff(self::DYNAMIC_ATTRIBUTES, $user->dynamicAttributesTypes));
+		self::assertTrue(ArrayHelper::isEqual(self::DYNAMIC_ATTRIBUTES, $user->dynamicAttributesTypes));
 
 		$user->weight = 85;
 		$user->sex = true;
@@ -120,7 +121,7 @@ class DynamicAttributesTest extends Unit {
 		/** @var Users $newUserModel */
 		$newUserModel = Users::find()->where(['id' => $user->id])->one();
 
-		self::assertEquals([], array_diff([
+		self::assertTrue(ArrayHelper::isEqual([
 			'weight' => 85,
 			'sex' => true,
 			'memo about' => 'user memo',
@@ -153,7 +154,7 @@ class DynamicAttributesTest extends Unit {
 		/** @var Users $newUserModel */
 		$newUserModel = Users::find()->where(['id' => $user->id])->one();
 
-		self::assertEquals([], array_diff([
+		self::assertTrue(ArrayHelper::isEqual([
 			'weight' => 85,
 			'sex' => true,
 			'memo about' => 'user memo',
@@ -216,7 +217,7 @@ class DynamicAttributesTest extends Unit {
 		], $user->dynamicAttributesValues);
 
 		/*Получение всех атрибутов из хранилища*/
-		self::assertEquals([], array_diff([//array_diff чтобы не сортировать
+		self::assertTrue(ArrayHelper::isEqual([//array_diff чтобы не сортировать
 			'weight' => 100,
 			'sex' => true,
 			'memo about' => 'user memo',
@@ -253,10 +254,10 @@ class DynamicAttributesTest extends Unit {
 		self::assertEquals(1.1428571428571, $newUserModel->some_double_attribute);
 
 		$secondUser = Users::CreateUser(2)->saveAndReturn();
-		self::assertEquals([], array_diff(['weight', 'sex', 'memo about', 'some_dynamic_attribute', 'some_float_attribute', 'some_double_attribute'], $secondUser->dynamicAttributes));
+		self::assertTrue(ArrayHelper::isEqual(['weight', 'sex', 'memo about', 'some_dynamic_attribute', 'some_float_attribute', 'some_double_attribute'], $secondUser->dynamicAttributes));
 
 		$secondUser->delete();
-		self::assertEquals([], array_diff([
+		self::assertTrue(ArrayHelper::isEqual([
 			'weight' => null,
 			'sex' => null,
 			'memo about' => null,
@@ -559,6 +560,7 @@ class DynamicAttributesTest extends Unit {
 		self::assertEquals(2220, $user->weight);
 		self::assertEquals(true, $user->sex);
 		self::assertEquals('some other text', $user->{'memo about'});
+		self::assertTrue(ArrayHelper::isEqual(['weight', 'sex', 'memo about'], $user->dynamicAttributes));
 	}
 
 }
