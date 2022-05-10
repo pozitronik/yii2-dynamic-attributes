@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace pozitronik\dynamic_attributes\helpers;
 
 use pozitronik\helpers\ArrayHelper as VendorArrayHelper;
+use pozitronik\helpers\Utils;
 use Traversable;
 
 /**
@@ -11,20 +12,38 @@ use Traversable;
  * todo: move to Yii2Helpers when tests will be done
  */
 class ArrayHelper extends VendorArrayHelper {
+	const FLAG_COMPARE_KEYS = 1;//наборы ключей должны совпадать
+	const FLAG_COMPARE_VALUES = 2;//наборы значений должны совпадать
+	const FLAG_COMPARE_KEY_VALUES_PAIRS = 4;//наборы ключ-значение должны совпадать
 
 	/**
-	 * Сравнивает два массива между собой по наборам данных (с учётом вложенности)
+	 * Сравнивает два массива между собой по наборам данных (с учётом вложенности).
+	 * Сравнение всегда строгое
 	 * @param array|Traversable $array_one
 	 * @param array|Traversable $array_two
 	 * @return bool
 	 */
-	public static function isEqual(array|Traversable $array_one, array|Traversable $array_two):bool {
+	public static function isEqual(array|Traversable $array_one, array|Traversable $array_two, int $flags = 7):bool {
 		if (count($array_one) !== count($array_two)) return false;
 		foreach ($array_one as $a1key => $a1value) {
-			if (!array_key_exists($a1key, $array_two)) return false;
-			$a2value = $array_two[$a1key];
-			if (static::isTraversable($a1value) && static::isTraversable($a2value) && false === static::isEqual($a1value, $a2value)) return false;
-			if ($a1value !== $a2value) return false;
+			if ($flags & self::FLAG_COMPARE_KEYS) {
+				if (!array_key_exists($a1key, $array_two)) {
+					return false;
+				}//разница по ключам
+			}
+			if ($flags & self::FLAG_COMPARE_VALUES) {
+				if (!in_array($a1value, $array_two, true)) {
+					return false;
+				}//разница по значениям
+			}
+			if ($flags & self::FLAG_COMPARE_KEY_VALUES_PAIRS) {
+				if (!array_key_exists($a1key, $array_two) || $a1value !== $array_two[$a1key]) {
+					return false;
+				}
+			}
+			if (static::isTraversable($a1value) && static::isTraversable($array_two[$a1key]??null) && false === static::isEqual($a1value, $array_two[$a1key]??null)) {
+				return false;
+			}
 		}
 
 		return true;
