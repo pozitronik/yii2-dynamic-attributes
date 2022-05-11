@@ -105,18 +105,6 @@ trait DynamicAttributesTrait {
 	}
 
 	/**
-	 * Валидирует динамические атрибуты
-	 * @return bool
-	 * @throws Throwable
-	 */
-	public function validateDynamicAttributes():bool {
-		foreach ($this->_dynamicAttributesStorage->attributes as $name => $value) {
-			if (!$this->getDynamicAttributeValidator($name)->validate($value)) return false;
-		}
-		return true;
-	}
-
-	/**
 	 * inheritDoc
 	 * Добавляет к прописанным в модели валидаторам валидаторы для алиасов динамических атрибутов
 	 */
