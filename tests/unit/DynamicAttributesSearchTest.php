@@ -7,6 +7,7 @@ use app\models\Users;
 use app\models\UsersSearch;
 use Codeception\Test\Unit;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
+use pozitronik\helpers\ArrayHelper;
 use pozitronik\helpers\Utils;
 use Yii;
 
@@ -65,16 +66,22 @@ class DynamicAttributesSearchTest extends Unit {
 
 		$searchModel = new UsersSearch();
 		/* \yii\data\Sort::getAttributeOrders() всегда загружает атрибуты сортировки из запроса, если он установлен. Передавать атрибут сортировки в запрос нельзя, только так*/
-		Yii::$app->request->setQueryParams(['dp-2-sort' => 'da2,-id']);//see BaseDataProvider::$id - каждый новый датапровайдер будет инкрементить значение
+		Yii::$app->request->setQueryParams(['usersDataProvider-sort' => 'da2']);//see BaseDataProvider::$id
 		$dataProvider = $searchModel->search(['UsersSearch' => ['da3' => 'тип2']]);
 		self::assertEquals(25, $dataProvider->totalCount);
-		self::assertEquals(90, $dataProvider->models[0]->id);
+		self::assertEquals(
+			['USA', 'USA', 'USA', 'USA', 'USA', 'Офис', 'Офис', 'Офис', 'Офис', 'Офис', 'Шлёпа', 'Шлёпа', 'Шлёпа', 'Шлёпа', 'Шлёпа', 'Штат', 'Штат', 'Штат', 'Штат', 'Штат'],
+			ArrayHelper::getColumn($dataProvider->models, 'da2')
+		);
 
 		$searchModel = new UsersSearch();
-		Yii::$app->request->setQueryParams(['dp-3-sort' => '-da2,-id']);//сортировка по двум атрибутам для гарантии попадания в проверяемый индекс
+		Yii::$app->request->setQueryParams(['usersDataProvider-sort' => '-da2']);//сортировка по двум атрибутам для гарантии попадания в проверяемый индекс
 		$dataProvider = $searchModel->search(['UsersSearch' => ['da3' => 'тип2']]);
 		self::assertEquals(25, $dataProvider->totalCount);
-		self::assertEquals(98, $dataProvider->models[0]->id);
+		self::assertEquals(
+			[null, null, null, null, null, 'Штат', 'Штат', 'Штат', 'Штат', 'Штат', 'Шлёпа', 'Шлёпа', 'Шлёпа', 'Шлёпа', 'Шлёпа', 'Офис', 'Офис', 'Офис', 'Офис', 'Офис'],
+			ArrayHelper::getColumn($dataProvider->models, 'da2')
+		);
 	}
 
 }

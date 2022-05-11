@@ -33,6 +33,7 @@ class UsersSearch extends Users {
 			->active();
 
 		$dataProvider = new ActiveDataProvider([
+			'id' => 'usersDataProvider',
 			'query' => $query
 		]);
 
