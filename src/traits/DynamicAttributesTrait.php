@@ -170,7 +170,6 @@ trait DynamicAttributesTrait {
 				&& null !== $value//значение не пустое
 				&& DynamicAttributes::getType($value) !== $knownType //тип значения не совпадает с уже известным типом
 				&& !$this->getDynamicAttributeValidator($name)->validate($value) //при этом пришедшее значение не валидируется связанным валидатором
-				&& DynamicAttributesModule::param('allowAttributesTypecasting', true)//todo: документировать
 				&& !DynamicAttributes::castTo($knownType, $value)) {//или значение невозможно привести к уже известному типу
 				throw new TypeError(DynamicAttributes::TYPE_ERROR_TEXT);
 			}
