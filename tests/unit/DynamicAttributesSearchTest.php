@@ -36,7 +36,7 @@ class DynamicAttributesSearchTest extends Unit {
 		$tIndex = 0;
 		$sIndex = 0;
 		for ($i = 0; $i < 100; $i++) {
-			$user = Users::CreateUser($i)->saveAndReturn();
+			$user = Users::CreateUser()->saveAndReturn();
 			$user->Тип = $testTypes[$tIndex++];//da3
 			/** @noinspection PhpFieldImmediatelyRewrittenInspection */
 			$user->{'Структурная принадлежность'} = $testSP[$sIndex++];//da2
@@ -61,20 +61,20 @@ class DynamicAttributesSearchTest extends Unit {
 		$searchModel = new UsersSearch();
 		$dataProvider = $searchModel->search(['UsersSearch' => ['da3' => 'тип3']]);
 		self::assertEquals(25, $dataProvider->totalCount);
-		self::assertEquals(2, $dataProvider->models[0]->id);
+		self::assertEquals(3, $dataProvider->models[0]->id);
 
 		$searchModel = new UsersSearch();
 		/* \yii\data\Sort::getAttributeOrders() всегда загружает атрибуты сортировки из запроса, если он установлен. Передавать атрибут сортировки в запрос нельзя, только так*/
-		Yii::$app->request->setQueryParams(['dp-2-sort' => 'da2']);//see BaseDataProvider::$id - каждый новый датапровайдер будет инкрементить значение
+		Yii::$app->request->setQueryParams(['dp-2-sort' => 'da2,-id']);//see BaseDataProvider::$id - каждый новый датапровайдер будет инкрементить значение
 		$dataProvider = $searchModel->search(['UsersSearch' => ['da3' => 'тип2']]);
 		self::assertEquals(25, $dataProvider->totalCount);
-		self::assertEquals(89, $dataProvider->models[0]->id);
+		self::assertEquals(90, $dataProvider->models[0]->id);
 
 		$searchModel = new UsersSearch();
-		Yii::$app->request->setQueryParams(['dp-3-sort' => '-da2']);
+		Yii::$app->request->setQueryParams(['dp-3-sort' => '-da2,-id']);//сортировка по двум атрибутам для гарантии попадания в проверяемый индекс
 		$dataProvider = $searchModel->search(['UsersSearch' => ['da3' => 'тип2']]);
 		self::assertEquals(25, $dataProvider->totalCount);
-		self::assertEquals(97, $dataProvider->models[0]->id);
+		self::assertEquals(98, $dataProvider->models[0]->id);
 	}
 
 }

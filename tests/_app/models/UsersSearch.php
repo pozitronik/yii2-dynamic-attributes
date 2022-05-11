@@ -37,6 +37,7 @@ class UsersSearch extends Users {
 		]);
 
 		$dataProvider->setSort($this->adaptSort([
+			'enableMultiSort' => true,//в тестах потребуется сортировка по двум атрибутам для гарантии попадания в проверяемый индекс
 			'defaultOrder' => ['id' => SORT_ASC],
 			'attributes' => [
 				'id' => [
