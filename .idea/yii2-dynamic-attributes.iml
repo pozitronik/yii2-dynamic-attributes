@@ -81,6 +81,18 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/finder" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/event-dispatcher-contracts" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/event-dispatcher" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/cusodede/yii2-default-controller" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/kartik-v/yii2-widget-switchinput" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/kartik-v/yii2-dialog" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/kartik-v/yii2-grid" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/kartik-v/yii2-krajee-base" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/kartik-v/yii2-sortable" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/pozitronik/yii2-badgewidget" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/pozitronik/yii2-cachedwidget" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/pozitronik/yii2-grid-config" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/pozitronik/yii2-users-options" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/npm-asset/bootstrap" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/yiisoft/yii2-bootstrap4" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
