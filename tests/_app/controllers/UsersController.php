@@ -22,6 +22,6 @@ class UsersController extends DefaultController {
 	 * {@inheritdoc}
 	 */
 	public static function ViewPath():string {
-		return '@views/users';
+		return '@app/views/users';
 	}
 }

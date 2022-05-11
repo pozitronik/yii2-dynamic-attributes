@@ -5,6 +5,9 @@ namespace app\models;
 
 use pozitronik\dynamic_attributes\traits\DynamicAttributesTrait;
 use pozitronik\helpers\Utils;
+use Yii;
+use yii\base\Event;
+use yii\behaviors\AttributeBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
 use yii\web\IdentityInterface;
@@ -20,6 +23,24 @@ use yii\web\IdentityInterface;
  */
 class Users extends ActiveRecord implements IdentityInterface {
 	use DynamicAttributesTrait;
+
+	/**
+	 * @inheritDoc
+	 */
+	public function behaviors():array {
+		return [
+			'id' => [
+				'class' => AttributeBehavior::class,
+				'attributes' => [
+					ActiveRecord::EVENT_BEFORE_INSERT => 'id'
+				],
+				'value' => static function(Event $event) {
+					$connection = Yii::$app->get('db');
+					$result = $connection?->createCommand("SELECT nextval('users_id_seq');")->queryOne();
+					return false === $result?:$result['nextval'];
+				}
+			]];
+	}
 
 	/**
 	 * {@inheritdoc}

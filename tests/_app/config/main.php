@@ -7,6 +7,7 @@ use yii\log\FileTarget;
 use yii\caching\DummyCache;
 use yii\web\AssetManager;
 use yii\web\ErrorHandler;
+use kartik\grid\Module as GridModule;
 
 $db = require __DIR__.'/db.php';
 
@@ -20,6 +21,9 @@ $config = [
 		'@npm' => '@vendor/npm-asset',
 	],
 	'modules' => [
+		'gridview' => [
+			'class' => GridModule::class,
+		],
 		'dynamic_attributes' => [
 			'class' => DynamicAttributesModule::class,
 			'params' => [

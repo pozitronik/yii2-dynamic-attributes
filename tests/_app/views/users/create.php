@@ -12,7 +12,7 @@ use yii\widgets\ActiveForm;
 
 ?>
 
-<?php $form = ActiveForm::begin(); ?>
+<?php $form = ActiveForm::begin(['id' => 'users-create']); ?>
 <div class="panel">
 	<div class="panel-hdr">
 	</div>

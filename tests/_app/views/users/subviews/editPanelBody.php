@@ -15,12 +15,7 @@ use yii\widgets\ActiveForm;
 ?>
 <div class="row">
 	<div class="col-md-12">
-		<?= $form->field($model, 'name')->textInput(['maxlength' => 50]) ?>
-	</div>
-</div>
-<div class="row">
-	<div class="col-md-12">
-		<?= $form->field($model, 'comment')->label('Комментарий пользователя') ?>
+		<?= $form->field($model, 'username')->textInput(['maxlength' => 50]) ?>
 	</div>
 </div>
 <div class="row">
