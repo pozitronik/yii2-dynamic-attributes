@@ -1,9 +1,11 @@
 <?php
+/** @noinspection PhpUndefinedFieldInspection */
 declare(strict_types = 1);
 
 use app\models\Users;
+use Codeception\Exception\ModuleException;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
-use yii\base\Exception as BaseException;
+use yii\base\InvalidConfigException;
 
 /**
  * Class ManagersCest
@@ -12,7 +14,10 @@ class UsersCest {
 
 	/**
 	 * @param FunctionalTester $I
-	 * @throws BaseException
+	 * @throws Throwable
+	 * @throws ModuleException
+	 * @throws InvalidConfigException
+	 * @throws Exception
 	 */
 	public function create(FunctionalTester $I):void {
 		DynamicAttributes::setClassAlias(Users::class, 'users');
@@ -26,6 +31,7 @@ class UsersCest {
 		$I->seeResponseCodeIs(200);
 		$I->submitForm("#users-create", [
 			'Users' => [
+				'testBool' => '0',
 				'username' => 'Test Successful',
 				'login' => 'test_user_2',
 				'password' => '123',
