@@ -527,7 +527,7 @@ class DynamicAttributesTest extends Unit {
 		self::assertEquals(108, $sortedByInt[11]->bububu);
 		self::assertEquals(15, $sortedByInt[24]->bububu);
 		self::assertEquals(4, $sortedByInt[56]->bububu);
-		self::assertEquals(32, $sortedByInt[56]->id);
+		self::assertEquals(81, $sortedByInt[56]->id);
 		self::assertNull($sortedByInt[99]->bububu);
 
 		$sortedByInt = Users::find()
@@ -538,7 +538,7 @@ class DynamicAttributesTest extends Unit {
 		self::assertEquals(15, $sortedByInt[26]->bububu);
 		self::assertEquals(15, $sortedByInt[38]->bububu);
 		self::assertEquals(16, $sortedByInt[51]->bububu);
-		self::assertEquals(99, $sortedByInt[51]->id);
+		self::assertEquals(68, $sortedByInt[51]->id);
 		self::assertNull($sortedByInt[99]->bububu);
 	}
 
