@@ -30,6 +30,9 @@ $config = [
 		],
 	],
 	'components' => [
+		'request' => [
+			'cookieValidationKey' => 'sosijopu',
+		],
 		'cache' => [
 			'class' => DummyCache::class,
 		],
