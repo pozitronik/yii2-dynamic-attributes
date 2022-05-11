@@ -30,8 +30,8 @@ class UsersCest {
 				'login' => 'test_user_2',
 				'password' => '123',
 				'da2' => 'abyrvalg',//кириллическое имя
-				'da1' => true,//sex,
-				'weight' => 42//weight
+				'da0' => true,//sex,
+				'da1' => 42//weight
 			]
 		]);
 		$I->seeResponseCodeIs(200);
