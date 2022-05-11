@@ -88,6 +88,7 @@ trait DynamicAttributesTrait {
 	public function delete():void {
 		if (false !== parent::delete()) {
 			DynamicAttributes::deleteValues($this);
+			$this->reloadDynamicAttributes();
 		}
 	}
 

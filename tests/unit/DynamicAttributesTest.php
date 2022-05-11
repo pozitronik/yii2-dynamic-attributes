@@ -259,7 +259,7 @@ class DynamicAttributesTest extends Unit {
 		self::assertEquals(0.71428571428571, $newUserModel->some_float_attribute);
 		self::assertEquals(1.1428571428571, $newUserModel->some_double_attribute);
 
-		$secondUser = Users::CreateUser(2)->saveAndReturn();
+		$secondUser = Users::CreateUser()->saveAndReturn();
 		self::assertTrue(ArrayHelper::isEqual(
 			['weight', 'sex', 'memo about', 'some_dynamic_attribute', 'some_float_attribute', 'some_double_attribute'],
 			$secondUser->dynamicAttributes,
@@ -316,7 +316,7 @@ class DynamicAttributesTest extends Unit {
 		$wIndex = 0;
 		$bIndex = 0;
 		for ($i = 0; $i < 100; $i++) {
-			$user = Users::CreateUser($i)->saveAndReturn();
+			$user = Users::CreateUser()->saveAndReturn();
 			$user->wadawada = $searchDataWadawada[$wIndex++];//strings
 			$user->bububu = $searchDataBububu[$bIndex++];//integers
 			$user->pipi = 0 === $i % 2;//booleans
