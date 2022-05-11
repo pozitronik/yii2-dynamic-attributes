@@ -276,6 +276,28 @@ class DynamicAttributes extends DynamicAttributesAR {
 	}
 
 	/**
+	 * Привести значение $value к типу $typeId
+	 * @param int $typeId
+	 * @param $value
+	 * @return bool Возможность совершить преобразование
+	 */
+	public static function castTo(int $typeId, &$value):bool {
+		try {
+			$value = match ($typeId) {
+				static::TYPE_BOOL => (bool)$value,
+				static::TYPE_INT => (int)$value,
+				static::TYPE_FLOAT => (float)$value,
+				static::TYPE_STRING => (string)$value,
+				static::TYPE_ARRAY => (array)$value,
+				static::TYPE_OBJECT => (object)$value,
+			};
+		} catch (Throwable $e) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Генерирует алиас каждого атрибута для обхода проблем со «странными» именами атрибутов. Обращение к алиасу равнозначно обращению к атрибуту
 	 * @param ActiveRecordInterface|string $model
 	 * @return array [attribute name => attribute alias]
