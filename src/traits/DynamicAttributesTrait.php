@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace pozitronik\dynamic_attributes\traits;
 
+use ArrayObject;
 use pozitronik\dynamic_attributes\DynamicAttributesModule;
 use pozitronik\dynamic_attributes\models\active_record\DynamicAttributesAliases;
 use pozitronik\dynamic_attributes\models\AttributesStorage;
@@ -11,10 +12,15 @@ use pozitronik\dynamic_attributes\models\DynamicAttributesValues;
 use pozitronik\traits\traits\ActiveRecordTrait;
 use Throwable;
 use TypeError;
+use yii\base\InvalidConfigException;
 use yii\base\InvalidConfigException as InvalidConfigExceptionAlias;
 use yii\base\UnknownPropertyException;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
+use yii\validators\BooleanValidator;
+use yii\validators\NumberValidator;
+use yii\validators\SafeValidator;
+use yii\validators\Validator;
 
 /**
  * Trait DynamicAttributesTrait
@@ -73,7 +79,6 @@ trait DynamicAttributesTrait {
 		/*empty attributes + filled attributes*/
 		$allAttributes = array_merge(array_fill_keys(DynamicAttributes::listAttributes($this), null), DynamicAttributes::getAttributesValues($this));
 		$this->_dynamicAttributesStorage->loadAttributes($allAttributes);
-
 		$this->_dynamicAttributesAliases = DynamicAttributes::getDynamicAttributesAliasesMap($this);
 	}
 
@@ -96,7 +101,46 @@ trait DynamicAttributesTrait {
 			return true;
 		}
 		return false;
+	}
 
+	/**
+	 * Валидирует динамические атрибуты
+	 * @return bool
+	 * @throws Throwable
+	 */
+	public function validateDynamicAttributes():bool {
+		foreach ($this->_dynamicAttributesStorage->attributes as $name => $value) {
+			if (!$this->getDynamicAttributeValidator($name)->validate($value)) return false;
+		}
+		return true;
+	}
+
+	/**
+	 * inheritDoc
+	 * Добавляет к прописанным в модели валидаторам валидаторы для алиасов динамических атрибутов
+	 */
+	public function createValidators():ArrayObject {
+		$validators = parent::createValidators();
+		foreach ($this->_dynamicAttributesAliases as $attribute => $alias) {
+			$validators->append($this->getDynamicAttributeValidator($attribute, $alias));
+		}
+		return $validators;
+	}
+
+	/**
+	 * @param string $attribute
+	 * @param string|null $alias
+	 * @return Validator
+	 * @throws Throwable
+	 * todo: валидация может (и должна) происходить в AttributesStorage
+	 */
+	public function getDynamicAttributeValidator(string $attribute, ?string $alias = null):Validator {
+		$alias = $alias??$attribute;
+		return match (DynamicAttributes::attributeType($this, $attribute)) {
+			DynamicAttributes::TYPE_BOOL => Validator::createValidator(BooleanValidator::class, $this, [$alias], []),
+			DynamicAttributes::TYPE_INT => Validator::createValidator(NumberValidator::class, $this, [$alias], ['integerOnly' => true]),
+			default => Validator::createValidator(SafeValidator::class, $this, [$alias], []),
+		};
 	}
 
 	/**
@@ -122,7 +166,12 @@ trait DynamicAttributesTrait {
 		if (false !== $attributeName = array_search($name, $this->_dynamicAttributesAliases, true)) {
 			$this->$attributeName = $value;
 		} elseif (false !== $knownType = $this->getDynamicAttributeType($name)) {
-			if (null !== $knownType && null !== $value && DynamicAttributes::getType($value) !== $knownType) {
+			if (null !== $knownType//тип известен
+				&& null !== $value//значение не пустое
+				&& DynamicAttributes::getType($value) !== $knownType //тип значения не совпадает с уже известным типом
+				&& !$this->getDynamicAttributeValidator($name)->validate($value) //при этом пришедшее значение не валидируется связанным валидатором
+				&& DynamicAttributesModule::param('allowAttributesTypecasting', true)//todo: документировать
+				&& !DynamicAttributes::castTo($knownType, $value)) {//или значение невозможно привести к уже известному типу
 				throw new TypeError(DynamicAttributes::TYPE_ERROR_TEXT);
 			}
 			$this->_dynamicAttributesStorage->$name = $value;
@@ -130,7 +179,7 @@ trait DynamicAttributesTrait {
 			try {
 				parent::__set($name, $value);
 			} /** @noinspection PhpRedundantCatchClauseInspection Не прокинуто во фреймворке */ catch (UnknownPropertyException $exception) {
-				if (DynamicAttributesModule::param('allowRuntimeAttributes', true)) {
+				if (DynamicAttributesModule::param('allowRuntimeAttributes', true)) {//todo: документировать
 					$this->addDynamicAttribute($name, DynamicAttributes::getType($value));
 					$this->_dynamicAttributesStorage->$name = $value;
 				} else {
