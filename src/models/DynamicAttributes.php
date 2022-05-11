@@ -7,7 +7,6 @@ use pozitronik\dynamic_attributes\DynamicAttributesModule;
 use pozitronik\dynamic_attributes\models\active_record\DynamicAttributes as DynamicAttributesAR;
 use pozitronik\helpers\ArrayHelper;
 use Throwable;
-use TypeError;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveRecordInterface;
 
