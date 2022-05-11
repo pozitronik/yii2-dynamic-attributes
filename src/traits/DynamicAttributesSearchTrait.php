@@ -3,9 +3,11 @@ declare(strict_types = 1);
 
 namespace pozitronik\dynamic_attributes\traits;
 
+use ArrayObject;
 use pozitronik\dynamic_attributes\models\adapters\Adapter;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use Throwable;
+use yii\base\Model;
 use yii\db\ActiveQueryInterface;
 use yii\validators\BooleanValidator;
 use yii\validators\NumberValidator;
@@ -34,6 +36,19 @@ trait DynamicAttributesSearchTrait {
 	public function init():void {
 		parent::init();
 		$this->_dynamicAttributesAliases = DynamicAttributes::getDynamicAttributesAliasesMap(parent::class);
+	}
+
+	/**
+	 * inheritDoc
+	 * Добавляет к прописанным в модели валидаторам валидаторы для алиасов динамических атрибутов
+	 */
+	public function createValidators():ArrayObject {
+		/** @noinspection PhpDynamicAsStaticMethodCallInspection Метод вызывается в контексте поисковой модели, для создания валидаторов текущего экземпляра класса */
+		$validators = Model::createValidators();
+		foreach ($this->_dynamicAttributesAliases as $attribute => $alias) {
+			$validators->append($this->getDynamicAttributeValidator($attribute, $alias));
+		}
+		return $validators;
 	}
 
 	/**
@@ -71,25 +86,6 @@ trait DynamicAttributesSearchTrait {
 	 */
 	public function __isset($name) {
 		return parent::__isset($name);
-	}
-
-	/**
-	 * Добавляет в правила валидаторы для динамических атрибутов
-	 * @param array $rules
-	 * @return array
-	 * @throws Throwable
-	 */
-	private function adaptRules(array $rules):array {
-		$aliasRules = [];
-		foreach ($this->_dynamicAttributesAliases as $attribute => $alias) {
-			$aliasRules[] = match (DynamicAttributes::attributeType(parent::class, $attribute)) {
-				DynamicAttributes::TYPE_BOOL => [[$alias], BooleanValidator::class],
-				DynamicAttributes::TYPE_INT => [[$alias], NumberValidator::class, 'integerOnly' => true],
-				default => [[$alias], SafeValidator::class]
-			};
-		}
-
-		return array_merge($rules, $aliasRules);
 	}
 
 	/**

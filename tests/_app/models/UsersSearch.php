@@ -17,10 +17,10 @@ class UsersSearch extends Users {
 	 * @inheritdoc
 	 */
 	public function rules():array {
-		return $this->adaptRules([
+		return [
 			[['id'], 'integer'],
 			[['username', 'login', 'password'], 'safe'],
-		]);
+		];
 	}
 
 	/**
