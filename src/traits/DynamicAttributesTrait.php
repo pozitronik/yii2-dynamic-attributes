@@ -166,12 +166,10 @@ trait DynamicAttributesTrait {
 		if (false !== $attributeName = array_search($name, $this->_dynamicAttributesAliases, true)) {
 			$this->$attributeName = $value;
 		} elseif (false !== $knownType = $this->getDynamicAttributeType($name)) {
-			if (null !== $knownType//тип известен
-				&& null !== $value//значение не пустое
-				&& DynamicAttributes::getType($value) !== $knownType //тип значения не совпадает с уже известным типом
-				&& !$this->getDynamicAttributeValidator($name)->validate($value) //при этом пришедшее значение не валидируется связанным валидатором
-				&& !DynamicAttributes::castTo($knownType, $value)) {//или значение невозможно привести к уже известному типу
-				throw new TypeError(DynamicAttributes::TYPE_ERROR_TEXT);
+			if (null !== $knownType && null !== $value && DynamicAttributes::getType($value) !== $knownType) {//тип значения известен, но не совпадает с ранее указанным
+				if (!$this->getDynamicAttributeValidator($name)->validate($value) || !DynamicAttributes::castTo($knownType, $value)) {//значение не может быть провалидировано или приведено к известному типу
+					throw new TypeError(DynamicAttributes::TYPE_ERROR_TEXT);
+				}
 			}
 			$this->_dynamicAttributesStorage->$name = $value;
 		} else {
