@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace app\models;
 
 use pozitronik\dynamic_attributes\traits\DynamicAttributesSearchTrait;
+use Throwable;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -25,6 +26,7 @@ class UsersSearch extends Users {
 	/**
 	 * @param array $params
 	 * @return ActiveDataProvider
+	 * @throws Throwable
 	 */
 	public function search(array $params):ActiveDataProvider {
 		$query = Users::find()
