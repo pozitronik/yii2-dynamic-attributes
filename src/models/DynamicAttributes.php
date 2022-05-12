@@ -170,10 +170,11 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 */
 	public static function setAttributesValues(ActiveRecordInterface $model, array $attributes):void {
 		$model_id = static::extractKey($model);
+		$alias_id = DynamicAttributesAliases::ensureAlias(static::alias($model))->id;
 		foreach ($attributes as $name => $value) {
-			$alias_id = static::ensureAttribute($model, $name, static::getType($value))->alias_id;
-			DynamicAttributesValues::setAttributesValue($alias_id, $model_id, $name, $value);
+			static::ensureAttribute($model, $name, static::getType($value));
 		}
+		DynamicAttributesValues::setAttributesValues($alias_id, $model_id, $attributes);
 	}
 
 	/**
