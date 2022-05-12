@@ -59,15 +59,7 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	 */
 	public static function setAttributesValue(int $alias_id, int $model_id, string $attribute_name, mixed $attribute_value):?static {
 		if (is_float($attribute_value) && (new static())->limitFloatPrecision) {
-			/**
-			 * Волшебная магия.
-			 * Нужно обрезать число так, чтобы оно было «длиной» в 14 знаков (не после десятичного знака, а вообще). Неважно, что PHP почти всегда отдаёт float как 14-знаковое число,
-			 * внутреннее представление у него хранится с максимально возможной для платформы точностью (которая уйдёт в БД, что вызовет проблемы).
-			 * Поэтому значение умножается на такой множитель, чтобы при преобразовании в int отбросить лишний по длине «хвост», а затем делится на этот же множитель,
-			 * чтобы снова стать float. Множитель же зависит от того, какая десятичная степень у целой части изначального значения.
-			 * Надеюсь, стало понятнее.
-			 **/
-			$attribute_value = (int)($attribute_value * ($p = 10 ** (13 - intdiv((int)$attribute_value, 10)))) / $p;
+			$attribute_value = static::LimitFloatPrecision($attribute_value);
 		}
 
 		try {
@@ -84,6 +76,21 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 			Yii::warning("Unable to update or insert table value: {$e->getMessage()}", __METHOD__);
 		}
 		return null;
+	}
+
+	/**
+	 * Волшебная магия.
+	 * Нужно обрезать число так, чтобы оно было «длиной» в 14 знаков (не после десятичного знака, а вообще). Неважно, что PHP почти всегда отдаёт float как 14-знаковое число,
+	 * внутреннее представление у него хранится с максимально возможной для платформы точностью (которая уйдёт в БД, что вызовет проблемы).
+	 * Поэтому значение умножается на такой множитель, чтобы при преобразовании в int отбросить лишний по длине «хвост», а затем делится на этот же множитель,
+	 * чтобы снова стать float. Множитель же зависит от того, какая десятичная степень у целой части изначального значения.
+	 * Надеюсь, стало понятнее.
+	 *
+	 * @param float $value
+	 * @return float
+	 */
+	private static function LimitFloatPrecision(float $value):float {
+		return (int)($value * ($p = 10 ** (13 - intdiv((int)$value, 10)))) / $p;
 	}
 
 	/**
