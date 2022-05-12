@@ -58,7 +58,7 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	 * @return DynamicAttributesValues|null
 	 */
 	public static function setAttributesValue(int $alias_id, int $model_id, string $attribute_name, mixed $attribute_value):?static {
-		if (is_float($attribute_value) && (new static())->limitFloatPrecision) {
+		if ((new static())->limitFloatPrecision) {
 			$attribute_value = static::LimitFloatPrecision($attribute_value);
 		}
 
@@ -86,11 +86,13 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	 * чтобы снова стать float. Множитель же зависит от того, какая десятичная степень у целой части изначального значения.
 	 * Надеюсь, стало понятнее.
 	 *
-	 * @param float $value
+	 * @param mixed $value
 	 * @return float
 	 */
-	private static function LimitFloatPrecision(float $value):float {
-		return (int)($value * ($p = 10 ** (13 - intdiv((int)$value, 10)))) / $p;
+	private static function LimitFloatPrecision(mixed $value):mixed {
+		return is_float($value)
+			?(int)($value * ($p = 10 ** (13 - intdiv((int)$value, 10)))) / $p
+			:$value;
 	}
 
 	/**
@@ -99,13 +101,18 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	 * @param int $model_id
 	 * @param array $attributes_values [attribute name => attribute value]
 	 * @return static|null
-	 * не проверялось
 	 */
 	public static function setAttributesValues(int $alias_id, int $model_id, array $attributes_values):?static {
+		if ((new static())->limitFloatPrecision) {
+			array_walk($attributes_values, static function(&$value, $key) {
+				$value = static::LimitFloatPrecision($value);
+			});
+		}
+
 		try {
 			$valueRecord = static::Upsert(compact('model_id', 'alias_id'));
 			$oldValues = $valueRecord->attributes_values;
-			$oldValues = array_merge_recursive($oldValues, $attributes_values);
+			$oldValues = array_replace_recursive($oldValues??[], $attributes_values);
 			$valueRecord->attributes_values = $oldValues;
 			$valueRecord->save();
 			return $valueRecord;
