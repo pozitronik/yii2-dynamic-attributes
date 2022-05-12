@@ -9,9 +9,6 @@ use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use Throwable;
 use yii\base\Model;
 use yii\db\ActiveQueryInterface;
-use yii\validators\BooleanValidator;
-use yii\validators\NumberValidator;
-use yii\validators\SafeValidator;
 
 /**
  * Trait DynamicAttributesSearchTrait
