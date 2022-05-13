@@ -12,7 +12,7 @@ use yii\db\ActiveRecordInterface;
 /**
  * Методы адаптации динамических параметров для ActiveQuery
  */
-class Adapter {
+class PgsqlAdapter {
 
 	/**
 	 * Преобразует имя динамического поля в подходящий для запроса формат
