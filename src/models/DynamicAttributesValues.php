@@ -41,12 +41,18 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	public bool $limitFloatPrecision = true;
 
 	/**
+	 * @var bool enables indexes creation on every single json subfield in sys_dynamic_attributes_values.attribute_value, if supported by DB engine.
+	 */
+	public bool $createIndexes = false;
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function init():void {
 		parent::init();
 		$this->cacheEnabled = DynamicAttributesModule::param('cacheEnabled', $this->cacheEnabled);
 		$this->limitFloatPrecision = DynamicAttributesModule::param('limitFloatPrecision', $this->limitFloatPrecision);
+		$this->createIndexes = DynamicAttributesModule::param('createIndexes', $this->createIndexes);
 	}
 
 	/**

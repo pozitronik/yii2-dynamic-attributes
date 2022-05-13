@@ -310,4 +310,12 @@ class DynamicAttributes extends DynamicAttributesAR {
 		return array_combine($old_attributes, $attributes);
 	}
 
+	/**
+	 * Создать индекс на аттрибут (если поддерживается)
+	 * @return bool|null true: индекс создан, false: индекс не создан, null: не поддерживается
+	 */
+	public function createIndex():?bool {
+
+	}
+
 }

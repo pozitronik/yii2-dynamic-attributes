@@ -215,12 +215,17 @@ trait DynamicAttributesTrait {
 	/**
 	 * @param string $name
 	 * @param int|null $type
+	 * @param bool|null $index True: создать индекс на атрибут (если поддерживается), null: по настройке из конфига
 	 * @return void
 	 * @throws Throwable
 	 */
-	public function addDynamicAttribute(string $name, ?int $type = null):void {
+	public function addDynamicAttribute(string $name, ?int $type = null, ?bool $index = null):void {
 		$this->_dynamicAttributesStorage->defineAttribute($name);
-		DynamicAttributes::ensureAttribute($this, $name, $type);
+		$dynamicAttribute = DynamicAttributes::ensureAttribute($this, $name, $type);
+		if (true === ($index??DynamicAttributesModule::param('createIndexes', false))) {//todo: сейчас инициализируется без использования в модуле
+			$dynamicAttribute->createIndex();
+		}
+
 	}
 
 	/**
