@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace pozitronik\dynamic_attributes\traits;
 
 use ArrayObject;
-use pozitronik\dynamic_attributes\models\adapters\PgsqlAdapter;
+use pozitronik\dynamic_attributes\models\adapters\Adapter;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use Throwable;
 use yii\base\Model;
@@ -109,10 +109,10 @@ trait DynamicAttributesSearchTrait {
 				case DynamicAttributes::TYPE_BOOL:
 				case DynamicAttributes::TYPE_INT:
 				case DynamicAttributes::TYPE_FLOAT:
-					$query->andFilterWhere(PgsqlAdapter::adaptWhere([$name => $this->$name]));
+					$query->andFilterWhere(Adapter::adaptWhere([$name => $this->$name]));
 				break;
 				case DynamicAttributes::TYPE_STRING:
-					$query->andFilterWhere(PgsqlAdapter::adaptWhere(['like', $name, $this->$name]));
+					$query->andFilterWhere(Adapter::adaptWhere(['like', $name, $this->$name]));
 				break;
 			}
 		}
@@ -126,8 +126,8 @@ trait DynamicAttributesSearchTrait {
 		$result = [];
 		foreach (DynamicAttributes::getAttributesTypes(parent::class) as $name => $type) {
 			$result[$this->_dynamicAttributesAliases[$name]] = [
-				'asc' => [PgsqlAdapter::adaptField($name, parent::class) => SORT_ASC],
-				'desc' => [PgsqlAdapter::adaptField($name, parent::class) => SORT_DESC]
+				'asc' => [Adapter::adaptField($name, parent::class) => SORT_ASC],
+				'desc' => [Adapter::adaptField($name, parent::class) => SORT_DESC]
 			];
 		}
 		return $result;
