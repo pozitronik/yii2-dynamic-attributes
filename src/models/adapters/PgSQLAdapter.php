@@ -21,6 +21,7 @@ class PgSQLAdapter implements AdapterInterface {
 
 	/**
 	 * @inheritDoc
+	 * fixme: функция не умеет обрабатывать случаи, когда первым оператором идёт условие or/and
 	 */
 	public static function adaptWhere(array $condition):array {
 		if (isset($condition[0])) {//['operator', 'attribute_name', 'attribute_value']
