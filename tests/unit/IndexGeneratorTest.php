@@ -59,22 +59,22 @@ class IndexGeneratorTest extends Unit {
 	private static function fillData(int $rowsCount = 100000):void {
 		for ($rowCount = 0; $rowCount < $rowsCount; $rowCount++) {
 			$user = Users::CreateUser();
+			$randomArray = [];
 			foreach (static::DYNAMIC_ATTRIBUTES as $attributeName => $attributeType) {
+				if (DynamicAttributes::TYPE_ARRAY === $attributeType) {
+					$randomArray = range(0, random_int(0, 100));
+					shuffle($randomArray);
+				}
 				$user->$attributeName = match ($attributeType) {
-					DynamicAttributes::TYPE_BOOL => random_int(0, 100) % 2,
+					DynamicAttributes::TYPE_BOOL => (bool)(random_int(0, 100) % 2),
 					DynamicAttributes::TYPE_INT => mt_rand(),
 					DynamicAttributes::TYPE_FLOAT => mt_rand() / mt_rand(),
-					DynamicAttributes::TYPE_STRING => Utils::random_str(mt_rand()),
-					DynamicAttributes::TYPE_ARRAY => static function():array {//проверить возможность вызова
-						$x = range(0, random_int(0, 100));
-						shuffle($x);
-						return $x;
-					},
+					DynamicAttributes::TYPE_STRING => Utils::random_str(random_int(0, 100)),
+					DynamicAttributes::TYPE_ARRAY => $randomArray,
 					default => null
 				};
-				$user->save();
 			}
-
+			$user->save();
 		}
 	}
 
