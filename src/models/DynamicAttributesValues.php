@@ -94,6 +94,8 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	 *
 	 * @param mixed $value
 	 * @return float
+	 *
+	 * todo: Division by zero possible
 	 */
 	private static function LimitFloatPrecision(mixed $value):mixed {
 		return is_float($value)
