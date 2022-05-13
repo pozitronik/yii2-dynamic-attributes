@@ -5,10 +5,13 @@ namespace pozitronik\dynamic_attributes\models;
 
 use pozitronik\dynamic_attributes\DynamicAttributesModule;
 use pozitronik\dynamic_attributes\models\active_record\DynamicAttributes as DynamicAttributesAR;
+use pozitronik\dynamic_attributes\models\adapters\Adapter;
 use pozitronik\helpers\ArrayHelper;
 use Throwable;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveRecordInterface;
+use yii\db\Connection;
+use yii\db\Exception;
 
 /**
  * Class DynamicAttributes
@@ -52,10 +55,11 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @param string|ActiveRecordInterface $model
 	 * @param string $attribute_name
 	 * @param int|null $type
+	 * @param bool|null $index True: создать индекс на атрибут (если поддерживается), null: по настройке из конфига
 	 * @return static
 	 * @throws Throwable
 	 */
-	public static function ensureAttribute(string|ActiveRecordInterface $model, string $attribute_name, ?int $type = null):static {
+	public static function ensureAttribute(string|ActiveRecordInterface $model, string $attribute_name, ?int $type = null, ?bool $index = null):static {
 		$attributes = [
 			'alias_id' => DynamicAttributesAliases::ensureAlias(static::alias($model))->id,
 			'attribute_name' => $attribute_name,
@@ -77,8 +81,28 @@ class DynamicAttributes extends DynamicAttributesAR {
 //		elseif ($currentAttribute->type !== $type) {//типы не совпадают - ничего не делаем, полагаясь на последующую конвертацию валидаторами
 //			throw new TypeError(static::TYPE_ERROR_TEXT);//различия в текущем и сохранённом типах данных
 //		}
+		if (true === ($index??DynamicAttributesModule::param('createIndexes', false))) {//todo: сейчас инициализируется без использования в модуле
+			static::indexAttribute($model, $attribute_name, $type);
+		}
 
 		return $currentAttribute;
+	}
+
+	/**
+	 * Создать индекс по динамическому полю
+	 * @param string|ActiveRecordInterface $model
+	 * @param string $attribute_name
+	 * @param int|null $type
+	 * @return void
+	 * @throws Exception
+	 */
+	public static function indexAttribute(string|ActiveRecordInterface $model, string $attribute_name, ?int $type = null):void {
+		//$indexCmd = Adapter::indexOnJsonField($attribute_name, $type, ['alias_id' => $currentAttribute->alias_id]);
+		/** @var Connection $connection */
+		$connection = $model::getDb();
+
+		$connection->createCommand()->createIndex("{$attribute_name}_idx", DynamicAttributesValues::tableName(), Adapter::jsonFieldName($attribute_name, $type))->execute();
+
 	}
 
 	/**
@@ -308,14 +332,6 @@ class DynamicAttributes extends DynamicAttributesAR {
 		$old_attributes = $attributes;
 		array_walk($attributes, static fn(&$value, $key) => $value = 'da'.$key);
 		return array_combine($old_attributes, $attributes);
-	}
-
-	/**
-	 * Создать индекс на аттрибут (если поддерживается)
-	 * @return bool|null true: индекс создан, false: индекс не создан, null: не поддерживается
-	 */
-	public function createIndex():?bool {
-
 	}
 
 }

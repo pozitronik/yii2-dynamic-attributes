@@ -30,4 +30,11 @@ class MySQLAdapter implements AdapterInterface {
 	public static function jsonFieldName(string $jsonFieldName, ?int $fieldType):string {
 		// TODO: Implement jsonFieldName() method.
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function indexOnJsonField(string $jsonFieldName, ?int $fieldType, array $parameters = []):?string {
+		// TODO: Implement indexOnJsonField() method.
+	}
 }

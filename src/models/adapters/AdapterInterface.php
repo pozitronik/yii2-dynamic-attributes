@@ -33,4 +33,13 @@ interface AdapterInterface {
 	 */
 	public static function jsonFieldName(string $jsonFieldName, ?int $fieldType):string;
 
+	/**
+	 * Возвращает запрос на создание индекса по указанному полю
+	 * @param string $jsonFieldName
+	 * @param int|null $fieldType
+	 * @param array $parameters Дополнительные параметры для запроса
+	 * @return string|null null, если не поддерживается
+	 */
+	public static function indexOnJsonField(string $jsonFieldName, ?int $fieldType, array $parameters = []):?string;
+
 }

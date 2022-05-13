@@ -73,4 +73,11 @@ class PgSQLAdapter implements AdapterInterface {
 		return '=';
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public static function indexOnJsonField(string $jsonFieldName, ?int $fieldType, array $parameters = []):?string {
+
+	}
+
 }

@@ -221,11 +221,7 @@ trait DynamicAttributesTrait {
 	 */
 	public function addDynamicAttribute(string $name, ?int $type = null, ?bool $index = null):void {
 		$this->_dynamicAttributesStorage->defineAttribute($name);
-		$dynamicAttribute = DynamicAttributes::ensureAttribute($this, $name, $type);
-		if (true === ($index??DynamicAttributesModule::param('createIndexes', false))) {//todo: сейчас инициализируется без использования в модуле
-			$dynamicAttribute->createIndex();
-		}
-
+		DynamicAttributes::ensureAttribute($this, $name, $type, $index);
 	}
 
 	/**

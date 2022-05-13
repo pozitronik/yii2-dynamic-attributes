@@ -55,6 +55,13 @@ class Adapter implements AdapterInterface {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public static function indexOnJsonField(string $jsonFieldName, ?int $fieldType, array $parameters = []):?string {
+		return static::GetAdapter()::indexOnJsonField($jsonFieldName, $fieldType, $parameters);
+	}
+
+	/**
 	 * @return string|null
 	 * @throws InvalidConfigException
 	 * @throws Throwable
@@ -68,11 +75,12 @@ class Adapter implements AdapterInterface {
 	 * @throws InvalidConfigException
 	 * @throws Throwable
 	 */
-	private static function GetAdapter():string {
+	private static function GetAdapter():AdapterInterface|string {
 		if (null === static::$_adapter ??= ArrayHelper::getValue(static::ADAPTERS, static::GetDriverName())) {
 			throw new InvalidConfigException(sprintf("Adapter for %s is not set", static::$driverName));
 		}
 		return static::$_adapter;
 	}
+
 
 }
