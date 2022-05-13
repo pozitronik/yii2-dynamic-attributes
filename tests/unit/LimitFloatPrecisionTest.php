@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace unit;
 
 use Codeception\Test\Unit;
+use pozitronik\dynamic_attributes\helpers\ArrayHelper;
 use pozitronik\dynamic_attributes\models\DynamicAttributesValues;
 
 /**
@@ -35,5 +36,17 @@ class LimitFloatPrecisionTest extends Unit {
 
 		self::assertTrue(is_nan(DynamicAttributesValues::LimitFloatPrecision(sqrt(-1))));//NAN.0
 		self::assertTrue(is_infinite(DynamicAttributesValues::LimitFloatPrecision(100 ** 500)));//INF.0
+	}
+
+	/**
+	 * Такие дела
+	 * @return void
+	 */
+	public function testFloatEquals():void {
+		$piPHP = 3.1415926535897;
+		$piPg = 3.14159265358969;
+		self::assertEquals($piPHP, $piPg);
+		self::assertFalse($piPHP === $piPg);
+		self::assertTrue(ArrayHelper::isFloatEquals($piPHP, $piPg, 0.0000000000001));
 	}
 }
