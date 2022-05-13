@@ -76,8 +76,15 @@ class PgSQLAdapter implements AdapterInterface {
 	/**
 	 * @inheritDoc
 	 */
-	public static function indexOnJsonField(string $jsonFieldName, ?int $fieldType, array $parameters = []):?string {
-
+	public static function indexOnJsonField(string $jsonFieldName, ?int $fieldType, ?int $alias_id):?string {
+		if (null === $alias_id) {
+			$indexName = "{$jsonFieldName}_idx";
+			$columnsList = "(".static::jsonFieldName($jsonFieldName, $fieldType).")";
+		} else {
+			$indexName = "{$jsonFieldName}_{$alias_id}_idx";
+			$columnsList = "alias_id,(".static::jsonFieldName($jsonFieldName, $fieldType).")";
+		}
+		return sprintf("CREATE INDEX IF NOT EXISTS %s ON %s (%s)", $indexName, DynamicAttributesValues::tableName(), $columnsList);
 	}
 
 }

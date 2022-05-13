@@ -15,6 +15,7 @@ class MySQLAdapter implements AdapterInterface {
 	 */
 	public static function adaptField(string $jsonFieldName, string|ActiveRecordInterface|null $model = null):string {
 		// TODO: Implement adaptField() method.
+		return '';
 	}
 
 	/**
@@ -22,6 +23,7 @@ class MySQLAdapter implements AdapterInterface {
 	 */
 	public static function adaptWhere(array $condition):array {
 		// TODO: Implement adaptWhere() method.
+		return [];
 	}
 
 	/**
@@ -29,12 +31,13 @@ class MySQLAdapter implements AdapterInterface {
 	 */
 	public static function jsonFieldName(string $jsonFieldName, ?int $fieldType):string {
 		// TODO: Implement jsonFieldName() method.
+		return '';
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public static function indexOnJsonField(string $jsonFieldName, ?int $fieldType, array $parameters = []):?string {
-		// TODO: Implement indexOnJsonField() method.
+	public static function indexOnJsonField(string $jsonFieldName, ?int $fieldType, ?int $alias_id):?string {
+		return null;
 	}
 }

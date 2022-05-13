@@ -56,12 +56,12 @@ class IndexGeneratorTest extends Unit {
 	 * @return void
 	 * @throws Exception
 	 */
-	private static function fillData(int $rowsCount = 100000):void {
+	private static function fillData(int $rowsCount = 1000):void {
 		for ($rowCount = 0; $rowCount < $rowsCount; $rowCount++) {
 			$user = Users::CreateUser();
 			$randomArray = [];
 			foreach (static::DYNAMIC_ATTRIBUTES as $attributeName => $attributeType) {
-				if (DynamicAttributes::TYPE_ARRAY === $attributeType) {
+				if (DynamicAttributes::TYPE_ARRAY ===$attributeType) {
 					$randomArray = range(0, random_int(0, 100));
 					shuffle($randomArray);
 				}
@@ -69,7 +69,7 @@ class IndexGeneratorTest extends Unit {
 					DynamicAttributes::TYPE_BOOL => (bool)(random_int(0, 100) % 2),
 					DynamicAttributes::TYPE_INT => mt_rand(),
 					DynamicAttributes::TYPE_FLOAT => mt_rand() / mt_rand(),
-					DynamicAttributes::TYPE_STRING => Utils::random_str(random_int(0, 100)),
+					DynamicAttributes::TYPE_STRING => Utils::random_str(random_int(0,100)),
 					DynamicAttributes::TYPE_ARRAY => $randomArray,
 					default => null
 				};

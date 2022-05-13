@@ -57,8 +57,8 @@ class Adapter implements AdapterInterface {
 	/**
 	 * @inheritDoc
 	 */
-	public static function indexOnJsonField(string $jsonFieldName, ?int $fieldType, array $parameters = []):?string {
-		return static::GetAdapter()::indexOnJsonField($jsonFieldName, $fieldType, $parameters);
+	public static function indexOnJsonField(string $jsonFieldName, ?int $fieldType, ?int $alias_id):?string {
+		return static::GetAdapter()::indexOnJsonField($jsonFieldName, $fieldType, $alias_id);
 	}
 
 	/**

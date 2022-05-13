@@ -37,9 +37,9 @@ interface AdapterInterface {
 	 * Возвращает запрос на создание индекса по указанному полю
 	 * @param string $jsonFieldName
 	 * @param int|null $fieldType
-	 * @param array $parameters Дополнительные параметры для запроса
+	 * @param int|null $alias_id ID алиаса класса, для которого генерируется индекс, null если не нужно учитывать
 	 * @return string|null null, если не поддерживается
 	 */
-	public static function indexOnJsonField(string $jsonFieldName, ?int $fieldType, array $parameters = []):?string;
+	public static function indexOnJsonField(string $jsonFieldName, ?int $fieldType, ?int $alias_id):?string;
 
 }
