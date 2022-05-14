@@ -146,7 +146,7 @@ class IndexGeneratorTest extends Unit {
 		$results = [];
 		Console::startProgress(0, $repeats);
 		for ($c = 0; $c < $repeats; $c++) {
-			foreach (array_diff(static::DYNAMIC_ATTRIBUTES, [DynamicAttributes::TYPE_NULL]) as $attributeName => $attributeType) {//не тестируем неизвестные типы, по ним индекса всё равно нет
+			foreach (array_diff(static::DYNAMIC_ATTRIBUTES, [DynamicAttributes::TYPE_NULL, DynamicAttributes::TYPE_BOOL]) as $attributeName => $attributeType) {//не тестируем неизвестные типы, по ним индекса всё равно нет, не тестируем логические, т.к. там индекс не даёт ничего
 				$randomValue = match ($attributeType) {
 					DynamicAttributes::TYPE_BOOL => (bool)(random_int(0, 100) % 2),
 					DynamicAttributes::TYPE_INT => mt_rand(),
