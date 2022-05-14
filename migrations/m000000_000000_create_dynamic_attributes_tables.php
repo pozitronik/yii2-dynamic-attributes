@@ -43,6 +43,9 @@ class m000000_000000_create_dynamic_attributes_tables extends Migration {
 		$this->createIndex(self::VALUES_TABLE_NAME.'_model_id_alias_id_idx', self::VALUES_TABLE_NAME, ['model_id', 'alias_id'], true);
 		$this->addForeignKey('fk_alias_id', self::VALUES_TABLE_NAME, 'alias_id', self::ALIASES_TABLE_NAME, 'id');
 
+		/*GIN Index на хранилище*/
+		//$this->execute("CREATE INDEX ".self::VALUES_TABLE_NAME."_attributes_values_idx ON ".self::VALUES_TABLE_NAME." USING GIN (attributes_values);");
+
 	}
 
 	/**
