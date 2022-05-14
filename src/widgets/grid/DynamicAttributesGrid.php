@@ -95,7 +95,7 @@ class DynamicAttributesGrid extends InputWidget {
 	 * @param mixed $value
 	 * @return string
 	 */
-	private static function GetAttributeTypeLabel(mixed $value):string {
+	public static function GetAttributeTypeLabel(mixed $value):string {
 		return match ($value) {
 			DynamicAttributes::TYPE_BOOL => 'Логическое значение',
 			DynamicAttributes::TYPE_INT => 'Целочисленное значение',

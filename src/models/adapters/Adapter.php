@@ -3,88 +3,84 @@ declare(strict_types = 1);
 
 namespace pozitronik\dynamic_attributes\models\adapters;
 
-use Exception;
-use pozitronik\dynamic_attributes\models\DynamicAttributes;
-use pozitronik\dynamic_attributes\models\DynamicAttributesValues;
+use pozitronik\dynamic_attributes\DynamicAttributesModule;
+use pozitronik\helpers\ArrayHelper;
 use Throwable;
+use Yii;
+use yii\base\InvalidConfigException;
 use yii\db\ActiveRecordInterface;
 
 /**
- * Методы адаптации динамических параметров для ActiveQuery
+ * Class Adapter
+ * Общий адаптер, проксирующий вызовы нужному адаптеру
  */
-class Adapter {
+class Adapter implements AdapterInterface {
 
 	/**
-	 * Преобразует имя динамического поля в подходящий для запроса формат
-	 * @param string $jsonFieldName
-	 * @param ActiveRecordInterface|string|null $model
-	 * @return string
-	 * @throws Throwable
+	 * Имя используемого драйвера. Если не установлено принудительно, берётся из конфигурации, если не установлено там
+	 * - берётся основной драйвер из конфигурации Yii.
+	 * @var string|null
 	 */
-	public static function adaptField(string $jsonFieldName, ActiveRecordInterface|string|null $model = null):string {
-		return self::jsonFieldName($jsonFieldName, null === $model?null:DynamicAttributes::attributeType($model, $jsonFieldName));
+	public static null|string $driverName = null;
+
+	private static null|string $_adapter = null;
+
+	/**
+	 * driver name = adapter class
+	 */
+	public const ADAPTERS = [
+		'pgsql' => PgSQLAdapter::class,
+		'mysql' => MySQLAdapter::class
+	];
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function adaptField(string $jsonFieldName, string|ActiveRecordInterface|null $model = null):string {
+		return static::GetAdapter()::adaptField($jsonFieldName, $model);
 	}
 
 	/**
-	 * Превращает упрощённое условие выборки в массив для QueryBuilder
-	 * @param array $condition
-	 * @return array
-	 * @throws Exception
-	 * @throws Exception
+	 * @inheritDoc
 	 */
 	public static function adaptWhere(array $condition):array {
-		if (isset($condition[0])) {//['operator', 'attribute_name', 'attribute_value']
-			$operator = array_shift($condition);
-			$attribute_name = array_shift($condition);
-			$attribute_value = array_shift($condition);
-		} else { //['attribute_name' => 'attribute_value']
-			/** @var string $attribute_name */
-			$attribute_name = array_key_first($condition);
-			$attribute_value = $condition[$attribute_name];
-			$condition = [];
-			$operator = static::getOperator($attribute_value);
+		return static::GetAdapter()::adaptWhere($condition);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function jsonFieldName(string $jsonFieldName, ?int $fieldType):string {
+		return static::GetAdapter()::jsonFieldName($jsonFieldName, $fieldType);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function indexOnJsonField(string $jsonFieldName, ?int $fieldType, ?int $alias_id):?string {
+		return static::GetAdapter()::indexOnJsonField($jsonFieldName, $fieldType, $alias_id);
+	}
+
+	/**
+	 * @return string|null
+	 * @throws InvalidConfigException
+	 * @throws Throwable
+	 */
+	private static function GetDriverName():?string {
+		return static::$driverName ??= DynamicAttributesModule::param('driverName', Yii::$app->db->driverName);//todo документация
+	}
+
+	/**
+	 * @return AdapterInterface|string
+	 * @throws InvalidConfigException
+	 * @throws Throwable
+	 */
+	private static function GetAdapter():AdapterInterface|string {
+		if (null === static::$_adapter ??= ArrayHelper::getValue(static::ADAPTERS, static::GetDriverName())) {
+			throw new InvalidConfigException(sprintf("Adapter for %s is not set", static::$driverName));
 		}
-		$adaptedExpression = [$operator, self::jsonFieldName($attribute_name, DynamicAttributes::getType($attribute_value)), $attribute_value];
-		//В массиве могут остаться ещё какие-то параметры, например false в like - их просто добавим в адаптированное выражение
-		return array_merge($adaptedExpression, $condition);
+		return static::$_adapter;
 	}
 
-	/**
-	 * MySQL и PostgreSQL по разному атрибутируют поля в json.
-	 * PGSQL ONLY!
-	 * @param string $jsonFieldName
-	 * @param int|null $fieldType Тип поля. Если численный код типа, то адаптер попытается найти подходящий тип pgsql, если null, то pgsql-типизация будет проигнорирована
-	 * @return string
-	 */
-	private static function jsonFieldName(string $jsonFieldName, ?int $fieldType):string {
-		$dataType = (null === $fieldType)
-			?''
-			:"::".static::PHPTypeToPgSQLType($fieldType);
-		return "(\"".DynamicAttributesValues::tableName()."\".\"attributes_values\"->>'".$jsonFieldName."'){$dataType}";
-	}
-
-	/**
-	 * Для типа данных php возвращает подходящий тип pgsql
-	 * @param int|null $type
-	 * @return string
-	 */
-	private static function PHPTypeToPgSQLType(?int $type):string {
-		return match ($type) {
-			DynamicAttributes::TYPE_BOOL => 'boolean',
-			DynamicAttributes::TYPE_INT => 'int',
-			DynamicAttributes::TYPE_FLOAT => 'float',
-			default => 'text'
-		};
-	}
-
-	/**
-	 * @param mixed $value
-	 * @return string
-	 */
-	private static function getOperator(mixed $value):string {
-		if (null === $value) return 'is';
-		if (is_array($value)) return 'in';
-		return '=';
-	}
 
 }

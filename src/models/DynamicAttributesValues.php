@@ -41,12 +41,18 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	public bool $limitFloatPrecision = true;
 
 	/**
+	 * @var bool enables indexes creation on every single json subfield in sys_dynamic_attributes_values.attribute_value, if supported by DB engine.
+	 */
+	public bool $createIndexes = false;
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function init():void {
 		parent::init();
 		$this->cacheEnabled = DynamicAttributesModule::param('cacheEnabled', $this->cacheEnabled);
 		$this->limitFloatPrecision = DynamicAttributesModule::param('limitFloatPrecision', $this->limitFloatPrecision);
+		$this->createIndexes = DynamicAttributesModule::param('createIndexes', $this->createIndexes);
 	}
 
 	/**
@@ -82,17 +88,26 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	 * Волшебная магия.
 	 * Нужно обрезать число так, чтобы оно было «длиной» в 14 знаков (не после десятичного знака, а вообще). Неважно, что PHP почти всегда отдаёт float как 14-знаковое число,
 	 * внутреннее представление у него хранится с максимально возможной для платформы точностью (которая уйдёт в БД, что вызовет проблемы).
-	 * Поэтому значение умножается на такой множитель, чтобы при преобразовании в int отбросить лишний по длине «хвост», а затем делится на этот же множитель,
-	 * чтобы снова стать float. Множитель же зависит от того, какая десятичная степень у целой части изначального значения.
+	 *
+	 * Поэтому float превращается в строку с максимальным размером дробной части в 16 символов (избыточное представление), затем из этой строки берётся
+	 * 15 символов числа (14 знаков + разделитель) и приводится к float.
 	 * Надеюсь, стало понятнее.
 	 *
+	 * Стоит понимать, что результат может быть отдан в экспоненциальной форме (например 1.4285714E-6) - так оно работает, и это нормально.
+	 * Для отрицательных чисел знак включается в максимальную длину.
+	 * Для пограничных случаев, когда передано NaN/Inf возвращаются именно эти значения, иначе интерпретатор неявно приведёт их к 0.
+	 *
 	 * @param mixed $value
-	 * @return float
+	 * @return mixed
 	 */
-	private static function LimitFloatPrecision(mixed $value):mixed {
-		return is_float($value)
-			?(int)($value * ($p = 10 ** (13 - intdiv((int)$value, 10)))) / $p
-			:$value;
+	public static function LimitFloatPrecision(mixed $value):mixed {
+		if ((is_float($value))) {
+			if (is_nan($value)) return NAN;
+			if (is_infinite($value)) return INF;
+			return (float)substr(sprintf('%.16f', $value), 0, 16);
+		}
+
+		return $value;
 	}
 
 	/**

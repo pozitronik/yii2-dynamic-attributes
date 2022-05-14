@@ -215,12 +215,13 @@ trait DynamicAttributesTrait {
 	/**
 	 * @param string $name
 	 * @param int|null $type
+	 * @param bool|null $index True: создать индекс на атрибут (если поддерживается), null: по настройке из конфига
 	 * @return void
 	 * @throws Throwable
 	 */
-	public function addDynamicAttribute(string $name, ?int $type = null):void {
+	public function addDynamicAttribute(string $name, ?int $type = null, ?bool $index = null):void {
 		$this->_dynamicAttributesStorage->defineAttribute($name);
-		DynamicAttributes::ensureAttribute($this, $name, $type);
+		DynamicAttributes::ensureAttribute($this, $name, $type, $index);
 	}
 
 	/**

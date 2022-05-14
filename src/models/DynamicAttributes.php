@@ -5,10 +5,12 @@ namespace pozitronik\dynamic_attributes\models;
 
 use pozitronik\dynamic_attributes\DynamicAttributesModule;
 use pozitronik\dynamic_attributes\models\active_record\DynamicAttributes as DynamicAttributesAR;
+use pozitronik\dynamic_attributes\models\adapters\Adapter;
 use pozitronik\helpers\ArrayHelper;
 use Throwable;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveRecordInterface;
+use yii\db\Exception;
 
 /**
  * Class DynamicAttributes
@@ -52,10 +54,11 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @param string|ActiveRecordInterface $model
 	 * @param string $attribute_name
 	 * @param int|null $type
+	 * @param bool|null $index True: создать индекс на атрибут (если поддерживается), null: по настройке из конфига
 	 * @return static
 	 * @throws Throwable
 	 */
-	public static function ensureAttribute(string|ActiveRecordInterface $model, string $attribute_name, ?int $type = null):static {
+	public static function ensureAttribute(string|ActiveRecordInterface $model, string $attribute_name, ?int $type = null, ?bool $index = null):static {
 		$attributes = [
 			'alias_id' => DynamicAttributesAliases::ensureAlias(static::alias($model))->id,
 			'attribute_name' => $attribute_name,
@@ -70,6 +73,9 @@ class DynamicAttributes extends DynamicAttributesAR {
 		if (null === $currentAttribute) {//атрибута с таким именем не существует
 			$attributes['type'] = $type;
 			$currentAttribute = static::Upsert($attributes);
+			if (true === ($index??DynamicAttributesModule::param('createIndexes', false))) {//todo: сейчас инициализируется без использования в модуле
+				static::indexAttribute($model, $attribute_name, $type, $currentAttribute->alias_id);
+			}
 		} elseif (null === $currentAttribute->type) {//атрибут существует, но тип неизвестен -> установим тип
 			$currentAttribute->type = $type;
 			$currentAttribute->save();
@@ -79,6 +85,19 @@ class DynamicAttributes extends DynamicAttributesAR {
 //		}
 
 		return $currentAttribute;
+	}
+
+	/**
+	 * Создать индекс по динамическому полю
+	 * @param string|ActiveRecordInterface $model
+	 * @param string $attribute_name
+	 * @param int|null $type
+	 * @param int|null $alias_id
+	 * @return void
+	 * @throws Exception
+	 */
+	public static function indexAttribute(string|ActiveRecordInterface $model, string $attribute_name, ?int $type = null, ?int $alias_id = null):void {
+		$model::getDb()->createCommand()->setRawSql(Adapter::indexOnJsonField($attribute_name, $type, $alias_id))->execute();
 	}
 
 	/**
