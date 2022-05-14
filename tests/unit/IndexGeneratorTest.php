@@ -19,7 +19,6 @@ use yii\helpers\Console;
 
 /**
  * Class IndexGeneratorTest
- *
  */
 class IndexGeneratorTest extends Unit {
 
@@ -40,6 +39,10 @@ class IndexGeneratorTest extends Unit {
 	 * минимальное значение, для тестов производительности - повысить его.
 	 */
 	public const TESTING_RECORDS_CNT = 10000;
+	/**
+	 * Количество повторяющихся поисковых запросов на каждый тип атрибута.
+	 */
+	public const TESTING_SEARCH_REPEATS = 100;
 
 	/**
 	 * @inheritDoc
@@ -101,6 +104,7 @@ class IndexGeneratorTest extends Unit {
 	 * Тестирует создание индексированных полей с последующим их заполнением
 	 * @return void
 	 * @throws Throwable
+	 * @skip
 	 */
 	public function testIndexCreation():void {
 		foreach (static::DYNAMIC_ATTRIBUTES as $attributeName => $attributeType) {
@@ -119,6 +123,7 @@ class IndexGeneratorTest extends Unit {
 	 * @return void
 	 * @throws Throwable
 	 * @throws DbException
+	 * @skip
 	 */
 	public function testIndexGeneration():void {
 		foreach (static::DYNAMIC_ATTRIBUTES as $attributeName => $attributeType) {
@@ -130,7 +135,7 @@ class IndexGeneratorTest extends Unit {
 		Console::output(sprintf("Write %d records to %s table take %s", self::TESTING_RECORDS_CNT, Console::renderColoredString("%runindexed%n"), Console::renderColoredString("%g{$finalTime} sec%n")));
 		/*измеряем скорость поиска без индексов*/
 		Console::output(Console::renderColoredString("%gSearch time tests on unindexed table...%n"));
-		static::measureSearchTime(100);
+		static::measureSearchTime(self::TESTING_SEARCH_REPEATS);
 
 		$startTime = microtime(true);
 		foreach (static::DYNAMIC_ATTRIBUTES as $attributeName => $attributeType) {
@@ -140,7 +145,7 @@ class IndexGeneratorTest extends Unit {
 		Console::output(sprintf("Index creation on %d records take %s", self::TESTING_RECORDS_CNT, Console::renderColoredString("%g{$finalTime} sec%n")));
 		/*измеряем скорость поиска с индексами*/
 		Console::output(Console::renderColoredString("%gSearch time tests on indexed table...%n"));
-		static::measureSearchTime(100);
+		static::measureSearchTime(self::TESTING_SEARCH_REPEATS);
 	}
 
 	/**
