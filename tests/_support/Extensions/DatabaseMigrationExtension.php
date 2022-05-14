@@ -13,9 +13,10 @@ use Codeception\Module\Cli;
 class DatabaseMigrationExtension extends Extension {
 	public static $events = [
 		Events::SUITE_BEFORE => 'beforeSuite',
+		Events::TEST_BEFORE => 'beforeSuite'
 	];
 
-	public function beforeSuite() {
+	public function beforeSuite():void {
 		/** @var Cli $cli */
 		$cli = $this->getModule('Cli');
 		$alias = __DIR__.'/../../_app/yii';

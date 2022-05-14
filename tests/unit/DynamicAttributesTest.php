@@ -63,17 +63,6 @@ class DynamicAttributesTest extends Unit {
 	 * @inheritDoc
 	 */
 	protected function _before():void {
-		/*Сбрасывает последовательности в таблицах перед каждым тестом*/
-		foreach (['sys_dynamic_attributes_aliases', 'sys_dynamic_attributes', 'sys_dynamic_attributes_values', 'users'] as $tableName) {
-			Yii::$app->db
-				->createCommand()
-				->setRawSql("TRUNCATE TABLE $tableName CASCADE")//независимо от того, выполняется ли тест внутри транзакции, сбросим таблицу
-				->execute();
-			Yii::$app->db
-				->createCommand()->resetSequence($tableName)
-				->execute();
-		}
-
 		/**
 		 * Динамически регистрируем алиас класса.
 		 */
