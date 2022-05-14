@@ -1,5 +1,6 @@
 <?php
 declare(strict_types = 1);
+use yii\db\Expression;
 use yii\db\JsonExpression;
 use yii\db\Migration;
 
@@ -37,7 +38,7 @@ class m000000_000000_create_dynamic_attributes_tables extends Migration {
 			'id' => $this->primaryKey(),
 			'model_id' => $this->integer()->notNull()->comment('Model id'),
 			'alias_id' => $this->integer()->notNull()->comment('Model alias id'),
-			'attributes_values' => $this->json()->notNull()->defaultValue('[]')->comment('JSON serialized attribute value pars'),
+			'attributes_values' => $this->json()->notNull()->defaultValue(new Expression("('{}')"))->comment('JSON serialized attribute value pars'),
 		]);
 		$this->addCommentOnTable(self::VALUES_TABLE_NAME, 'Dynamic attributes values');
 		$this->createIndex(self::VALUES_TABLE_NAME.'_model_id_alias_id_idx', self::VALUES_TABLE_NAME, ['model_id', 'alias_id'], true);
