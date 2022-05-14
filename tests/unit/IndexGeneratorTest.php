@@ -12,7 +12,6 @@ use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use pozitronik\dynamic_attributes\widgets\grid\DynamicAttributesGrid;
 use pozitronik\helpers\Utils;
 use Throwable;
-use Yii;
 use yii\console\widgets\Table;
 use yii\db\Exception as DbException;
 use yii\helpers\Console;
@@ -58,6 +57,7 @@ class IndexGeneratorTest extends Unit {
 	 * Тестирует создание индексированных полей с последующим их заполнением
 	 * @return void
 	 * @throws Throwable
+	 * @-skip
 	 */
 	public function testIndexCreation():void {
 		foreach (static::DYNAMIC_ATTRIBUTES as $attributeName => $attributeType) {
@@ -76,6 +76,7 @@ class IndexGeneratorTest extends Unit {
 	 * @return void
 	 * @throws Throwable
 	 * @throws DbException
+	 * @-skip
 	 */
 	public function testIndexGeneration():void {
 		foreach (static::DYNAMIC_ATTRIBUTES as $attributeName => $attributeType) {
@@ -145,7 +146,7 @@ class IndexGeneratorTest extends Unit {
 		$results = [];
 		Console::startProgress(0, $repeats);
 		for ($c = 0; $c < $repeats; $c++) {
-			foreach (static::DYNAMIC_ATTRIBUTES as $attributeName => $attributeType) {
+			foreach (array_diff(static::DYNAMIC_ATTRIBUTES, [DynamicAttributes::TYPE_NULL]) as $attributeName => $attributeType) {//не тестируем неизвестные типы, по ним индекса всё равно нет
 				$randomValue = match ($attributeType) {
 					DynamicAttributes::TYPE_BOOL => (bool)(random_int(0, 100) % 2),
 					DynamicAttributes::TYPE_INT => mt_rand(),
