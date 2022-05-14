@@ -37,7 +37,7 @@ class IndexGeneratorTest extends Unit {
 	 * Количество записей, на которых будут прогоняться тесты. Для теста работоспособности можно установить
 	 * минимальное значение, для тестов производительности - повысить его.
 	 */
-	public const TESTING_RECORDS_CNT = 1000;
+	public const TESTING_RECORDS_CNT = 10000;
 	/**
 	 * Количество повторяющихся поисковых запросов на каждый тип атрибута.
 	 */
@@ -57,7 +57,7 @@ class IndexGeneratorTest extends Unit {
 	 * Тестирует создание индексированных полей с последующим их заполнением
 	 * @return void
 	 * @throws Throwable
-	 * @-skip
+	 * @skip
 	 */
 	public function testIndexCreation():void {
 		foreach (static::DYNAMIC_ATTRIBUTES as $attributeName => $attributeType) {
@@ -76,7 +76,7 @@ class IndexGeneratorTest extends Unit {
 	 * @return void
 	 * @throws Throwable
 	 * @throws DbException
-	 * @-skip
+	 * @skip
 	 */
 	public function testIndexGeneration():void {
 		foreach (static::DYNAMIC_ATTRIBUTES as $attributeName => $attributeType) {
