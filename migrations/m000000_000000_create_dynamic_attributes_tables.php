@@ -31,7 +31,7 @@ class m000000_000000_create_dynamic_attributes_tables extends Migration {
 		$this->addCommentOnTable(self::ATTRIBUTES_TABLE_NAME, 'Dynamic attributes attributes list');
 		$this->createIndex(self::ATTRIBUTES_TABLE_NAME.'_alias_id_attribute_name_id', self::ATTRIBUTES_TABLE_NAME, ['alias_id', 'attribute_name'], true);
 		$this->createIndex(self::ATTRIBUTES_TABLE_NAME.'_type_idx', self::ATTRIBUTES_TABLE_NAME, ['type']);
-		$this->addForeignKey('fk_alias_id', self::ATTRIBUTES_TABLE_NAME, 'alias_id', self::ALIASES_TABLE_NAME, 'id');
+		$this->addForeignKey('fk_'.self::ATTRIBUTES_TABLE_NAME.'alias_id', self::ATTRIBUTES_TABLE_NAME, 'alias_id', self::ALIASES_TABLE_NAME, 'id');
 
 		$this->createTable(self::VALUES_TABLE_NAME, [
 			'id' => $this->primaryKey(),
@@ -41,7 +41,7 @@ class m000000_000000_create_dynamic_attributes_tables extends Migration {
 		]);
 		$this->addCommentOnTable(self::VALUES_TABLE_NAME, 'Dynamic attributes values');
 		$this->createIndex(self::VALUES_TABLE_NAME.'_model_id_alias_id_idx', self::VALUES_TABLE_NAME, ['model_id', 'alias_id'], true);
-		$this->addForeignKey('fk_alias_id', self::VALUES_TABLE_NAME, 'alias_id', self::ALIASES_TABLE_NAME, 'id');
+		$this->addForeignKey('fk_'.self::VALUES_TABLE_NAME.'alias_id', self::VALUES_TABLE_NAME, 'alias_id', self::ALIASES_TABLE_NAME, 'id');
 
 		/*GIN Index на хранилище*/
 		//$this->execute("CREATE INDEX ".self::VALUES_TABLE_NAME."_attributes_values_idx ON ".self::VALUES_TABLE_NAME." USING GIN (attributes_values);");
