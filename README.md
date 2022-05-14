@@ -210,6 +210,14 @@ return [
 Скопируйте `tests/.env.example` в `tests/.env`, и измените конфигурацию соответственно вашему локальному
 окружению. Затем выполните команду `php vendor/bin/codecept run`.
 
+Тесты производительности
+------------------------
+
+В конфиге `codeception.yml` установите значение `modules: Yii2: transaction:` в `false`.
+В файле `tests/unit/IndexGeneratorTest.php` уберите директиву `@skip` у тех тестов, которые нужно запустить.
+Опционально, измените значения констант `TESTING_RECORDS_CNT` и `TESTING_SEARCH_REPEATS`. Чем больше их значение, тем большая выборка будет сделана для расчёта итогового результата.
+Для запуска теста выполните команду `php vendor/bin/codecept run tests/unit/IndexGeneratorTest.php`.
+
 Лицензия
 --------
 GNU GPL v3.0
