@@ -9,6 +9,7 @@ use Codeception\Test\Unit;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use pozitronik\helpers\ArrayHelper;
 use pozitronik\helpers\Utils;
+use Throwable;
 use Yii;
 
 /**
@@ -41,6 +42,7 @@ class DynamicAttributesSearchTest extends Unit {
 
 	/**
 	 * @return void
+	 * @throws Throwable
 	 */
 	public function testDynamicAttributesSearch():void {
 		$searchModel = new UsersSearch();

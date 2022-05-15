@@ -23,8 +23,8 @@ class ArrayHelperTest extends Unit {
 		$array_six = ["x" => "red", "z" => "yellow", "y" => "green"];
 		$array_seven = ["null", null, "not null"];
 		$array_eight = ["c" => "not null", "b" => "null", "a" => null];
-		$array_nine = [[pi(), [["a" => "red"]]], [null, "string", 0], [false, true]];
-		$array_ten = ["a" => [pi(), [["a" => 'red']]], "b" => [null, "string", 0], "c" => [false, true]];
+		$array_nine = [[M_PI, [["a" => "red"]]], [null, "string", 0], [false, true]];
+		$array_ten = ["a" => [M_PI, [["a" => 'red']]], "b" => [null, "string", 0], "c" => [false, true]];
 
 		self::assertTrue(ArrayHelper::isEqual($array_one, $array_two, ArrayHelper::FLAG_COMPARE_KEYS));
 		self::assertFalse(ArrayHelper::isEqual($array_one, $array_two, ArrayHelper::FLAG_COMPARE_VALUES));
