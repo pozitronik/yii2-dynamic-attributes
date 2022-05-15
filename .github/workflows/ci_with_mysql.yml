@@ -7,20 +7,23 @@ env:
   DB_DSN: "mysql:host=127.0.0.1;port=5432;dbname=yii2-dynamic-attributes"
   DB_USER: "root"
   DB_PASS: "password"
+  MYSQL_HOST: 127.0.0.1
+  MYSQL_DATABASE: "yii2-dynamic-attributes"
+  MYSQL_USER: root
+  MYSQL_PASSWORD: password
+  MYSQL_ROOT_PASSWORD: "password"
+
 
 jobs:
   build:
     name: PHP ${{ matrix.php }} - ${{ matrix.os }}
-
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
         os:
           - ubuntu-latest
         php:
           - 8.0
-
     services:
       mysql:
         image: mysql:8
@@ -33,11 +36,9 @@ jobs:
           MYSQL_USER: root
           MYSQL_PASSWORD: password
           MYSQL_ROOT_PASSWORD: password
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
       - name: Set up MySQL
         run: sudo systemctl start mysql
       - name: Check MySQL
