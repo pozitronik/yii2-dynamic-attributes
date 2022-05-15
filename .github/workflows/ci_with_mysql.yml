@@ -39,7 +39,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
-          extensions: imagick, pdo_pgsql, opcache
+          extensions: imagick, pdo_mysql, opcache
           ini-values: opcache.enable=1, opcache.enable_cli=1, apc.enable_cli=1
         env:
           COMPOSER_TOKEN: ${{ secrets.COMPOSER_GITHUB_TOKEN }}
