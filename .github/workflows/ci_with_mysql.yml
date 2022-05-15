@@ -24,7 +24,7 @@ jobs:
           - ubuntu-latest
         php:
           - 8.0
-        mysql-version
+        mysql-version:
           - 8.0
     services:
       mysql:
