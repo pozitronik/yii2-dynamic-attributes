@@ -329,19 +329,19 @@ class DynamicAttributesTest extends Unit {
 		/*%like%*/
 		self::assertCount(26, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(Adapter::adaptWhere(['ilike', 'wadawada', 'ba']))
+			->andWhere(Adapter::adaptWhere(['like', 'wadawada', 'ba']))
 			->all()
 		);
 		/*%like*/
 		self::assertCount(25, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(Adapter::adaptWhere(['ilike', 'wadawada', '%az', false]))
+			->andWhere(Adapter::adaptWhere(['like', 'wadawada', '%az', false]))
 			->all()
 		);
 		/*%like*/
 		self::assertCount(26, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(Adapter::adaptWhere(['ilike', 'wadawada', 'ba%', false]))
+			->andWhere(Adapter::adaptWhere(['like', 'wadawada', 'ba%', false]))
 			->all()
 		);
 		/*is not set*/
@@ -456,7 +456,7 @@ class DynamicAttributesTest extends Unit {
 		self::assertCount(2, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(Adapter::adaptWhere(['fluffy' => 13.0]))
-			->orWhere(Adapter::adaptWhere(['ilike', 'fluffy', '8.1428571428571%', false]))//из-за разницы в формате PHP/PGSQL приходится искать так
+			->orWhere(Adapter::adaptWhere(['like', 'fluffy', '8.1428571428571%', false]))//из-за разницы в формате PHP/PGSQL приходится искать так
 			->all()
 		);
 		/*> <*/
@@ -469,11 +469,11 @@ class DynamicAttributesTest extends Unit {
 		/*!=*/
 		self::assertCount(99, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(Adapter::adaptWhere(['not ilike', 'fluffy', '13.142857142857%', false]))
+			->andWhere(Adapter::adaptWhere(['not like', 'fluffy', '13.142857142857%', false]))
 			->all()
 		);
 		/*in*/
-		//todo: PHP подставит обрезанные значения, в БД нужно их искать как ilike%, а adaptWhere пока этого не умеет
+		//todo: PHP подставит обрезанные значения, в БД нужно их искать как like%, а adaptWhere пока этого не умеет
 		/*self::assertCount(2, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(Adapter::adaptWhere(['fluffy' => [1.1428571428571428, 14.285714285714286, 7]]))
