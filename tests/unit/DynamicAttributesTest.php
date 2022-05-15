@@ -510,23 +510,43 @@ class DynamicAttributesTest extends Unit {
 		/** @var Users[] $sortedByInt */
 		$sortedByInt = Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(Adapter::adaptWhere(['is not', 'bububu', null]))//mysql/pgsql по разному располагают null при сортировке - (в начале/конце выборки соответственно)
-			->orderBy([Adapter::adaptField('bububu') => SORT_ASC])//если класс не указать, то сортировка произойдёт без типизации -> т.е. в алфавитном порядке
+			->orderBy([
+				"ISNULL(".Adapter::adaptField('bububu').")" => SORT_ASC,//для того, чтобы положение null совпадало для mysql/pgsql
+				Adapter::adaptField('bububu') => SORT_ASC
+			])//если класс не указать, то сортировка произойдёт без типизации -> т.е. в алфавитном порядке
 			->all();
 
-		self::assertEquals(108, $sortedByInt[11]->bububu);
-		self::assertEquals(15, $sortedByInt[24]->bububu);
-		self::assertEquals(4, $sortedByInt[56]->bububu);
+		self::assertEquals([
+			108, 108, 108, 108, 108, 108, 108, 108, 108, 108, 108, 108,
+			15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+			16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+			23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+			4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+			42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
+			8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+			null, null, null, null, null, null, null, null, null, null, null, null],
+			ArrayHelper::getColumn($sortedByInt, 'bububu')
+		);
 
 		$sortedByInt = Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(Adapter::adaptWhere(['is not', 'bububu', null]))
-			->orderBy([Adapter::adaptField('bububu', $user) => SORT_ASC])//вместо класса можно указать и экземпляр класса
+			->orderBy([
+				"ISNULL(".Adapter::adaptField('bububu', $user).")" => SORT_ASC,//для того, чтобы положение null совпадало для mysql/pgsql
+				Adapter::adaptField('bububu', $user) => SORT_ASC//вместо класса можно указать и экземпляр класса
+			])
 			->all();
 
-		self::assertEquals(15, $sortedByInt[26]->bububu);
-		self::assertEquals(15, $sortedByInt[38]->bububu);
-		self::assertEquals(16, $sortedByInt[51]->bububu);
+		self::assertEquals([
+			4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+			8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+			15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+			16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+			23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+			42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
+			108, 108, 108, 108, 108, 108, 108, 108, 108, 108, 108, 108,
+			null, null, null, null, null, null, null, null, null, null, null, null],
+			ArrayHelper::getColumn($sortedByInt, 'bububu')
+		);
 	}
 
 	/**
