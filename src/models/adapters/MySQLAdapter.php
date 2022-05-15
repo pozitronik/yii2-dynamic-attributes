@@ -45,7 +45,7 @@ class MySQLAdapter implements AdapterInterface {
 	 * @inheritDoc
 	 */
 	public static function jsonFieldName(string $jsonFieldName, ?int $fieldType):string {
-		return 'JSON_VALUE('.DynamicAttributesValues::tableName().'.attributes_values, "$.'.$jsonFieldName.'" '.static::PHPTypeToMySQLType($fieldType).' NULL ON EMPTY)';
+		return sprintf("JSON_VALUE(%s.attributes_values, '\$.\"%s\"' %s NULL ON EMPTY)", DynamicAttributesValues::tableName(), $jsonFieldName, static::PHPTypeToMySQLType($fieldType));
 	}
 
 	/**
