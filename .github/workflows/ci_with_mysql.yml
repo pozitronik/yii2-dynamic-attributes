@@ -42,9 +42,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set up MySQL
-        run: sudo systemctl start mysql
-      - name: Check MySQL
-        run: mysql -h127.0.0.1 --port 33306 -uroot -ppassword -e 'CREATE DATABASE IF NOT EXISTS yii2-dynamic-attributes;'
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -h127.0.0.1 --port 33306 -uroot -ppassword -e 'CREATE DATABASE IF NOT EXISTS yii2-dynamic-attributes;'
 
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
