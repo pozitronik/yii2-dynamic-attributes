@@ -44,6 +44,16 @@ class MySQLAdapter implements AdapterInterface {
 	/**
 	 * @inheritDoc
 	 */
+	public static function adaptOrder(string $jsonFieldName, string|ActiveRecordInterface|null $model = null, int $order = SORT_ASC):array {
+		return [
+			"ISNULL(".static::adaptField($jsonFieldName, $model).")" => $order,
+			static::adaptField($jsonFieldName, $model) => $order
+		];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public static function jsonFieldName(string $jsonFieldName, ?int $fieldType):string {
 		return sprintf("JSON_VALUE(%s.attributes_values, '\$.\"%s\"' %s NULL ON EMPTY)", DynamicAttributesValues::tableName(), $jsonFieldName, static::PHPTypeToMySQLType($fieldType));
 	}

@@ -510,10 +510,7 @@ class DynamicAttributesTest extends Unit {
 		/** @var Users[] $sortedByInt */
 		$sortedByInt = Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->orderBy([
-				"ISNULL(".Adapter::adaptField('bububu').")" => SORT_ASC,//для того, чтобы положение null совпадало для mysql/pgsql
-				Adapter::adaptField('bububu') => SORT_ASC
-			])//если класс не указать, то сортировка произойдёт без типизации -> т.е. в алфавитном порядке
+			->orderBy(Adapter::adaptOrder('bububu'))//если класс не указать, то сортировка произойдёт без типизации -> т.е. в алфавитном порядке
 			->all();
 
 		self::assertEquals([
@@ -530,10 +527,7 @@ class DynamicAttributesTest extends Unit {
 
 		$sortedByInt = Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->orderBy([
-				"ISNULL(".Adapter::adaptField('bububu', $user).")" => SORT_ASC,//для того, чтобы положение null совпадало для mysql/pgsql
-				Adapter::adaptField('bububu', $user) => SORT_ASC//вместо класса можно указать и экземпляр класса
-			])
+			->orderBy(Adapter::adaptOrder('bububu', $user))//вместо класса можно указать и экземпляр класса
 			->all();
 
 		self::assertEquals([

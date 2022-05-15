@@ -43,6 +43,15 @@ class PgSQLAdapter implements AdapterInterface {
 	/**
 	 * @inheritDoc
 	 */
+	public static function adaptOrder(string $jsonFieldName, string|ActiveRecordInterface|null $model = null, int $order = SORT_ASC):array {
+		return [
+			static::adaptField($jsonFieldName, $model) => $order
+		];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public static function jsonFieldName(string $jsonFieldName, ?int $fieldType):string {
 		$dataType = (null === $fieldType)
 			?''
