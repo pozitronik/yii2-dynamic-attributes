@@ -50,6 +50,13 @@ class Adapter implements AdapterInterface {
 	/**
 	 * @inheritDoc
 	 */
+	public static function adaptOrder(string $jsonFieldName, string|ActiveRecordInterface|null $model = null, int $order = SORT_ASC):array {
+		return static::GetAdapter()::adaptOrder($jsonFieldName, $model, $order);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public static function jsonFieldName(string $jsonFieldName, ?int $fieldType):string {
 		return static::GetAdapter()::jsonFieldName($jsonFieldName, $fieldType);
 	}
@@ -81,6 +88,5 @@ class Adapter implements AdapterInterface {
 		}
 		return static::$_adapter;
 	}
-
 
 }

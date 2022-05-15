@@ -126,8 +126,8 @@ trait DynamicAttributesSearchTrait {
 		$result = [];
 		foreach (DynamicAttributes::getAttributesTypes(parent::class) as $name => $type) {
 			$result[$this->_dynamicAttributesAliases[$name]] = [
-				'asc' => [Adapter::adaptField($name, parent::class) => SORT_ASC],
-				'desc' => [Adapter::adaptField($name, parent::class) => SORT_DESC]
+				'asc' => Adapter::adaptOrder($name, parent::class, SORT_ASC),
+				'desc' => Adapter::adaptOrder($name, parent::class, SORT_DESC)
 			];
 		}
 		return $result;

@@ -329,19 +329,19 @@ class DynamicAttributesTest extends Unit {
 		/*%like%*/
 		self::assertCount(26, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(Adapter::adaptWhere(['ilike', 'wadawada', 'ba']))
+			->andWhere(Adapter::adaptWhere(['like', 'wadawada', 'ba']))
 			->all()
 		);
 		/*%like*/
 		self::assertCount(25, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(Adapter::adaptWhere(['ilike', 'wadawada', '%az', false]))
+			->andWhere(Adapter::adaptWhere(['like', 'wadawada', '%az', false]))
 			->all()
 		);
 		/*%like*/
 		self::assertCount(26, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(Adapter::adaptWhere(['ilike', 'wadawada', 'ba%', false]))
+			->andWhere(Adapter::adaptWhere(['like', 'wadawada', 'ba%', false]))
 			->all()
 		);
 		/*is not set*/
@@ -456,7 +456,7 @@ class DynamicAttributesTest extends Unit {
 		self::assertCount(2, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(Adapter::adaptWhere(['fluffy' => 13.0]))
-			->orWhere(Adapter::adaptWhere(['ilike', 'fluffy', '8.1428571428571%', false]))//из-за разницы в формате PHP/PGSQL приходится искать так
+			->orWhere(Adapter::adaptWhere(['like', 'fluffy', '8.1428571428571%', false]))//из-за разницы в формате PHP/PGSQL приходится искать так
 			->all()
 		);
 		/*> <*/
@@ -469,11 +469,11 @@ class DynamicAttributesTest extends Unit {
 		/*!=*/
 		self::assertCount(99, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->andWhere(Adapter::adaptWhere(['not ilike', 'fluffy', '13.142857142857%', false]))
+			->andWhere(Adapter::adaptWhere(['not like', 'fluffy', '13.142857142857%', false]))
 			->all()
 		);
 		/*in*/
-		//todo: PHP подставит обрезанные значения, в БД нужно их искать как ilike%, а adaptWhere пока этого не умеет
+		//todo: PHP подставит обрезанные значения, в БД нужно их искать как like%, а adaptWhere пока этого не умеет
 		/*self::assertCount(2, Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
 			->andWhere(Adapter::adaptWhere(['fluffy' => [1.1428571428571428, 14.285714285714286, 7]]))
@@ -510,23 +510,37 @@ class DynamicAttributesTest extends Unit {
 		/** @var Users[] $sortedByInt */
 		$sortedByInt = Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->orderBy([Adapter::adaptField('bububu') => SORT_ASC])//если класс не указать, то сортировка произойдёт без типизации -> т.е. в алфавитном порядке
+			->orderBy(Adapter::adaptOrder('bububu'))//если класс не указать, то сортировка произойдёт без типизации -> т.е. в алфавитном порядке
 			->all();
 
-		self::assertEquals(108, $sortedByInt[11]->bububu);
-		self::assertEquals(15, $sortedByInt[24]->bububu);
-		self::assertEquals(4, $sortedByInt[56]->bububu);
-		self::assertNull($sortedByInt[99]->bububu);
+		self::assertEquals([
+			108, 108, 108, 108, 108, 108, 108, 108, 108, 108, 108, 108,
+			15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+			16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+			23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+			4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+			42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
+			8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+			null, null, null, null, null, null, null, null, null, null, null, null],
+			ArrayHelper::getColumn($sortedByInt, 'bububu')
+		);
 
 		$sortedByInt = Users::find()
 			->joinWith(['relatedDynamicAttributesValues'])
-			->orderBy([Adapter::adaptField('bububu', $user) => SORT_ASC])//вместо класса можно указать и экземпляр класса
+			->orderBy(Adapter::adaptOrder('bububu', $user))//вместо класса можно указать и экземпляр класса
 			->all();
 
-		self::assertEquals(15, $sortedByInt[26]->bububu);
-		self::assertEquals(15, $sortedByInt[38]->bububu);
-		self::assertEquals(16, $sortedByInt[51]->bububu);
-		self::assertNull($sortedByInt[99]->bububu);
+		self::assertEquals([
+			4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+			8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+			15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+			16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+			23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+			42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
+			108, 108, 108, 108, 108, 108, 108, 108, 108, 108, 108, 108,
+			null, null, null, null, null, null, null, null, null, null, null, null],
+			ArrayHelper::getColumn($sortedByInt, 'bububu')
+		);
 	}
 
 	/**

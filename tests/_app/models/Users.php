@@ -28,18 +28,21 @@ class Users extends ActiveRecord implements IdentityInterface {
 	 * @inheritDoc
 	 */
 	public function behaviors():array {
-		return [
-			'id' => [
-				'class' => AttributeBehavior::class,
-				'attributes' => [
-					ActiveRecord::EVENT_BEFORE_INSERT => 'id'
-				],
-				'value' => static function(Event $event) {
-					$connection = Yii::$app->get('db');
-					$result = $connection?->createCommand("SELECT nextval('users_id_seq');")->queryOne();
-					return false === $result?:$result['nextval'];
-				}
-			]];
+		return match (static::getDb()->driverName) {
+			'pgsql' => [
+				'id' => [
+					'class' => AttributeBehavior::class,
+					'attributes' => [
+						ActiveRecord::EVENT_BEFORE_INSERT => 'id'
+					],
+					'value' => static function(Event $event) {
+						$connection = Yii::$app->get('db');
+						$result = $connection?->createCommand("SELECT nextval('users_id_seq');")->queryOne();
+						return false === $result?:$result['nextval'];
+					}
+				]],
+			default => []
+		};
 	}
 
 	/**

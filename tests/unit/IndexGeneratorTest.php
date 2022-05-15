@@ -179,7 +179,7 @@ class IndexGeneratorTest extends Unit {
 		$rows[] = [
 			Console::renderColoredString("%rСуммарно%n"),
 			array_sum($summary),
-			array_sum($summary) / (count($summary) * count($measures)),
+			array_sum($summary) / (count($summary) * count($measures??1)),
 		];
 
 		Console::output("Search time summary after {$repeats} repeats, seconds:");
