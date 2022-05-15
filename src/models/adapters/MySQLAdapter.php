@@ -56,8 +56,7 @@ class MySQLAdapter implements AdapterInterface {
 	 */
 	private static function PHPTypeToMySQLType(?int $type):string {
 		return match ($type) {
-			DynamicAttributes::TYPE_BOOL => 'RETURNING DECIMAL',
-			DynamicAttributes::TYPE_INT => 'RETURNING DECIMAL',
+			DynamicAttributes::TYPE_BOOL, DynamicAttributes::TYPE_INT => 'RETURNING DECIMAL',
 			DynamicAttributes::TYPE_FLOAT => 'RETURNING FLOAT',
 			default => ''
 		};
