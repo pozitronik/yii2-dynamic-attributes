@@ -10,36 +10,7 @@ use yii\db\ActiveRecordInterface;
 /**
  * Методы адаптации динамических параметров для ActiveQuery для MySQL
  */
-class MySQLAdapter implements AdapterInterface {
-
-	/**
-	 * @inheritDoc
-	 * todo::common
-	 */
-	public static function adaptField(string $jsonFieldName, string|ActiveRecordInterface|null $model = null):string {
-		return self::jsonFieldName($jsonFieldName, null === $model?null:DynamicAttributes::attributeType($model, $jsonFieldName));
-	}
-
-	/**
-	 * @inheritDoc
-	 * todo::common
-	 */
-	public static function adaptWhere(array $condition):array {
-		if (isset($condition[0])) {//['operator', 'attribute_name', 'attribute_value']
-			$operator = array_shift($condition);
-			$attribute_name = array_shift($condition);
-			$attribute_value = array_shift($condition);
-		} else { //['attribute_name' => 'attribute_value']
-			/** @var string $attribute_name */
-			$attribute_name = array_key_first($condition);
-			$attribute_value = $condition[$attribute_name];
-			$condition = [];
-			$operator = static::getOperator($attribute_value);
-		}
-		$adaptedExpression = [$operator, self::jsonFieldName($attribute_name, DynamicAttributes::getType($attribute_value)), $attribute_value];
-		//В массиве могут остаться ещё какие-то параметры, например false в like - их просто добавим в адаптированное выражение
-		return array_merge($adaptedExpression, $condition);
-	}
+class MySQLAdapter extends CommonAdapter {
 
 	/**
 	 * @inheritDoc
@@ -79,14 +50,4 @@ class MySQLAdapter implements AdapterInterface {
 		return null;
 	}
 
-	/**
-	 * @param mixed $value
-	 * @return string
-	 * todo:: common
-	 */
-	private static function getOperator(mixed $value):string {
-		if (null === $value) return 'is';
-		if (is_array($value)) return 'in';
-		return '=';
-	}
 }
