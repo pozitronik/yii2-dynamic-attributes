@@ -124,10 +124,9 @@ class DynamicAttributes extends DynamicAttributesAR {
 	public static function getAttributesTypes(ActiveRecordInterface|string $model):array {
 		return ArrayHelper::map(static::find()
 			->joinWith(['relatedDynamicAttributesAliases'])
-			->select([static::fieldName('attribute_name as name'), static::fieldName('type as type')])
+			->select([static::fieldName('attribute_name as attribute_name'), static::fieldName('type as type')])
 			->where([DynamicAttributesAliases::fieldName('alias') => static::alias($model)])
-			->asArray()
-			->all(), 'name', 'type');
+			->all(), 'attribute_name', 'type');
 	}
 
 	/**
