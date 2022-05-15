@@ -28,7 +28,7 @@ interface AdapterInterface {
 	/**
 	 * Возвращает атрибут JSON-поля для построения запроса
 	 * @param string $jsonFieldName
-	 * @param int|null $fieldType Тип поля. Если численный код типа, то адаптер пытается найти подходящий тип pgsql, если null, типизация БД будет проигнорирована
+	 * @param int|null $fieldType Тип поля. Если численный код типа, то адаптер пытается найти подходящий тип БД, если null, типизация БД будет проигнорирована
 	 * @return string
 	 */
 	public static function jsonFieldName(string $jsonFieldName, ?int $fieldType):string;
