@@ -574,4 +574,11 @@ class DynamicAttributesTest extends Unit {
 		self::assertTrue(ArrayHelper::isEqual(['weight', 'sex', 'memo about'], $user->dynamicAttributes, ArrayHelper::FLAG_COMPARE_VALUES));
 	}
 
+	/**
+	 * @return void
+	 */
+	public function testDynamicAttributeOnUnregisteredAlias():void {
+//		todo
+	}
+
 }

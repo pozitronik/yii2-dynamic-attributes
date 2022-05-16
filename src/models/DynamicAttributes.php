@@ -55,14 +55,12 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @param string $attribute_name
 	 * @param int|null $type
 	 * @param bool|null $index True: создать индекс на атрибут (если поддерживается), null: по настройке из конфига
-	 * @return static
+	 * @return null|static null, если алиас не зарегистрирован
 	 * @throws Throwable
 	 */
-	public static function ensureAttribute(string|ActiveRecordInterface $model, string $attribute_name, ?int $type = null, ?bool $index = null):static {
-		$attributes = [
-			'alias_id' => DynamicAttributesAliases::ensureAlias(static::alias($model))->id,
-			'attribute_name' => $attribute_name,
-		];
+	public static function ensureAttribute(string|ActiveRecordInterface $model, string $attribute_name, ?int $type = null, ?bool $index = null):?static {
+		if (null === $alias_id = DynamicAttributesAliases::ensureAlias(static::alias($model))?->id) return null;
+		$attributes = compact('alias_id', 'attribute_name');
 
 		/** @var null|static $currentAttribute */
 		$currentAttribute = static::find()->where($attributes)->one();
@@ -187,8 +185,8 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function setAttributesValues(ActiveRecordInterface $model, array $attributes):void {
+		if (null === $alias_id = DynamicAttributesAliases::ensureAlias(static::alias($model))?->id) return;//алиас не зарегистрирован
 		$model_id = static::extractKey($model);
-		$alias_id = DynamicAttributesAliases::ensureAlias(static::alias($model))->id;
 		foreach ($attributes as $name => $value) {
 			static::ensureAttribute($model, $name, static::getType($value));
 		}

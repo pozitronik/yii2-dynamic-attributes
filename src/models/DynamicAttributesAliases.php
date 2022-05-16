@@ -10,11 +10,11 @@ use pozitronik\dynamic_attributes\models\active_record\DynamicAttributesAliases 
 class DynamicAttributesAliases extends DynamicAttributesAliasesAR {
 
 	/**
-	 * @param string $alias
-	 * @return static
+	 * @param null|string $alias
+	 * @return null|static
 	 */
-	public static function ensureAlias(string $alias):static {
-		return self::Upsert([
+	public static function ensureAlias(?string $alias):?static {
+		return null === $alias?null:static::Upsert([
 			'alias' => $alias
 		]);
 
