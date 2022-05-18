@@ -52,7 +52,7 @@ class DynamicAttributes extends ActiveRecord {
 	 * @return ActiveQuery
 	 */
 	public function getRelatedDynamicAttributesAliases():ActiveQuery {
-		return $this->hasMany(DynamicAttributesAliases::class, ['id' => 'alias_id']);
+		return $this->hasOne(DynamicAttributesAliases::class, ['id' => 'alias_id']);
 	}
 
 }
