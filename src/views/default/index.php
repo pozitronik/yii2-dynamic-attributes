@@ -110,7 +110,7 @@ $id = "{$modelName}-index-grid";
 				'attribute' => 'indexed',
 				'value' => static fn(DynamicAttributes $model) => false,
 				'format' => 'boolean',
-				'display' => false //tbd
+				'visible' => false //tbd
 			]
 		]
 	])
