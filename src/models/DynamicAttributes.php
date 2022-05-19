@@ -118,16 +118,19 @@ class DynamicAttributes extends DynamicAttributesAR {
 	}
 
 	/**
-	 * Возвращает список известных атрибутов
-	 * @param string|ActiveRecordInterface $model
+	 * Возвращает список известных атрибутов для модели
+	 * @param string|ActiveRecordInterface|null $model Если null - то все атрибуты всех моделей. Это нужно указывать принудительно
 	 * @return array
 	 * @throws Throwable
 	 */
-	public static function listAttributes(ActiveRecordInterface|string $model):array {
+	public static function listAttributes(null|ActiveRecordInterface|string $model):array {
 		return ArrayHelper::getColumn(static::find()
-			->joinWith(['relatedDynamicAttributesAliases'])
 			->select(['attribute_name'])
-			->where([DynamicAttributesAliases::fieldName('alias') => static::alias($model)])
+			->andFilterWhereRelation([
+				DynamicAttributesAliases::fieldName('alias') => null === $model
+					?null
+					:static::alias($model)
+			], 'relatedDynamicAttributesAliases')
 			->asArray()
 			->all(), 'attribute_name');
 	}
