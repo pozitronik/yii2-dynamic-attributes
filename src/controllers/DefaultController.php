@@ -15,8 +15,8 @@ use yii\web\Controller;
 class DefaultController extends VendorDefaultController {
 
 	public ?string $modelClass = DynamicAttributes::class;
-
 	public ?string $modelSearchClass = DynamicAttributesSearch::class;
+	public const DEFAULT_TITLE = 'Динамические атрибуты';
 
 	/**
 	 * @inheritDoc
