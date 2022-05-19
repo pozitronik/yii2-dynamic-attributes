@@ -11,12 +11,14 @@ use yii\data\ActiveDataProvider;
  * @property-read null|int $count This attribute records count
  * @property null|string $alias Class alias
  * @property null|string $attribute Attribute name
+ * @property null|int[] $types Set of types
  * // * @property null|bool $indexed Is attribute indexed? todo
  */
 class DynamicAttributesSearch extends DynamicAttributes {
 
 	public $alias = null;
 	public $attribute = null;
+	public $types = null;
 //	public $indexed = null;
 
 	/**
@@ -24,8 +26,9 @@ class DynamicAttributesSearch extends DynamicAttributes {
 	 */
 	public function rules():array {
 		return [
-			[['id', 'type'], 'integer'],
+			[['id'], 'integer'],
 			[['alias', 'attribute'], 'string'],
+			[['types'], 'safe']
 //			[['indexed'], 'boolean']
 		];
 	}
@@ -37,7 +40,7 @@ class DynamicAttributesSearch extends DynamicAttributes {
 		return array_merge(parent::attributeLabels(), [
 			'alias' => 'Алиас',
 			'attribute' => 'Атрибут',
-			'type' => 'Тип',
+			'types' => 'Тип',
 			'count' => 'Записи',
 			'indexed' => 'Индекс'
 		]);
@@ -65,7 +68,7 @@ class DynamicAttributesSearch extends DynamicAttributes {
 
 		$query->andFilterWhereRelation(['like', DynamicAttributesAliases::fieldName('alias'), $this->alias], 'relatedDynamicAttributesAliases');
 		$query->andFilterWhere(['like', static::fieldName('attribute_name'), $this->attribute]);
-		$query->andFilterWhere([static::fieldName('type') => $this->type]);
+		$query->andFilterWhere([static::fieldName('type') => $this->types]);
 
 		return $dataProvider;
 	}

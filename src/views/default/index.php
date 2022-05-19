@@ -38,7 +38,7 @@ $id = "{$modelName}-index-grid";
 		'id' => $id,
 		'dataProvider' => $dataProvider,
 		'filterModel' => $searchModel,
-		'filterOnFocusOut' => false,
+		'filterOnFocusOut' => true,
 		'panel' => [
 			'heading' => false,
 		],
@@ -78,11 +78,18 @@ $id = "{$modelName}-index-grid";
 			],
 			[
 				'class' => DataColumn::class,
-				'attribute' => 'type',
+				'attribute' => 'types',
 				'value' => static fn(DynamicAttributes $model) => BadgeWidget::widget([
 					'items' => DynamicAttributesGrid::GetAttributeTypeLabel($model->type)
 				]),
-				'format' => 'raw'
+				'format' => 'raw',
+				'filter' => DynamicAttributes::typesList(),
+				'filterType' => GridView::FILTER_SELECT2,
+				'filterInputOptions' => ['placeholder' => 'Тип данных'],
+				'filterWidgetOptions' => [
+					'pluginOptions' => ['allowClear' => true, 'multiple' => true]
+				],
+
 			],
 			[
 				'class' => DataColumn::class,
