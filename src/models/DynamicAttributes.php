@@ -272,6 +272,23 @@ class DynamicAttributes extends DynamicAttributesAR {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public static function typesList():array {
+		return [
+			static::TYPE_BOOL => 'Логическое значение',
+			static::TYPE_INT => 'Целочисленное значение',
+			static::TYPE_FLOAT => 'Значение с плавающей точкой',
+			static::TYPE_STRING => 'Строка',
+			static::TYPE_ARRAY => 'Массив',
+			static::TYPE_OBJECT => 'Объект',
+			static::TYPE_RESOURCE => 'Ресурс',
+			static::TYPE_NULL => 'Тип не установлен',
+			static::TYPE_RESOURCE_CLOSED => 'Закрытый ресурс'
+		];
+	}
+
+	/**
 	 * @param mixed $variable
 	 * @return int|null
 	 */
