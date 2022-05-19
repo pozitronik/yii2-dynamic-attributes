@@ -38,6 +38,15 @@ class DynamicAttributesAliases extends ActiveRecord {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function attributeLabels() {
+		return [
+			'alias' => 'Алиас',
+		];
+	}
+
+	/**
 	 * @return ActiveQuery
 	 */
 	public function getRelatedDynamicAttributesValues():ActiveQuery {

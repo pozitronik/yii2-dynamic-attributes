@@ -42,6 +42,17 @@ class DynamicAttributes extends ActiveRecord {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function attributeLabels() {
+		return [
+			'alias_id' => 'Алиас',
+			'attribute_name' => 'Атрибут',
+			'type' => 'Тип данных',
+		];
+	}
+
+	/**
 	 * @return ActiveQuery
 	 */
 	public function getRelatedDynamicAttributesValues():ActiveQuery {
