@@ -11,21 +11,8 @@ use yii\bootstrap4\ActiveForm;
 use yii\web\View;
 
 ?>
-<?php if (Yii::$app->session->hasFlash('success')): ?>
-	<div class="alert alert-success alert-dismissable">
-		<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-		<h4>Сохранено</h4>
-	</div>
-<?php endif; ?>
-<?php if (Yii::$app->session->hasFlash('error')): ?>
-	<div class="alert alert-danger alert-dismissable">
-		<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-		<h4>Ошибка!</h4>
-		<?= Yii::$app->session->getFlash('error') ?>
-	</div>
-<?php endif; ?>
 
-<?php $form = ActiveForm::begin(); ?>
+<?php $form = ActiveForm::begin(['id' => 'dynamic_attributes-create']); ?>
 <div class="panel">
 	<div class="panel-hdr">
 	</div>
