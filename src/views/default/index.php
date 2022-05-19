@@ -32,86 +32,83 @@ AssetBundle::register($this);
 $id = "{$modelName}-index-grid";
 ?>
 
-<?= GridConfig::widget([
+<?= GridView::widget([
 	'id' => $id,
-	'grid' => GridView::begin([
-		'id' => $id,
-		'dataProvider' => $dataProvider,
-		'filterModel' => $searchModel,
-		'filterOnFocusOut' => true,
-		'panel' => [
-			'heading' => false,
+	'dataProvider' => $dataProvider,
+	'filterModel' => $searchModel,
+	'filterOnFocusOut' => true,
+	'panel' => [
+		'heading' => false,
+	],
+	'replaceTags' => [
+		'{totalCount}' => ($dataProvider->totalCount > 0)?Utils::pluralForm($dataProvider->totalCount, ['запись', 'записи', 'записей']):"Нет записей",
+		'{newRecord}' => Html::a('Новая запись', $controller->link('create'), ['class' => 'btn btn-success']),
+	],
+	'panelBeforeTemplate' => '{newRecord}{toolbarContainer}<div class="clearfix"></div>',
+	'summary' => null,
+	'showOnEmpty' => true,
+	'export' => false,
+	'resizableColumns' => true,
+	'responsive' => true,
+	'columns' => [
+		[
+			'class' => ActionColumn::class,
+			'template' => '<div class="btn-group">{update}{view}{delete}</div>',
+			'dropdown' => true,
 		],
-		'replaceTags' => [
-			'{totalCount}' => ($dataProvider->totalCount > 0)?Utils::pluralForm($dataProvider->totalCount, ['запись', 'записи', 'записей']):"Нет записей",
-			'{newRecord}' => Html::a('Новая запись', $controller->link('create'), ['class' => 'btn btn-success']),
+		[
+			'class' => DataColumn::class,
+			'attribute' => 'alias',
+			'value' => static fn(DynamicAttributes $model) => BadgeWidget::widget([
+				'items' => $model->relatedDynamicAttributesAliases->alias,
+				'tooltip' => DynamicAttributes::getAliasClass($model->relatedDynamicAttributesAliases->alias)
+			]),
+			'format' => 'raw',
+			'group' => true,
+			'filter' => DynamicAttributes::getAliasesList(),
+			'filterType' => GridView::FILTER_SELECT2,
+			'filterInputOptions' => ['placeholder' => 'Зарегистрированные классы'],
+			'filterWidgetOptions' => [
+				'pluginOptions' => ['allowClear' => true, 'multiple' => true]
+			],
 		],
-		'panelBeforeTemplate' => '{newRecord}{toolbarContainer}<div class="clearfix"></div>',
-		'summary' => null,
-		'showOnEmpty' => true,
-		'export' => false,
-		'resizableColumns' => true,
-		'responsive' => true,
-		'columns' => [
-			[
-				'class' => ActionColumn::class,
-				'template' => '<div class="btn-group">{update}{view}{delete}</div>',
-				'dropdown' => true,
+		[
+			'class' => DataColumn::class,
+			'attribute' => 'attribute',
+			'value' => static fn(DynamicAttributes $model) => BadgeWidget::widget([
+				'items' => $model->attribute_name,
+			]),
+			'format' => 'raw'
+		],
+		[
+			'class' => DataColumn::class,
+			'attribute' => 'types',
+			'value' => static fn(DynamicAttributes $model) => BadgeWidget::widget([
+				'items' => DynamicAttributesGrid::GetAttributeTypeLabel($model->type)
+			]),
+			'format' => 'raw',
+			'filter' => DynamicAttributes::typesList(),
+			'filterType' => GridView::FILTER_SELECT2,
+			'filterInputOptions' => ['placeholder' => 'Тип данных'],
+			'filterWidgetOptions' => [
+				'pluginOptions' => ['allowClear' => true, 'multiple' => true]
 			],
-			[
-				'class' => DataColumn::class,
-				'attribute' => 'alias',
-				'value' => static fn(DynamicAttributes $model) => BadgeWidget::widget([
-					'items' => $model->relatedDynamicAttributesAliases->alias,
-					'tooltip' => DynamicAttributes::getAliasClass($model->relatedDynamicAttributesAliases->alias)
-				]),
-				'format' => 'raw',
-				'group' => true,
-				'filter' => DynamicAttributes::getAliasesList(),
-				'filterType' => GridView::FILTER_SELECT2,
-				'filterInputOptions' => ['placeholder' => 'Зарегистрированные классы'],
-				'filterWidgetOptions' => [
-					'pluginOptions' => ['allowClear' => true, 'multiple' => true]
-				],
-			],
-			[
-				'class' => DataColumn::class,
-				'attribute' => 'attribute',
-				'value' => static fn(DynamicAttributes $model) => BadgeWidget::widget([
-					'items' => $model->attribute_name,
-				]),
-				'format' => 'raw'
-			],
-			[
-				'class' => DataColumn::class,
-				'attribute' => 'types',
-				'value' => static fn(DynamicAttributes $model) => BadgeWidget::widget([
-					'items' => DynamicAttributesGrid::GetAttributeTypeLabel($model->type)
-				]),
-				'format' => 'raw',
-				'filter' => DynamicAttributes::typesList(),
-				'filterType' => GridView::FILTER_SELECT2,
-				'filterInputOptions' => ['placeholder' => 'Тип данных'],
-				'filterWidgetOptions' => [
-					'pluginOptions' => ['allowClear' => true, 'multiple' => true]
-				],
 
-			],
-			[
-				'class' => DataColumn::class,
-				'attribute' => 'count',
-				'value' => static fn(DynamicAttributes $model) => BadgeWidget::widget([
-					'items' => DynamicAttributesValues::find()->where(Adapter::adaptWhere(['is not', $model->attribute_name, null]))->count()
-				]),
-				'format' => 'raw'
-			],
-			[
-				'class' => DataColumn::class,
-				'attribute' => 'indexed',
-				'value' => static fn(DynamicAttributes $model) => false,
-				'format' => 'boolean',
-				'visible' => false //tbd
-			]
+		],
+		[
+			'class' => DataColumn::class,
+			'attribute' => 'count',
+			'value' => static fn(DynamicAttributes $model) => BadgeWidget::widget([
+				'items' => DynamicAttributesValues::find()->where(Adapter::adaptWhere(['is not', $model->attribute_name, null]))->count()
+			]),
+			'format' => 'raw'
+		],
+		[
+			'class' => DataColumn::class,
+			'attribute' => 'indexed',
+			'value' => static fn(DynamicAttributes $model) => false,
+			'format' => 'boolean',
+			'visible' => false //tbd
 		]
-	])
+	]
 ]) ?>
