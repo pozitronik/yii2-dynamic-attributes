@@ -5,6 +5,7 @@ namespace pozitronik\dynamic_attributes\widgets\grid;
 
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use pozitronik\dynamic_attributes\traits\DynamicAttributesTrait;
+use pozitronik\helpers\ArrayHelper;
 use yii\data\ArrayDataProvider;
 use yii\db\ActiveRecordInterface;
 use yii\widgets\ActiveForm;
@@ -96,18 +97,7 @@ class DynamicAttributesGrid extends InputWidget {
 	 * @return string
 	 */
 	public static function GetAttributeTypeLabel(mixed $value):string {
-		return match ($value) {
-			DynamicAttributes::TYPE_BOOL => 'Логическое значение',
-			DynamicAttributes::TYPE_INT => 'Целочисленное значение',
-			DynamicAttributes::TYPE_FLOAT => 'Значение с плавающей точкой',
-			DynamicAttributes::TYPE_STRING => 'Строка',
-			DynamicAttributes::TYPE_ARRAY => 'Массив',
-			DynamicAttributes::TYPE_OBJECT => 'Объект',
-			DynamicAttributes::TYPE_RESOURCE => 'Ресурс',
-			DynamicAttributes::TYPE_NULL => 'Тип не установлен',
-			DynamicAttributes::TYPE_RESOURCE_CLOSED => 'Закрытый ресурс',
-			default => 'Неизвестный тип'
-		};
+		return ArrayHelper::getValue(DynamicAttributes::typesList(), $value, 'Неизвестный тип');
 	}
 
 }
