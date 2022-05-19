@@ -4,9 +4,9 @@ declare(strict_types = 1);
 
 namespace unit;
 
+use app\models\Dummy;
 use app\models\Users;
 use Codeception\Test\Unit;
-use DummyClass;
 use pozitronik\dynamic_attributes\models\adapters\Adapter;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use pozitronik\dynamic_attributes\traits\DynamicAttributesTrait;
@@ -81,7 +81,7 @@ class DynamicAttributesTest extends Unit {
 		/*Несуществующий алиас*/
 		self::assertNull(DynamicAttributes::getAliasClass('unknown'));
 		/*Проверим регистрацию через конфиг*/
-		self::assertEquals(DummyClass::class, DynamicAttributes::getAliasClass('dummy'));
+		self::assertEquals(Dummy::class, DynamicAttributes::getAliasClass('dummy'));
 	}
 
 	/**

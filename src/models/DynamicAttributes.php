@@ -14,6 +14,7 @@ use yii\db\Exception;
 
 /**
  * Class DynamicAttributes
+ * @property null|string $alias The alias for current model
  */
 class DynamicAttributes extends DynamicAttributesAR {
 
@@ -36,6 +37,24 @@ class DynamicAttributes extends DynamicAttributesAR {
 	private static ?array $_modelsAliases = null;
 
 	public const TYPE_ERROR_TEXT = 'Attribute type does not match with previous';
+
+	/**
+	 * @inheritDoc
+	 */
+	public function rules():array {
+		return array_merge_recursive(parent::rules(), [
+			[['alias'], 'string']
+		]);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function attributeLabels():array {
+		return array_merge(parent::attributeLabels(), [
+			'alias' => 'Алиас',
+		]);
+	}
 
 	/**
 	 * Для класса либо экземпляра класса возвращает зарегистрированный алиас.
@@ -99,16 +118,19 @@ class DynamicAttributes extends DynamicAttributesAR {
 	}
 
 	/**
-	 * Возвращает список известных атрибутов
-	 * @param string|ActiveRecordInterface $model
+	 * Возвращает список известных атрибутов для модели
+	 * @param string|ActiveRecordInterface|null $model Если null - то все атрибуты всех моделей. Это нужно указывать принудительно
 	 * @return array
 	 * @throws Throwable
 	 */
-	public static function listAttributes(ActiveRecordInterface|string $model):array {
+	public static function listAttributes(null|ActiveRecordInterface|string $model):array {
 		return ArrayHelper::getColumn(static::find()
-			->joinWith(['relatedDynamicAttributesAliases'])
 			->select(['attribute_name'])
-			->where([DynamicAttributesAliases::fieldName('alias') => static::alias($model)])
+			->andFilterWhereRelation([
+				DynamicAttributesAliases::fieldName('alias') => null === $model
+					?null
+					:static::alias($model)
+			], 'relatedDynamicAttributesAliases')
 			->asArray()
 			->all(), 'attribute_name');
 	}
@@ -209,6 +231,21 @@ class DynamicAttributes extends DynamicAttributesAR {
 	}
 
 	/**
+	 * @return string[]|null
+	 */
+	public static function getModelsAliases():array {
+		return self::$_modelsAliases??[];
+	}
+
+	/**
+	 * @return string[]|null
+	 */
+	public static function getAliasesList():array {
+		$values = array_values(static::getModelsAliases());
+		return array_combine($values, $values);
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function init():void {
@@ -272,6 +309,24 @@ class DynamicAttributes extends DynamicAttributesAR {
 	}
 
 	/**
+	 * @return string[]
+	 * NULL не включаем, это не фактический тип
+	 */
+	public static function typesList():array {
+		return [
+			static::TYPE_BOOL => 'Логическое значение',
+			static::TYPE_INT => 'Целочисленное значение',
+			static::TYPE_FLOAT => 'Значение с плавающей точкой',
+			static::TYPE_STRING => 'Строка',
+			static::TYPE_ARRAY => 'Массив',
+			static::TYPE_OBJECT => 'Объект',
+			static::TYPE_RESOURCE => 'Ресурс',
+			static::TYPE_UNKNOWN => 'Тип не установлен',
+			static::TYPE_RESOURCE_CLOSED => 'Закрытый ресурс'
+		];
+	}
+
+	/**
 	 * @param mixed $variable
 	 * @return int|null
 	 */
@@ -324,6 +379,20 @@ class DynamicAttributes extends DynamicAttributesAR {
 		$old_attributes = $attributes;
 		array_walk($attributes, static fn(&$value, $key) => $value = 'da'.$key);
 		return array_combine($old_attributes, $attributes);
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getAlias():?string {
+		return $this->relatedDynamicAttributesAliases?->alias;
+	}
+
+	/**
+	 * @param string|null $alias
+	 */
+	public function setAlias(?string $alias):void {
+		$this->alias_id = DynamicAttributesAliases::ensureAlias($alias)?->id;
 	}
 
 }
