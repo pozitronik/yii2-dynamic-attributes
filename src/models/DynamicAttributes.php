@@ -14,6 +14,7 @@ use yii\db\Exception;
 
 /**
  * Class DynamicAttributes
+ * @property null|string $alias The alias for current model
  */
 class DynamicAttributes extends DynamicAttributesAR {
 
@@ -36,6 +37,15 @@ class DynamicAttributes extends DynamicAttributesAR {
 	private static ?array $_modelsAliases = null;
 
 	public const TYPE_ERROR_TEXT = 'Attribute type does not match with previous';
+
+	/**
+	 * @inheritDoc
+	 */
+	public function rules():array {
+		return array_merge_recursive(parent::rules(), [
+			[['alias'], 'string']
+		]);
+	}
 
 	/**
 	 * Для класса либо экземпляра класса возвращает зарегистрированный алиас.
@@ -357,6 +367,20 @@ class DynamicAttributes extends DynamicAttributesAR {
 		$old_attributes = $attributes;
 		array_walk($attributes, static fn(&$value, $key) => $value = 'da'.$key);
 		return array_combine($old_attributes, $attributes);
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getAlias():?string {
+		return $this->relatedDynamicAttributesAliases?->alias;
+	}
+
+	/**
+	 * @param string|null $alias
+	 */
+	public function setAlias(?string $alias):void {
+		$this->alias_id = DynamicAttributesAliases::ensureAlias($alias)?->id;
 	}
 
 }
