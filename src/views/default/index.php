@@ -66,7 +66,13 @@ $id = "{$modelName}-index-grid";
 					'tooltip' => DynamicAttributes::getAliasClass($model->relatedDynamicAttributesAliases->alias)
 				]),
 				'format' => 'raw',
-				'group' => true
+				'group' => true,
+				'filter' => DynamicAttributes::getAliasesList(),
+				'filterType' => GridView::FILTER_SELECT2,
+				'filterInputOptions' => ['placeholder' => 'Зарегистрированные классы'],
+				'filterWidgetOptions' => [
+					'pluginOptions' => ['allowClear' => true, 'multiple' => true]
+				],
 			],
 			[
 				'class' => DataColumn::class,

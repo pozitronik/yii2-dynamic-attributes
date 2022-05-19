@@ -209,6 +209,21 @@ class DynamicAttributes extends DynamicAttributesAR {
 	}
 
 	/**
+	 * @return string[]|null
+	 */
+	public static function getModelsAliases():array {
+		return self::$_modelsAliases??[];
+	}
+
+	/**
+	 * @return string[]|null
+	 */
+	public static function getAliasesList():array {
+		$values = array_values(static::getModelsAliases());
+		return array_combine($values, $values);
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function init():void {
@@ -273,6 +288,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 
 	/**
 	 * @return string[]
+	 * NULL не включаем, это не фактический тип
 	 */
 	public static function typesList():array {
 		return [
@@ -283,7 +299,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 			static::TYPE_ARRAY => 'Массив',
 			static::TYPE_OBJECT => 'Объект',
 			static::TYPE_RESOURCE => 'Ресурс',
-			static::TYPE_NULL => 'Тип не установлен',
+			static::TYPE_UNKNOWN => 'Тип не установлен',
 			static::TYPE_RESOURCE_CLOSED => 'Закрытый ресурс'
 		];
 	}

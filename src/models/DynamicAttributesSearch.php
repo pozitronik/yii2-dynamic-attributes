@@ -9,7 +9,7 @@ use yii\data\ActiveDataProvider;
 /**
  * Class DynamicAttributesSearch
  * @property-read null|int $count This attribute records count
- * @property null|string $alias Class alias
+ * @property null|string $alias Set of class aliases
  * @property null|string $attribute Attribute name
  * @property null|int[] $types Set of types
  * // * @property null|bool $indexed Is attribute indexed? todo
@@ -27,8 +27,8 @@ class DynamicAttributesSearch extends DynamicAttributes {
 	public function rules():array {
 		return [
 			[['id'], 'integer'],
-			[['alias', 'attribute'], 'string'],
-			[['types'], 'safe']
+			[['attribute'], 'string'],
+			[['alias', 'types'], 'safe']
 //			[['indexed'], 'boolean']
 		];
 	}
@@ -66,7 +66,7 @@ class DynamicAttributesSearch extends DynamicAttributes {
 
 		if (!$this->validate()) return $dataProvider;
 
-		$query->andFilterWhereRelation(['like', DynamicAttributesAliases::fieldName('alias'), $this->alias], 'relatedDynamicAttributesAliases');
+		$query->andFilterWhereRelation([DynamicAttributesAliases::fieldName('alias') => $this->alias], 'relatedDynamicAttributesAliases');
 		$query->andFilterWhere(['like', static::fieldName('attribute_name'), $this->attribute]);
 		$query->andFilterWhere([static::fieldName('type') => $this->types]);
 
