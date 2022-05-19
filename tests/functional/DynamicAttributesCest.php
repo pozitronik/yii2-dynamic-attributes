@@ -24,9 +24,9 @@ class DynamicAttributesCest {
 	 * @throws InvalidConfigException
 	 * @throws Exception
 	 */
-	public function create(FunctionalTester $I):void {
+	public function createAndUpdate(FunctionalTester $I):void {
 		$user = Users::CreateUser()->saveAndReturn();
-		$I->assertCount(0, DynamicAttributes::listAttributes(Dummy::class));
+		$I->assertCount(0, DynamicAttributes::listAttributes(null));
 		$I->amLoggedInAs($user);
 		$I->amOnRoute('dynamic_attributes/default/create');
 		$I->seeResponseCodeIs(200);
@@ -41,6 +41,31 @@ class DynamicAttributesCest {
 		$I->seeInCurrentUrl('dynamic_attributes/default');
 		$I->assertCount(1, DynamicAttributes::listAttributes(Dummy::class));
 		$I->assertEquals(['new_attribute'], DynamicAttributes::listAttributes(Dummy::class));
+		$I->assertEquals(['new_attribute' => DynamicAttributes::TYPE_BOOL], DynamicAttributes::getAttributesTypes(Dummy::class));
+
+		$I->amOnRoute('dynamic_attributes/default/update?id=1');
+		$I->seeResponseCodeIs(200);
+		$I->seeInFormFields("#dynamic_attributes-edit", [
+			'DynamicAttributes' => [
+				'alias' => 'dummy',
+				'attribute_name' => 'new_attribute',
+				'type' => DynamicAttributes::TYPE_BOOL
+			]
+		]);
+
+		$I->submitForm("#dynamic_attributes-edit", [
+			'DynamicAttributes' => [
+				'alias' => 'dummy',
+				'attribute_name' => 'changed_attribute',
+				'type' => DynamicAttributes::TYPE_STRING
+			]
+		]);
+		$I->seeResponseCodeIs(200);
+
+		$I->seeInCurrentUrl('dynamic_attributes/default');
+		$I->assertCount(1, DynamicAttributes::listAttributes(Dummy::class));
+		$I->assertEquals(['changed_attribute'], DynamicAttributes::listAttributes(Dummy::class));
+		$I->assertEquals(['changed_attribute' => DynamicAttributes::TYPE_STRING], DynamicAttributes::getAttributesTypes(Dummy::class));
 	}
 
 }
