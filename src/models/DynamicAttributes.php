@@ -48,6 +48,15 @@ class DynamicAttributes extends DynamicAttributesAR {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function attributeLabels():array {
+		return array_merge(parent::attributeLabels(), [
+			'alias' => 'Алиас',
+		]);
+	}
+
+	/**
 	 * Для класса либо экземпляра класса возвращает зарегистрированный алиас.
 	 * @param string|ActiveRecordInterface $model Класс модели либо экземпляр модели, для которой нужно вернуть алиас
 	 * @return null|string Найденный алиас, null, если отсутствует
