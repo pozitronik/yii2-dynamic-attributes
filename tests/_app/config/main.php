@@ -1,6 +1,7 @@
 <?php /** @noinspection UsingInclusionReturnValueInspection */
 declare(strict_types = 1);
 
+use app\models\Dummy;
 use app\models\Users;
 use pozitronik\dynamic_attributes\DynamicAttributesModule;
 use yii\log\FileTarget;
@@ -28,7 +29,7 @@ $config = [
 			'class' => DynamicAttributesModule::class,
 			'params' => [
 				'models' => [
-					DummyClass::class => 'dummy'
+					Dummy::class => 'dummy',
 				]
 			]
 		],
