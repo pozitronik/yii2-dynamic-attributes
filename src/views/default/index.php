@@ -109,7 +109,8 @@ $id = "{$modelName}-index-grid";
 				'class' => DataColumn::class,
 				'attribute' => 'indexed',
 				'value' => static fn(DynamicAttributes $model) => false,
-				'format' => 'boolean'
+				'format' => 'boolean',
+				'display' => false //tbd
 			]
 		]
 	])
