@@ -170,13 +170,18 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function attributeType(ActiveRecordInterface|string $model, string $attribute_name):?int {
-		/** @var static|null $found */
-		return (null === $found = static::find()
-				->joinWith(['relatedDynamicAttributesAliases'])
-				->where([
-					DynamicAttributesAliases::fieldName('alias') => static::alias($model),
-					static::fieldName('attribute_name') => $attribute_name
-				])->one())?null:$found->type;
+		$resultFn = function() use ($model, $attribute_name) {
+			/** @var static|null $found */
+			return (null === $found = static::find()
+					->joinWith(['relatedDynamicAttributesAliases'])
+					->where([
+						DynamicAttributesAliases::fieldName('alias') => static::alias($model),
+						static::fieldName('attribute_name') => $attribute_name
+					])->one())?null:$found->type;
+		};
+		return (DynamicAttributesModule::param('cacheEnabled', true))
+			?Yii::$app->cache->getOrSet(CacheHelper::MethodSignature(__METHOD__, func_get_args()), $resultFn)
+			:$resultFn();
 	}
 
 	/**
