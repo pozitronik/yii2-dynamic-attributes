@@ -7,7 +7,9 @@ use pozitronik\dynamic_attributes\DynamicAttributesModule;
 use pozitronik\dynamic_attributes\models\active_record\DynamicAttributes as DynamicAttributesAR;
 use pozitronik\dynamic_attributes\models\adapters\Adapter;
 use pozitronik\helpers\ArrayHelper;
+use pozitronik\helpers\CacheHelper;
 use Throwable;
+use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveRecordInterface;
 use yii\db\Exception;
@@ -124,15 +126,21 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function listAttributes(null|ActiveRecordInterface|string $model):array {
-		return ArrayHelper::getColumn(static::find()
-			->select(['attribute_name'])
-			->andFilterWhereRelation([
-				DynamicAttributesAliases::fieldName('alias') => null === $model
-					?null
-					:static::alias($model)
-			], 'relatedDynamicAttributesAliases')
-			->asArray()
-			->all(), 'attribute_name');
+		$resultFn = function() use ($model) {
+			return ArrayHelper::getColumn(static::find()
+				->select(['attribute_name'])
+				->andFilterWhereRelation([
+					DynamicAttributesAliases::fieldName('alias') => null === $model
+						?null
+						:static::alias($model)
+				], 'relatedDynamicAttributesAliases')
+				->asArray()
+				->all(), 'attribute_name');
+		};
+
+		return (DynamicAttributesModule::param('cacheEnabled', true))
+			?Yii::$app->cache->getOrSet(CacheHelper::MethodSignature(__METHOD__, func_get_args()), $resultFn)
+			:$resultFn();
 	}
 
 	/**
@@ -142,11 +150,16 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function getAttributesTypes(ActiveRecordInterface|string $model):array {
-		return ArrayHelper::map(static::find()
-			->joinWith(['relatedDynamicAttributesAliases'])
-			->select([static::fieldName('attribute_name as attribute_name'), static::fieldName('type as type')])
-			->where([DynamicAttributesAliases::fieldName('alias') => static::alias($model)])
-			->all(), 'attribute_name', 'type');
+		$resultFn = function() use ($model) {
+			return ArrayHelper::map(static::find()
+				->joinWith(['relatedDynamicAttributesAliases'])
+				->select([static::fieldName('attribute_name as attribute_name'), static::fieldName('type as type')])
+				->where([DynamicAttributesAliases::fieldName('alias') => static::alias($model)])
+				->all(), 'attribute_name', 'type');
+		};
+		return (DynamicAttributesModule::param('cacheEnabled', true))
+			?Yii::$app->cache->getOrSet(CacheHelper::MethodSignature(__METHOD__, func_get_args()), $resultFn)
+			:$resultFn();
 	}
 
 	/**
@@ -190,12 +203,17 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function getAttributesValues(ActiveRecordInterface $model):array {
-		return (DynamicAttributesValues::find()
-				->select('attributes_values')
-				->joinWith(['relatedDynamicAttributesAliases'])
-				->where([DynamicAttributesAliases::fieldName('alias') => static::getClassAlias($model::class)])
-				->andWhere([DynamicAttributesValues::fieldName('model_id') => static::extractKey($model)])
-				->one())?->attributes_values??[];
+		$resultFn = function() use ($model) {
+			return (DynamicAttributesValues::find()
+					->select('attributes_values')
+					->joinWith(['relatedDynamicAttributesAliases'])
+					->where([DynamicAttributesAliases::fieldName('alias') => static::getClassAlias($model::class)])
+					->andWhere([DynamicAttributesValues::fieldName('model_id') => static::extractKey($model)])
+					->one())?->attributes_values??[];
+		};
+		return (DynamicAttributesModule::param('cacheEnabled', true))
+			?Yii::$app->cache->getOrSet(CacheHelper::MethodSignature(__METHOD__, func_get_args()), $resultFn)
+			:$resultFn();
 	}
 
 	/**
