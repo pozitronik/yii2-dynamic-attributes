@@ -77,7 +77,7 @@ trait DynamicAttributesTrait {
 	 */
 	private function reloadDynamicAttributes():void {
 		/*empty attributes + filled attributes*/
-		$allAttributes = array_merge(array_fill_keys(DynamicAttributes::listAttributes($this), null), DynamicAttributes::getAttributesValues($this));
+		$allAttributes = array_merge(array_fill_keys(DynamicAttributes::listAttributes($this, true), null), DynamicAttributes::getAttributesValues($this, true));
 		$this->_dynamicAttributesStorage->loadAttributes($allAttributes);
 		$this->_dynamicAttributesAliases = DynamicAttributes::getDynamicAttributesAliasesMap($this);
 	}
