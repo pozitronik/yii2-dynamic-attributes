@@ -66,8 +66,8 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 */
 	private static function alias(string|ActiveRecordInterface $model):?string {
 		return is_string($model)
-			?static::getClassAlias($model)
-			:static::getClassAlias($model::class);
+				?static::getClassAlias($model)
+				:static::getClassAlias($model::class);
 	}
 
 	/**
@@ -126,7 +126,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function listAttributes(null|ActiveRecordInterface|string $model):array {
-		$resultFn = function() use ($model) {
+		$resultFn = static function() use ($model) {
 			return ArrayHelper::getColumn(static::find()
 				->select(['attribute_name'])
 				->andFilterWhereRelation([
@@ -150,7 +150,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function getAttributesTypes(ActiveRecordInterface|string $model):array {
-		$resultFn = function() use ($model) {
+		$resultFn = static function() use ($model) {
 			return ArrayHelper::map(static::find()
 				->joinWith(['relatedDynamicAttributesAliases'])
 				->select([static::fieldName('attribute_name as attribute_name'), static::fieldName('type as type')])
@@ -170,7 +170,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function attributeType(ActiveRecordInterface|string $model, string $attribute_name):?int {
-		$resultFn = function() use ($model, $attribute_name) {
+		$resultFn = static function() use ($model, $attribute_name) {
 			/** @var static|null $found */
 			return (null === $found = static::find()
 					->joinWith(['relatedDynamicAttributesAliases'])
@@ -208,7 +208,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 * @throws Throwable
 	 */
 	public static function getAttributesValues(ActiveRecordInterface $model):array {
-		$resultFn = function() use ($model) {
+		$resultFn = static function() use ($model) {
 			return (DynamicAttributesValues::find()
 					->select('attributes_values')
 					->joinWith(['relatedDynamicAttributesAliases'])
@@ -254,14 +254,14 @@ class DynamicAttributes extends DynamicAttributesAR {
 	}
 
 	/**
-	 * @return string[]|null
+	 * @return array
 	 */
 	public static function getModelsAliases():array {
 		return self::$_modelsAliases??[];
 	}
 
 	/**
-	 * @return string[]|null
+	 * @return array
 	 */
 	public static function getAliasesList():array {
 		$values = array_values(static::getModelsAliases());
