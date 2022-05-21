@@ -11,6 +11,7 @@ use pozitronik\helpers\CacheHelper;
 use Throwable;
 use Yii;
 use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 use yii\caching\TagDependency;
 use yii\db\ActiveRecordInterface;
 use yii\db\Exception;
@@ -103,19 +104,15 @@ class DynamicAttributes extends DynamicAttributesAR {
 		if (null === $currentAttribute) {//атрибута с таким именем не существует
 			$attributes['type'] = $type;
 			$currentAttribute = static::Upsert($attributes);
-			TagDependency::invalidate(Yii::$app->cache, [
-				static::GetCacheIdentifier('listAttributes', $alias),//Сброс кеша для listAttributes() по изменению списка атрибутов
-				static::GetCacheIdentifier('getAttributesTypes', $alias),//Сброс кеша для getAttributesTypes() по изменению типов атрибутов
-				static::GetCacheIdentifier('getAttributeType', $alias, $attribute_name),//Сброс кеша для getAttributesType() по изменению списка атрибутов (необязательно, но пусть)
-			]);
+			/*Сброс кешей произойдёт также в static::save()*/
 			if (true === ($index??DynamicAttributesModule::param('createIndexes', false))) {
 				static::indexAttribute($model, $attribute_name, $type, $currentAttribute->alias_id);
 			}
 		} elseif (null === $currentAttribute->type) {//атрибут существует, но тип неизвестен -> установим тип
 			$currentAttribute->type = $type;
 			$currentAttribute->save();
+			/*Сброс кешей произойдёт также в static::save()*/
 			TagDependency::invalidate(Yii::$app->cache, [
-				static::GetCacheIdentifier('getAttributesTypes', $alias),//Сброс кеша для getAttributesTypes() по изменению типов атрибутов
 				static::GetCacheIdentifier('getAttributeType', $alias, $attribute_name),//Сброс кеша для getAttributesType() по изменению типа атрибута
 			]);
 		}
@@ -138,10 +135,13 @@ class DynamicAttributes extends DynamicAttributesAR {
 	/**
 	 * Возвращает список известных атрибутов для модели
 	 * @param string|ActiveRecordInterface|null $model Если null - то все атрибуты всех моделей. Это нужно указывать принудительно
+	 * @param bool $refresh Освежить содержимое кеша
 	 * @return array
+	 * @throws InvalidConfigException
 	 * @throws Throwable
+	 * @throws NotSupportedException
 	 */
-	public static function listAttributes(null|ActiveRecordInterface|string $model):array {
+	public static function listAttributes(null|ActiveRecordInterface|string $model, bool $refresh = false):array {
 		$alias = null === $model
 			?null
 			:static::alias($model);
@@ -152,6 +152,11 @@ class DynamicAttributes extends DynamicAttributesAR {
 			], 'relatedDynamicAttributesAliases')
 			->asArray()
 			->all(), 'attribute_name');
+		if ($refresh) {
+			TagDependency::invalidate(Yii::$app->cache, [
+				static::GetCacheIdentifier('listAttributes', $alias),//Сброс кеша для listAttributes() по запросу
+			]);
+		}
 
 		if ((DynamicAttributesModule::param('cacheEnabled', true))) {
 			$cacheIdentifier = static::GetCacheIdentifier('listAttributes', $alias);
@@ -229,11 +234,12 @@ class DynamicAttributes extends DynamicAttributesAR {
 	/**
 	 * Возвращает значения всех динамических атрибутов
 	 * @param ActiveRecordInterface $model
+	 * @param bool $refresh
 	 * @return array
 	 * @throws InvalidConfigException
 	 * @throws Throwable
 	 */
-	public static function getAttributesValues(ActiveRecordInterface $model):array {
+	public static function getAttributesValues(ActiveRecordInterface $model, bool $refresh = false):array {
 		$alias = static::getClassAlias($model::class);
 		$key = static::extractKey($model);
 		$resultFn = static fn() => (DynamicAttributesValues::find()
@@ -242,6 +248,12 @@ class DynamicAttributes extends DynamicAttributesAR {
 				->where([DynamicAttributesAliases::fieldName('alias') => $alias])
 				->andWhere([DynamicAttributesValues::fieldName('model_id') => $key])
 				->one())?->attributes_values??[];
+		if ($refresh) {
+			TagDependency::invalidate(Yii::$app->cache, [
+				static::GetCacheIdentifier('getAttributesValues', $alias, $key),//Сброс кеша для getAttributesValues() по запросу
+			]);
+		}
+
 		if ((DynamicAttributesModule::param('cacheEnabled', true))) {
 			$cacheIdentifier = static::GetCacheIdentifier('getAttributesValues', $alias, $key);
 			return Yii::$app->cache->getOrSet($cacheIdentifier, $resultFn, null, new TagDependency(['tags' => $cacheIdentifier]));//Сброс в static::setAttributesValues(), static::deleteValues()
@@ -466,6 +478,30 @@ class DynamicAttributes extends DynamicAttributesAR {
 	 */
 	private static function GetCacheIdentifier(string $operation, ?string $alias, null|string|int $parameter = null):string {
 		return sprintf(static::CACHE_IDENTIFIERS[$operation], static::class, CacheHelper::MethodParametersSignature([$alias, $parameter]));
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function save($runValidation = true, $attributeNames = null):bool {
+		$alias = DynamicAttributesAliases::findModel($this->alias_id)?->alias;
+		TagDependency::invalidate(Yii::$app->cache, [
+			static::GetCacheIdentifier('listAttributes', $alias),//Сброс кеша для listAttributes() по изменению списка атрибутов
+			static::GetCacheIdentifier('getAttributesTypes', $alias),//Сброс кеша для getAttributesTypes() по изменению типов атрибутов
+		]);
+		return parent::save($runValidation, $attributeNames);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function delete() {
+		$alias = DynamicAttributesAliases::findModel($this->alias_id)?->alias;
+		TagDependency::invalidate(Yii::$app->cache, [
+			static::GetCacheIdentifier('listAttributes', $alias),//Сброс кеша для listAttributes() по изменению списка атрибутов
+			static::GetCacheIdentifier('getAttributesTypes', $alias),//Сброс кеша для getAttributesTypes() по изменению типов атрибутов
+		]);
+		return parent::delete();
 	}
 
 }
