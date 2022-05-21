@@ -26,7 +26,7 @@ class DynamicAttributesCest {
 	 */
 	public function createAndUpdateAndDelete(FunctionalTester $I):void {
 		$user = Users::CreateUser()->saveAndReturn();
-		$I->assertCount(0, DynamicAttributes::listAttributes(null));
+		$I->assertCount(0, DynamicAttributes::listAttributes(null, true));
 		$I->amLoggedInAs($user);
 		$I->amOnRoute('dynamic_attributes/default/create');
 		$I->seeResponseCodeIs(200);
