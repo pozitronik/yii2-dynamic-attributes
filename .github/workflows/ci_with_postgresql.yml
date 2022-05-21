@@ -67,6 +67,9 @@ jobs:
       - name: Install composer dependencies
         run: composer install
 
+      - name: Prepare test
+        run: touch tests/.env
+
       - name: Run tests on PostgreSQL without cache
         run: vendor/bin/codecept run
         env:
