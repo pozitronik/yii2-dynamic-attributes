@@ -67,10 +67,20 @@ jobs:
       - name: Install composer dependencies
         run: composer install
 
-      - name: Prepare test
-        run: cp tests/.env.example tests/.env
-
-      - name: Run tests
+      - name: Run tests on PostgreSQL without cache
         run: vendor/bin/codecept run
         env:
           COMPOSER_TOKEN: ${{ secrets.COMPOSER_GITHUB_TOKEN }}
+          DB_DSN: "pgsql:host=localhost;dbname=yii2-dynamic-attributes"
+          DB_USER: "postgres"
+          DB_PASS: "postgres"
+          CACHE_CLASS: 'yii\caching\DummyCache'
+
+      - name: Run tests on PostgreSQL with cache
+        run: vendor/bin/codecept run
+        env:
+          COMPOSER_TOKEN: ${{ secrets.COMPOSER_GITHUB_TOKEN }}
+          DB_DSN: "pgsql:host=localhost;dbname=yii2-dynamic-attributes"
+          DB_USER: "postgres"
+          DB_PASS: "postgres"
+          CACHE_CLASS: 'yii\caching\FileCache'
