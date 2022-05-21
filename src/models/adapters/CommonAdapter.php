@@ -15,7 +15,7 @@ abstract class CommonAdapter implements AdapterInterface {
 	 * @inheritDoc
 	 */
 	public static function adaptField(string $jsonFieldName, string|ActiveRecordInterface|null $model = null):string {
-		return static::jsonFieldName($jsonFieldName, null === $model?null:DynamicAttributes::attributeType($model, $jsonFieldName));
+		return static::jsonFieldName($jsonFieldName, null === $model?null:DynamicAttributes::getAttributeType($model, $jsonFieldName));
 	}
 
 	/**

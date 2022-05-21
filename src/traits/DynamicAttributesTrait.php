@@ -125,7 +125,7 @@ trait DynamicAttributesTrait {
 	 */
 	public function getDynamicAttributeValidator(string $attribute, ?string $alias = null):Validator {
 		$alias = $alias??$attribute;
-		return match (DynamicAttributes::attributeType($this, $attribute)) {
+		return match (DynamicAttributes::getAttributeType($this, $attribute)) {
 			DynamicAttributes::TYPE_BOOL => Validator::createValidator(BooleanValidator::class, $this, [$alias], []),
 			DynamicAttributes::TYPE_INT => Validator::createValidator(NumberValidator::class, $this, [$alias], ['integerOnly' => true]),
 			default => Validator::createValidator(SafeValidator::class, $this, [$alias], []),
@@ -209,7 +209,7 @@ trait DynamicAttributesTrait {
 	 */
 	public function getDynamicAttributeType(string $name):null|false|int {
 		if (null === $this->_dynamicAttributesStorage || !$this->_dynamicAttributesStorage->hasAttribute($name)) return false;
-		return DynamicAttributes::attributeType($this, $name);
+		return DynamicAttributes::getAttributeType($this, $name);
 	}
 
 	/**
