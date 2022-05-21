@@ -24,7 +24,7 @@ class DynamicAttributesCest {
 	 * @throws InvalidConfigException
 	 * @throws Exception
 	 */
-	public function createAndUpdate(FunctionalTester $I):void {
+	public function createAndUpdateAndDelete(FunctionalTester $I):void {
 		$user = Users::CreateUser()->saveAndReturn();
 		$I->assertCount(0, DynamicAttributes::listAttributes(null));
 		$I->amLoggedInAs($user);
@@ -66,6 +66,12 @@ class DynamicAttributesCest {
 		$I->assertCount(1, DynamicAttributes::listAttributes(Dummy::class));
 		$I->assertEquals(['changed_attribute'], DynamicAttributes::listAttributes(Dummy::class));
 		$I->assertEquals(['changed_attribute' => DynamicAttributes::TYPE_STRING], DynamicAttributes::getAttributesTypes(Dummy::class));
+
+		$I->amOnRoute('dynamic_attributes/default/delete?id=1');
+		$I->seeResponseCodeIs(200);
+		$I->seeInCurrentUrl('dynamic_attributes/default');
+		$I->assertCount(0, DynamicAttributes::listAttributes(Dummy::class));
+		$I->assertEquals([], DynamicAttributes::listAttributes(Dummy::class));
 	}
 
 }
