@@ -197,6 +197,7 @@ return [
 					MyTableModel:class => 'myTableModel'
 				],
 				'limitFloatPrecision' => true, /* Включает ограничение размера сохраняемых значений с плавающей точкой до 14 десятичных знаков, см. DynamicAttributesValues::$limitFloatPrecision */
+				'cacheEnabled' => true, /* Включает кеширование всех данных модуля, если настроено глобально. Рекомендуется оставить включённым во избежание проблем производительности. */
 			]
 		]
 	]

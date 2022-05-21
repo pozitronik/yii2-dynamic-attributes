@@ -14,20 +14,6 @@ use Yii;
  */
 class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	/**
-	 * @var bool enables a intermediate caching via Yii::$app->cache (must be configured in framework). The default option
-	 * value can be set in the module configuration, e.g.
-	 * ...
-	 * 'dynamic_attributes' => [
-	 *        'class' => DynamicAttributesModule::class,
-	 *            'params' => [
-	 *                'cacheEnabled' => true//defaults to false
-	 *            ]
-	 *        ],
-	 * ...
-	 */
-	public bool $cacheEnabled = true;//todo: implement
-
-	/**
 	 * @var bool limit float attributes size to 64 bits (as php native floats).
 	 * By default, php uses a 64 bit floating-point precision (roughly 14 decimal digits, see [[https://www.php.net/manual/en/language.types.float.php]]).
 	 * But PostgreSQL may save float values with extended precision, that can cause problems with search, e.g.
@@ -50,7 +36,6 @@ class DynamicAttributesValues extends DynamicAttributesValuesAR {
 	 */
 	public function init():void {
 		parent::init();
-		$this->cacheEnabled = DynamicAttributesModule::param('cacheEnabled', $this->cacheEnabled);
 		$this->limitFloatPrecision = DynamicAttributesModule::param('limitFloatPrecision', $this->limitFloatPrecision);
 		$this->createIndexes = DynamicAttributesModule::param('createIndexes', $this->createIndexes);
 	}
