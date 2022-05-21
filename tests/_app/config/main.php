@@ -5,7 +5,6 @@ use app\models\Dummy;
 use app\models\Users;
 use pozitronik\dynamic_attributes\DynamicAttributesModule;
 use yii\log\FileTarget;
-use yii\caching\DummyCache;
 use yii\web\AssetManager;
 use yii\web\ErrorHandler;
 use kartik\grid\Module as GridModule;
@@ -39,7 +38,7 @@ $config = [
 			'cookieValidationKey' => 'sosijopu',
 		],
 		'cache' => [
-			'class' => DummyCache::class,
+			'class' => $_ENV['CACHE_CLASS'],
 		],
 		'user' => [
 			'identityClass' => Users::class,
