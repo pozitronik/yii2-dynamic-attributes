@@ -52,7 +52,7 @@ class DynamicAttributesSearchTest extends Unit {
 		self::assertEquals(1, $dataProvider->totalCount);
 
 		$searchModel = new UsersSearch();
-		$dataProvider = $searchModel->search(['UsersSearch' => ['da3' => 'тип3']]);
+		$dataProvider = $searchModel->search(['UsersSearch' => ['da3' => 'тип3']]);//da3 => Код компании
 		self::assertEquals(25, $dataProvider->totalCount);
 		self::assertEquals(3, $dataProvider->models[0]->id);
 

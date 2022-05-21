@@ -44,7 +44,7 @@ class DynamicAttributes extends ActiveRecord {
 	/**
 	 * @inheritDoc
 	 */
-	public function attributeLabels() {
+	public function attributeLabels():array {
 		return [
 			'alias_id' => 'Алиас',
 			'attribute_name' => 'Атрибут',

@@ -6,6 +6,7 @@ namespace pozitronik\dynamic_attributes\widgets\grid;
 use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use pozitronik\dynamic_attributes\traits\DynamicAttributesTrait;
 use pozitronik\helpers\ArrayHelper;
+use Throwable;
 use yii\data\ArrayDataProvider;
 use yii\db\ActiveRecordInterface;
 use yii\widgets\ActiveForm;
@@ -68,6 +69,7 @@ class DynamicAttributesGrid extends InputWidget {
 	 * Makes an array suitable for dataProvider usage
 	 * @param array $attributesTypesArray
 	 * @return array
+	 * @throws Throwable
 	 */
 	private function ConvertAttributeTypes(array $attributesTypesArray):array {
 		return array_map(fn(string $key, ?int $value) => [
@@ -95,6 +97,7 @@ class DynamicAttributesGrid extends InputWidget {
 	/**
 	 * @param mixed $value
 	 * @return string
+	 * @throws Throwable
 	 */
 	public static function GetAttributeTypeLabel(mixed $value):string {
 		return ArrayHelper::getValue(DynamicAttributes::typesList(), $value, 'Неизвестный тип');

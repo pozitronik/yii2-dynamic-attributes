@@ -19,7 +19,6 @@ use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use pozitronik\dynamic_attributes\models\DynamicAttributesSearch;
 use pozitronik\dynamic_attributes\models\DynamicAttributesValues;
 use pozitronik\dynamic_attributes\widgets\grid\DynamicAttributesGrid;
-use pozitronik\grid_config\GridConfig;
 use pozitronik\helpers\Utils;
 use pozitronik\traits\traits\ControllerTrait;
 use pozitronik\widgets\BadgeWidget;

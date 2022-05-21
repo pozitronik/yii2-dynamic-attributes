@@ -40,7 +40,7 @@ class DynamicAttributesAliases extends ActiveRecord {
 	/**
 	 * @inheritDoc
 	 */
-	public function attributeLabels() {
+	public function attributeLabels():array {
 		return [
 			'alias' => 'Алиас',
 		];
