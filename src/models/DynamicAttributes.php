@@ -385,7 +385,7 @@ class DynamicAttributes extends DynamicAttributesAR {
 				static::TYPE_ARRAY => (array)$value,
 				static::TYPE_OBJECT => (object)$value,
 			};
-		} catch (Throwable $e) {
+		} /** @noinspection BadExceptionsProcessingInspection */ catch (Throwable $e) {
 			return false;
 		}
 		return true;
