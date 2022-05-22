@@ -39,10 +39,7 @@ class DynamicAttributesSearch extends DynamicAttributes {
 	public function attributeLabels():array {
 		return array_merge(parent::attributeLabels(), [
 			'alias' => 'Алиас',
-			'attribute' => 'Атрибут',
-			'types' => 'Тип',
-			'count' => 'Записи',
-			'indexed' => 'Индекс'
+
 		]);
 	}
 
@@ -60,6 +57,24 @@ class DynamicAttributesSearch extends DynamicAttributes {
 
 		$dataProvider->setSort([
 			'defaultOrder' => ['id' => SORT_ASC],
+			'attributes' => [
+				'id' => [
+					'asc' => [static::fieldName('id') => SORT_ASC],
+					'desc' => [static::fieldName('id') => SORT_DESC]
+				],
+				'alias' => [
+					'asc' => [static::fieldName('alias_id') => SORT_ASC],
+					'desc' => [static::fieldName('alias_id') => SORT_DESC]
+				],
+				'attribute' => [
+					'asc' => [static::fieldName('attribute_name') => SORT_ASC],
+					'desc' => [static::fieldName('attribute_name') => SORT_DESC]
+				],
+				'types' => [
+					'asc' => [static::fieldName('type') => SORT_ASC],
+					'desc' => [static::fieldName('type') => SORT_DESC]
+				],
+			]
 		]);
 
 		$this->load($params);
