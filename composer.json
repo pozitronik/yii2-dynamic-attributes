@@ -17,6 +17,7 @@
 	"require": {
 		"php": ">=8.0",
 		"pozitronik/yii2-traits": "^1.0.0",
+		"pozitronik/yii2-badgewidget": "^2.0.0",
 		"cusodede/yii2-default-controller": "^1.0.0",
 		"kartik-v/yii2-widget-select2": "^2.2.3"
 	},
@@ -40,8 +41,13 @@
 			"pozitronik\\dynamic_attributes\\": "src"
 		}
 	},
-	"fxp-asset": {
-		"enabled": false
+	"config": {
+		"fxp-asset": {
+			"enabled": false
+		},
+		"allow-plugins": {
+			"yiisoft/yii2-composer": true
+		}
 	},
 	"repositories": [
 		{

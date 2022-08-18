@@ -14,6 +14,7 @@ use Throwable;
 use TypeError;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidConfigException as InvalidConfigExceptionAlias;
+use yii\base\NotSupportedException;
 use yii\base\UnknownPropertyException;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
@@ -67,17 +68,19 @@ trait DynamicAttributesTrait {
 	 */
 	public function afterRefresh():void {
 		parent::afterRefresh();
-		$this->reloadDynamicAttributes();
+		$this->reloadDynamicAttributes(true);
 	}
 
 	/**
+	 * @param bool $refresh
 	 * @return void
-	 * @throws Throwable
 	 * @throws InvalidConfigExceptionAlias
+	 * @throws Throwable
+	 * @throws NotSupportedException
 	 */
-	private function reloadDynamicAttributes():void {
+	private function reloadDynamicAttributes(bool $refresh = false):void {
 		/*empty attributes + filled attributes*/
-		$allAttributes = array_merge(array_fill_keys(DynamicAttributes::listAttributes($this, true), null), DynamicAttributes::getAttributesValues($this, true));
+		$allAttributes = array_merge(array_fill_keys(DynamicAttributes::listAttributes($this, $refresh), null), DynamicAttributes::getAttributesValues($this, $refresh));
 		$this->_dynamicAttributesStorage->loadAttributes($allAttributes);
 		$this->_dynamicAttributesAliases = DynamicAttributes::getDynamicAttributesAliasesMap($this);
 	}
@@ -88,7 +91,7 @@ trait DynamicAttributesTrait {
 	public function delete():void {
 		if (false !== parent::delete()) {
 			DynamicAttributes::deleteValues($this);
-			$this->reloadDynamicAttributes();
+			$this->reloadDynamicAttributes(true);
 		}
 	}
 
@@ -98,7 +101,7 @@ trait DynamicAttributesTrait {
 	public function save($runValidation = true, $attributeNames = null):bool {
 		if (parent::save($runValidation, $attributeNames)) {
 			DynamicAttributes::setAttributesValues($this, $this->_dynamicAttributesStorage->attributes);
-			$this->reloadDynamicAttributes();
+			$this->reloadDynamicAttributes(true);
 			return true;
 		}
 		return false;

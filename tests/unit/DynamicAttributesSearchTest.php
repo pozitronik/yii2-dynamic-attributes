@@ -21,6 +21,7 @@ class DynamicAttributesSearchTest extends Unit {
 	 * @inheritDoc
 	 */
 	protected function _before():void {
+		Yii::$app->cache->flush();
 		DynamicAttributes::setClassAlias(Users::class, 'users');
 
 		$testTypes = ['тип1', 'тип2', 'тип3', null];
