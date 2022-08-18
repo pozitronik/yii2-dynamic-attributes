@@ -91,7 +91,7 @@ trait DynamicAttributesTrait {
 	public function delete():void {
 		if (false !== parent::delete()) {
 			DynamicAttributes::deleteValues($this);
-			$this->reloadDynamicAttributes();
+			$this->reloadDynamicAttributes(true);
 		}
 	}
 
@@ -101,7 +101,7 @@ trait DynamicAttributesTrait {
 	public function save($runValidation = true, $attributeNames = null):bool {
 		if (parent::save($runValidation, $attributeNames)) {
 			DynamicAttributes::setAttributesValues($this, $this->_dynamicAttributesStorage->attributes);
-			$this->reloadDynamicAttributes();
+			$this->reloadDynamicAttributes(true);
 			return true;
 		}
 		return false;
