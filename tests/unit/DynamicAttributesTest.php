@@ -12,6 +12,7 @@ use pozitronik\dynamic_attributes\models\DynamicAttributes;
 use pozitronik\dynamic_attributes\traits\DynamicAttributesTrait;
 use pozitronik\helpers\ArrayHelper;
 use Throwable;
+use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\UnknownPropertyException;
 use yii\db\ActiveRecordInterface;
@@ -62,6 +63,7 @@ class DynamicAttributesTest extends Unit {
 	 * @inheritDoc
 	 */
 	protected function _before():void {
+		Yii::$app->cache->flush();
 		/**
 		 * Динамически регистрируем алиас класса.
 		 */
