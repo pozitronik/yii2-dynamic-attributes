@@ -41,7 +41,10 @@
 		}
 	},
 	"fxp-asset": {
-		"enabled": false
+		"enabled": false,
+		"allow-plugins": {
+			"yiisoft/yii2-composer": true
+		}
 	},
 	"repositories": [
 		{
