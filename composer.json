@@ -40,8 +40,10 @@
 			"pozitronik\\dynamic_attributes\\": "src"
 		}
 	},
-	"fxp-asset": {
-		"enabled": false,
+	"config": {
+		"fxp-asset": {
+			"enabled": false
+		},
 		"allow-plugins": {
 			"yiisoft/yii2-composer": true
 		}
