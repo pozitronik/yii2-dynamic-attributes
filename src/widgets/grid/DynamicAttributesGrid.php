@@ -34,7 +34,7 @@ class DynamicAttributesGrid extends InputWidget {
 		parent::init();
 		DynamicAttributesGridAssets::register($this->getView());
 		$this->_modelClass = is_string($this->model)?$this->model:$this->model::class;
-		$this->_dynamicAttributesAliases  = DynamicAttributes::getDynamicAttributesAliasesMap($this->_modelClass);
+		$this->_dynamicAttributesAliases = DynamicAttributes::getDynamicAttributesAliasesMap($this->_modelClass);
 		if (null === $this->showValues || true === $this->showValues) {
 			$this->showValues = !is_string($this->model);
 		}
@@ -100,7 +100,9 @@ class DynamicAttributesGrid extends InputWidget {
 	 * @throws Throwable
 	 */
 	public static function GetAttributeTypeLabel(mixed $value):string {
-		return ArrayHelper::getValue(DynamicAttributes::typesList(), $value, 'Неизвестный тип');
+		return null === $value
+			?'Неизвестный тип'
+			:ArrayHelper::getValue(DynamicAttributes::typesList(), $value, 'Неизвестный тип');
 	}
 
 }
