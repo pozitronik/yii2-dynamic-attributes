@@ -22,6 +22,9 @@ use yii\db\Exception;
  */
 class DynamicAttributes extends DynamicAttributesAR {
 
+	/*null обрабатывается отдельно: воспринимаем его не как тип, а как метку «тип неизвестен», и пытаемся определить
+	тип либо по существующим записям, либо при будущих записях*/
+	public const TYPE_NULL = null;
 	public const TYPE_BOOL = 1;
 	public const TYPE_INT = 2;
 	public const TYPE_FLOAT = 3;
@@ -29,9 +32,6 @@ class DynamicAttributes extends DynamicAttributesAR {
 	public const TYPE_ARRAY = 5;
 	public const TYPE_OBJECT = 6;
 	public const TYPE_RESOURCE = 7;
-	/*null обрабатывается отдельно: воспринимаем его не как тип, а как метку «тип неизвестен», и пытаемся определить
-	тип либо по существующим записям, либо при будущих записях*/
-	public const TYPE_NULL = null;
 	public const TYPE_UNKNOWN = 9;
 	public const TYPE_RESOURCE_CLOSED = 10;
 
